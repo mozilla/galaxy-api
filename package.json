@@ -1,0 +1,19 @@
+{
+  "name": "galaxy-api",
+  "version": "0.0.1",
+  "dependencies": {
+    "bookshelf": "*",
+    "node-restify-swagger": "*",
+    "node-restify-validation": "*",
+    "redis": "*",
+    "restify": "*"
+  },
+  "engines": {
+    "node": ">=0.8.x",
+    "npm": ">=1.1.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cvan/galaxy-api.git"
+  }
+}
