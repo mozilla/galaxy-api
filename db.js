@@ -18,13 +18,10 @@ if (redisURL.auth) {
 var utils = require('./utils');
 
 
-function flatDB() {
-}
+function flatDB() {}
 flatDB.prototype = {
-    write: function(type, slug, data) {
-        if (typeof data !== 'string') {
-            data = JSON.stringify(data);
-        }
+    write: function(type, slug, data, callback) {
+        data = JSON.stringify(data);
 
         var baseDir = path.resolve('data', type);
         var fn = path.resolve(baseDir, utils.slugify(slug) + '.json');
@@ -38,14 +35,23 @@ flatDB.prototype = {
             if (err) {
                 console.error('Error creating', fn + ':', err);
             }
+            if (callback) {
+                callback(err);
+            }
         });
     },
-    read: function(type, slug) {
+    read: function(type, slug, callback) {
         var fn = path.resolve('data', type, utils.slugify(slug) + '.json');
+        var output;
         try {
-            return JSON.parse(fs.readFileSync(fn, 'utf8') || '{}');
+            output = JSON.parse(fs.readFileSync(fn, 'utf8').toString() || '{}');
+            if (callback) {
+                callback(null, output);
+            }
+            return output;
         } catch(e) {
             console.error('Error reading', fn + ':', e);
+            callback(e, {});
             return {};
         }
     }
