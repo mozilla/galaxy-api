@@ -27,14 +27,7 @@ module.exports = function(server) {
             'orientation'
         ];
 
-        var data = {};
-
-        keys.forEach(function(v) {
-            var value = game[v];
-            if (!_.isEmpty(value)) {
-                data[v] = value;
-            }
-        });
+        var data = _.pick(game, keys);
 
         res.contentType = 'application/x-web-app-manifest+json';
         res.send(JSON.stringify(data));

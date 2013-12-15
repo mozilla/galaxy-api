@@ -38,14 +38,7 @@ module.exports = function(server) {
             'slug'
         ];
 
-        var data = {};
-
-        keys.forEach(function(v) {
-            var value = game[v];
-            if (!_.isEmpty(value)) {
-                data[v] = value;
-            }
-        });
+        var data = _.pick(game, keys);
 
         res.json(data);
     });
