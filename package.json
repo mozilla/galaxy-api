@@ -2,7 +2,7 @@
   "name": "galaxy-api",
   "version": "0.0.1",
   "dependencies": {
-    "bookshelf": "*",
+    "lodash": "*",
     "node-restify-swagger": "*",
     "node-restify-validation": "*",
     "redis": "*",

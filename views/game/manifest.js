@@ -30,15 +30,9 @@ module.exports = function(server) {
         var data = {};
 
         keys.forEach(function(v) {
-            var item = game[v];
-            if (typeof v === 'object') {
-                if (v.hasOwnProperty('length') && item.length) {
-                    data[v] = item;
-                } else if (Object.keys(game[v]).length) {
-                    data[v] = item;
-                }
-            } else {
-                data[v] = item;
+            var value = game[v];
+            if (!_.isEmpty(value)) {
+                data[v] = value;
             }
         });
 
@@ -53,9 +47,9 @@ module.exports = function(server) {
     server.get({
         url: '/launch.html',
         swagger: {
-            nickname: 'launch'
-            notes: 'Launch webapp from a URL based on querystring'
-            summary: 'Webapp Launcher',
+            nickname: 'launch',
+            notes: 'Launch webapp from a URL based on querystring',
+            summary: 'Webapp Launcher'
         }
     }, function(req, res) {
         var app_url = req.url.split('?')[1];
