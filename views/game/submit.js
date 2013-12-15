@@ -1,5 +1,5 @@
 var db = require('../.././db');
-var utils = require('../.././utils');
+var utils = require('../.././lib/utils');
 
 
 module.exports = function(server) {

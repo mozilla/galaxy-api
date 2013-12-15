@@ -15,7 +15,7 @@ if (redisURL.auth) {
     redisClient.auth(redisURL.auth.split(':')[1]);
 }
 
-var utils = require('./utils');
+var utils = require('./lib/utils');
 
 
 function flatDB() {}
