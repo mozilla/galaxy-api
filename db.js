@@ -36,7 +36,7 @@ flatDB.prototype = {
                 console.error('Error creating', fn + ':', err);
             }
             if (callback) {
-                callback(err);
+                callback(err, data);
             }
         });
     },
@@ -58,6 +58,15 @@ flatDB.prototype = {
         }
 
         return output;
+    },
+    update: function(type, slug, data, callback) {
+        var fn = path.resolve('data', type, utils.slugify(slug) + '.json');
+        var err = null;
+
+        fs.readFile(fn, 'utf8', function(err, oldData) {
+            data = _.extend(oldData, data);
+            this.write(type, slug, data, callback);
+        });
     }
 };
 var flatDBClient = new flatDB();
