@@ -42,18 +42,22 @@ flatDB.prototype = {
     },
     read: function(type, slug, callback) {
         var fn = path.resolve('data', type, utils.slugify(slug) + '.json');
+        var err = null;
         var output;
+
         try {
             output = JSON.parse(fs.readFileSync(fn, 'utf8').toString() || '{}');
-            if (callback) {
-                callback(null, output);
-            }
-            return output;
         } catch(e) {
             console.error('Error reading', fn + ':', e);
-            callback(e, {});
-            return {};
+            err = e;
+            output = {};
         }
+
+        if (callback) {
+            callback(err, output);
+        }
+
+        return output;
     }
 };
 var flatDBClient = new flatDB();
