@@ -1,0 +1,106 @@
+<ul id="pings"></ul>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js
+"></script>
+<script>
+
+function getVars(qs, excl_undefined) {
+    if (!qs) qs = location.search;
+    if (!qs || qs === '?') return {};
+    if (qs[0] == '?') {
+        qs = qs.substr(1);  // Filter off the leading ? if it's there.
+    }
+
+    return _.chain(qs.split('&'))  // ['a=b', 'c=d']
+            .map(function(c) {return c.split('=').map(decodeURIComponent);}) //  [['a', 'b'], ['c', 'd']]
+            .filter(function(p) {  // [['a', 'b'], ['c', undefined]] -> [['a', 'b']]
+                return !!p[0] && (!excl_undefined || !_.isUndefined(p[1]));
+            }).object()  // {'a': 'b', 'c': 'd'}
+            .value();
+}
+
+var host = 'ws://' + window.location.host;
+host = 'ws://localhost:5000';
+
+var GET = getVars();
+var game = GET.game;
+var user = GET.user;
+console.log(game, user);
+
+
+var timerID;
+var intervals = [];
+
+function WS() {
+
+var ws = new WebSocket(host);
+ws.onmessage = function(event) {
+    var li = document.createElement('li');
+    li.innerHTML = JSON.parse(event.data);
+    document.querySelector('#pings').appendChild(li);
+};
+
+ws.onerror = function(error) {
+    console.error('[websocket] Error:', error.toString());
+};
+
+ws.onclose = function() {
+    console.log('[websocket] open');
+
+    intervals.forEach(function(v) {
+        clearInterval(v);
+    });
+
+    // Fire only one setTimeout at a time.
+    if (!timerID) {
+        timerID = setTimeout(function() {
+            WS();
+        }, 5000);
+    }
+};
+
+ws.sendd = function(msg) {
+    console.log(msg);
+    return ws.send(msg);
+};
+
+ws.onopen = function() {
+    if (timerID) {  // A setInterval has been fired
+        clearInterval(timerID);
+        timerID = 0;
+    }
+
+    console.log('[websocket] open');
+
+    // TODO: Authenticate.
+    ws.sendd(JSON.stringify({
+        type: 'auth',
+        user: user
+    }));
+
+    ws.sendd(JSON.stringify({
+        type: 'playing',
+        user: user,
+        game: game
+    }));
+
+    // TODO: Do better than a setinterval.
+    // Ensure that playtime actually got recorded.
+    // Record time in between the current setInterval and when the
+    // websocket was closed.
+    intervals.push(setInterval(function() {
+        ws.sendd(JSON.stringify({
+            type: 'playtime',
+            user: user,
+            game: game,
+            data: {
+                ms: 5000
+            }
+        }));
+    }, 3000));
+};
+
+}
+
+WS();
+
+</script>
