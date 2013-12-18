@@ -61,6 +61,7 @@ function redisView(view, persistent) {
     persistent connection.
     */
     return function() {
+        var args = Array.prototype.slice.call(arguments, 0);
         var client;
         // TODO: Handle connection failures and return a 5xx
         if (!persistent) {
@@ -86,10 +87,10 @@ function redisView(view, persistent) {
                     return call.apply(this, arguments);
                 } catch(e) {
                     done();
+                    throw e;
                 }
             };
         }
-        var args = Array.prototype.slice.call(arguments, 0);
         return wrap(view).apply(this, [client, done].concat(args).concat([wrap]));
     };
 }

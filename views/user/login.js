@@ -25,6 +25,7 @@ module.exports = function(server) {
             assertion,
             audience,
             function(err, body) {
+                console.log(err, body);
                 if (err) {
                     res.json(403, {error: 'bad_assertion'});
                     return;
@@ -36,9 +37,11 @@ module.exports = function(server) {
                 var client = db.redis();
                 var email = body.email;
                 user.getUserFromEmail(client, email, function(err, resp) {
-                    if (err || !resp) {
-                        res.json(400, {error: err});
+                    if (err) {
+                        res.json(500, {error: err});
                         return;
+                    } else if (!resp) {
+                        resp = user.newUser(client, email);
                     }
                     res.json({
                         error: null,
@@ -50,6 +53,7 @@ module.exports = function(server) {
                         },
                         permissions: {}
                     });
+                    client.end();
                 });
             }
         );

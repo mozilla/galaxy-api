@@ -12,6 +12,7 @@ var user = require('./lib/user');
     'game/detail',
     'game/manifest',
     'game/submit',
+    'user/friends',
     'user/login',
     'user/purchase'
 ].forEach(function(view) {

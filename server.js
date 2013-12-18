@@ -9,6 +9,7 @@ var server = restify.createServer({
 
 server.use(restify.acceptParser(server.acceptable));
 server.use(restify.bodyParser());
+server.use(restify.CORS());
 server.use(restify.gzipResponse());
 server.use(restify.queryParser());
 server.use(restifyValidation.validationPlugin({errorsAsArray: false}));

@@ -30,12 +30,14 @@ module.exports = function(server) {
         var email;
         if (!user || !(email = auth.verifySSA(user))) {
             res.json(403, {error: 'bad_user'});
+            return;
         }
 
         // TODO: Accept ID *or* slug.
         var game = POST.game;
         if (!game) {
             res.json(403, {error: 'bad_game'});
+            return;
         }
 
         var redisClient = db.redis();
