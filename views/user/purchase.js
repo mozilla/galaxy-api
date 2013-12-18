@@ -28,7 +28,7 @@ module.exports = function(server) {
 
         var user = POST.user;
         var email;
-        if (!user || !(email = auth.confirmSSA(user))) {
+        if (!user || !(email = auth.verifySSA(user))) {
             res.json(403, {error: 'bad_user'});
         }
 
