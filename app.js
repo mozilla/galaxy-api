@@ -35,6 +35,10 @@ wss.on('connection', function(ws) {
     var subscribed = false;
 
     var user = new user.User(clientData);
+    
+    function send(data) {
+        return ws.send(JSON.stringify(data));
+    }
 
     ws.on('message', function(message) {
         console.log('received: %s', message);
@@ -51,15 +55,23 @@ wss.on('connection', function(ws) {
             if (message.type !== 'auth') {
                 // Ignore non-auth requests from the client until
                 // authentication has taken place.
+                send({type: 'error', error: 'not_authenticated'});
                 return;
             }
             var result = auth.verifySSA(message.token);
             if (!result) {
-                ws.send(JSON.stringify({type: 'auth', error: true}));
+                send({type: 'error', error: 'bad_token'});
                 return;
             }
-            user.authenticate(result);
-            clientPub.subscribe('user:' + message.user);
+            user.authenticate(result, function(err) {
+                if (err) {
+                    send({type: 'error', error: err});
+                } else {
+                    clientPub.subscribe('user:' + user.get('id'));
+                    send({type: 'authenticated', id: user.get('id')});
+                    // TODO: broadcast to friends that user is online.
+                }
+            });
             return;
         }
         console.log('message', message)
