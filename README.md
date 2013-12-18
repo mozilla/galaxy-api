@@ -6,9 +6,20 @@ Here lives the API that is consumed by the front-end interface for
 
 ## Installation
 
-* `npm install`
-* `cp settings_local.js.dist settings_local.js`
-* `nodemon app.js`
+```bash
+# Install dependencies
+npm install
+# Copy local configuration into place
+cp settings_local.js.dist settings_local.js
+# Start the server
+npm start
+```
+
+If you'd like to run the server for development, consider using `nodemon` instead:
+
+```bash
+nodemon app.js
+```
 
 
 ## Sample Usage
