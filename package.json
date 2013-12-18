@@ -2,17 +2,17 @@
   "name": "galaxy-api",
   "version": "0.0.1",
   "dependencies": {
-    "lodash": "*",
-    "node-restify-swagger": "*",
-    "node-restify-validation": "*",
-    "redis": "*",
+    "lodash": "2.4.x",
+    "node-restify-swagger": "0.1.x",
+    "node-restify-validation": "0.0.x",
+    "redis": "0.9.x",
     "request": "2.30.x",
-    "restify": "*",
-    "node-uuid": "1.4.*",
-    "ws": "*"
+    "restify": "2.6.x",
+    "node-uuid": "1.4.x",
+    "ws": "0.4.x"
   },
   "engines": {
-    "node": ">=0.8.x",
+    "node": ">=0.10.x",
     "npm": ">=1.1.x"
   },
   "repository": {
