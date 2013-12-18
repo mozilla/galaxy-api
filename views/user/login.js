@@ -1,4 +1,6 @@
 var auth = require('../../lib/auth');
+var db = require('../../db');
+var user = require('../../lib/user');
 
 
 module.exports = function(server) {
@@ -29,15 +31,25 @@ module.exports = function(server) {
                 }
 
                 console.log('Assertion verified.');
-                res.json({
-                    error: null,
-                    token: auth.createSSA(body.email),
-                    settings: {
-                        // TODO: return `username` from server.
-                        display_name: email.split('@')[0],
-                        email: body.email
-                    },
-                    permissions: {}
+                // Establish the redis connection here so we don't flood the
+                // server with connections that never get used.
+                var client = db.redis();
+                var email = body.email;
+                user.getUserFromEmail(client, email, function(err, resp) {
+                    if (err || !resp) {
+                        res.json(400, {error: err});
+                        return;
+                    }
+                    res.json({
+                        error: null,
+                        token: auth.createSSA(email),
+                        settings: {
+                            username: resp.username,
+                            email: email,
+                            id: resp.id
+                        },
+                        permissions: {}
+                    });
                 });
             }
         );
