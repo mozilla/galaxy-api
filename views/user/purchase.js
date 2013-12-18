@@ -1,9 +1,10 @@
+var auth = require('../../lib/auth');
 var db = require('../../db');
 
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/user/purchase' -d 'user=3&game=9'
+    // % curl -X POST 'http://localhost:5000/user/purchase' -d 'user=ssatoken&game=9'
     server.post({
         url: '/user/purchase',
         swagger: {
@@ -26,21 +27,25 @@ module.exports = function(server) {
 
         // TODO: Accept ID *or* slug.
         var user = POST.user;
-        var game = POST.game;
-
-        // TODO: Require SSA.
-        if (!user) {
+        var email;
+        if (!user || !(email = auth.confirmSSA(user))) {
             res.json(403, {error: 'bad_user'});
         }
+        // TODO: Change email to user ID.
+
+        var game = POST.game;
         if (!game) {
             res.json(403, {error: 'bad_game'});
         }
 
         var redisClient = db.redis();
-        redisClient.sadd('gamesPurchased:' + user, game, function() {
+        redisClient.sadd('gamesPurchased:' + email, game, function(err) {
+            if (err) {
+                res.json(500, {error: 'internal_db_error'});
+                return;
+            }
             redisClient.end();
+            res.json({success: true});
         });
-
-        return res.json({success: true});
     });
 };
