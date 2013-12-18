@@ -7,7 +7,8 @@ var server = require('./server');
 [
     'game/detail',
     'game/manifest',
-    'game/submit'
+    'game/submit',
+    'user/login'
 ].forEach(function(view) {
     require('./views/' + view)(server);
 });
@@ -100,7 +101,3 @@ wss.on('connection', function(ws) {
         subscribed = true;
     });
 });
-
-// TODO:
-// * leaderboards
-// * playtime
