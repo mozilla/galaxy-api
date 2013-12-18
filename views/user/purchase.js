@@ -26,27 +26,26 @@ module.exports = function(server) {
     }, function(req, res) {
         var POST = req.params;
 
-        // TODO: Accept ID *or* slug.
         var user = POST.user;
         var email;
         if (!user || !(email = auth.confirmSSA(user))) {
             res.json(403, {error: 'bad_user'});
         }
-        // TODO: Change email to user ID.
 
+        // TODO: Accept ID *or* slug.
         var game = POST.game;
         if (!game) {
             res.json(403, {error: 'bad_game'});
         }
 
         var redisClient = db.redis();
-        user.getUserFromEmail(redisClient, email, function(err, resp) {
-            if (err || !resp) {
+        user.getUserIDFromEmail(redisClient, email, function(err, id) {
+            if (err || !id) {
                 redisClient.end();
                 res.json(400, {error: err || 'no_user_found'});
                 return;
             }
-            redisClient.sadd('gamesPurchased:' + resp.id, game, function(err) {
+            redisClient.sadd('gamesPurchased:' + id, game, function(err) {
                 redisClient.end();
                 if (err) {
                     res.json(500, {error: 'internal_db_error'});
