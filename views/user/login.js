@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var auth = require('../../lib/auth');
 
 
 module.exports = function(server) {
@@ -15,26 +15,31 @@ module.exports = function(server) {
         var POST = req.params;
 
         var assertion = POST.assertion;
-        var audience = POST.audience;
+        var audience = POST.audience || '';
 
         console.log('Attempting verification:', audience);
+        
+        auth.verifyPersonaAssertion(
+            assertion,
+            audience,
+            function(err, body) {
+                if (err) {
+                    res.json(403, {error: 'bad_assertion'});
+                    return;
+                }
 
-        // var email = persona.verify_assertion(assertion, audience, is_native);
-        if (!email) {
-            res.json(403, {error: 'bad_assertion'});
-        }
-
-        // At this point, we know that the user is a valid user.
-
-        return res.json({
-            error: None,
-            token: '',  //persona.get_token(email),
-            settings: {
-                // TODO: return `username` from server.
-                display_name: email.split('@')[0],
-                email: email
-            },
-            permissions: {}
-        });
+                console.log('Assertion verified.');
+                res.json({
+                    error: null,
+                    token: auth.createSSA(body.email),
+                    settings: {
+                        // TODO: return `username` from server.
+                        display_name: email.split('@')[0],
+                        email: body.email
+                    },
+                    permissions: {}
+                });
+            }
+        );
     });
 };
