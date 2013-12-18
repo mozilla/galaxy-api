@@ -83,14 +83,14 @@ function redisView(view, persistent) {
         function wrap(call) {
             return function() {
                 try {
-                    call.apply(this, arguments);
+                    return call.apply(this, arguments);
                 } catch(e) {
                     done();
                 }
             };
         }
         var args = Array.prototype.slice.call(arguments, 0);
-        return wrap(view, [client, done].concat(args).concat([wrap]));
+        return wrap(view).apply(this, [client, done].concat(args).concat([wrap]));
     };
 }
 exports.redisView = redisView;
