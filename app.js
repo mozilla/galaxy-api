@@ -3,12 +3,16 @@ var settings = require('./settings_local.js');
 var db = require('./db');
 var server = require('./server');
 
+var auth = require('./lib/auth');
+var user = require('./lib/user');
+
 
 [
     'game/detail',
     'game/manifest',
     'game/submit',
-    'user/login'
+    'user/login',
+    'user/purchase'
 ].forEach(function(view) {
     require('./views/' + view)(server);
 });
@@ -23,15 +27,10 @@ var WebSocketServer = WebSocket.Server;
 var wss = new WebSocketServer({server: server});
 console.log('websocket server created');
 
-var redis = require('redis');
-
-var auth = require('./lib/auth');
-var user = require('./lib/user');
-
 wss.on('connection', function(ws) {
     // create new redisClient.
-    var clientPub = redis.createClient();
-    var clientData = redis.createClient();
+    var clientPub = db.redis();
+    var clientData = db.redis();
     var authenticated = false;
     var subscribed = false;
 

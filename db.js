@@ -4,18 +4,24 @@ var url = require('url');
 
 var redis = require('redis');
 
+var utils = require('./lib/utils');
+
+
 var redisURL = url.parse(process.env.REDIS_URL ||
                          process.env.REDISCLOUD_URL ||
                          process.env.REDISTOGO_URL ||
                          '');
 redisURL.hostname = redisURL.hostname || 'localhost';
 redisURL.port = redisURL.port || 6379;
-var redisClient = redis.createClient(redisURL.port, redisURL.hostname);
-if (redisURL.auth) {
-    redisClient.auth(redisURL.auth.split(':')[1]);
-}
 
-var utils = require('./lib/utils');
+
+function redisClient() {
+    var client = redis.createClient(redisURL.port, redisURL.hostname);
+    if (redisURL.auth) {
+        client.auth(redisURL.auth.split(':')[1]);
+    }
+    return client;
+}
 
 
 function flatDB() {}
