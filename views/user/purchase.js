@@ -1,5 +1,6 @@
 var auth = require('../../lib/auth');
 var db = require('../../db');
+var user = require('../../lib/user');
 
 
 module.exports = function(server) {
@@ -39,13 +40,20 @@ module.exports = function(server) {
         }
 
         var redisClient = db.redis();
-        redisClient.sadd('gamesPurchased:' + email, game, function(err) {
-            if (err) {
-                res.json(500, {error: 'internal_db_error'});
+        user.getUserFromEmail(redisClient, email, function(err, resp) {
+            if (err || !resp) {
+                redisClient.end();
+                res.json(400, {error: err || 'no_user_found'});
                 return;
             }
-            redisClient.end();
-            res.json({success: true});
+            redisClient.sadd('gamesPurchased:' + resp.id, game, function(err) {
+                redisClient.end();
+                if (err) {
+                    res.json(500, {error: 'internal_db_error'});
+                    return;
+                }
+                res.json({success: true});
+            });
         });
     });
 };
