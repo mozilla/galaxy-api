@@ -77,14 +77,20 @@ wss.on('connection', function(ws) {
         console.log('message', message)
         switch (message.type) {
             case 'playing':
-                user.startPlaying(message.game);
+                user.startPlaying(message.game, function(err) {
+                    if (!err) return;
+                    send({type: 'error', error: err});
+                });
                 // TODO: broadcast this to friends.
                 break;
             case 'notPlaying':
                 user.donePlaying();
                 break;
             case 'score':
-                user.updateLeaderboard(message.board, message.value);
+                user.updateLeaderboard(message.board, message.value, function(err) {
+                    if (!err) return;
+                    send({type: 'error', error: err});
+                });
                 break;
         }
     });
