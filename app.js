@@ -24,58 +24,81 @@ console.log('websocket server created');
 
 var redis = require('redis');
 
+var auth = require('./lib/auth');
+var user = require('./lib/user');
+
 wss.on('connection', function(ws) {
     // create new redisClient.
     var clientPub = redis.createClient();
     var clientData = redis.createClient();
     var authenticated = false;
-    var username = null;
-    var key = null;
+    var subscribed = false;
+
+    var user = new user.User(clientData);
 
     ws.on('message', function(message) {
         console.log('received: %s', message);
-        message = JSON.parse(message);
-        console.log('auth', authenticated);
-        if (!authenticated) {
-            // TODO: authenticate.
-            username = message.user;
-            authenticated = true;
-            key = 'user:' + username;
-            clientPub.subscribe(key);
+
+        try {
+            message = JSON.parse(message);
+        } catch (e) {
+            // Ignore bad JSON bits.
+            return;
+        }
+
+        console.log('auth', user.authenticated);
+        if (!user.authenticated) {
+            if (message.type !== 'auth') {
+                // Ignore non-auth requests from the client until
+                // authentication has taken place.
+                return;
+            }
+            var result = auth.verifySSA(message.token);
+            if (!result) {
+                ws.send(JSON.stringify({type: 'auth', error: true}));
+                return;
+            }
+            user.authenticate(result);
+            clientPub.subscribe('user:' + message.user);
             return;
         }
         console.log('message', message)
         switch (message.type) {
             case 'playing':
-                clientData.hset('playing', username, message.game);
+                user.startPlaying(message.game);
+                // TODO: broadcast this to friends.
                 break;
-            case 'playtime':
-                // TODO: message.data.ms could be wrong.
-                clientData.hincrby('game:' + message.game + ':playtime', username, message.data.ms);
+            case 'notPlaying':
+                user.donePlaying();
+                break;
+            case 'score':
+                user.updateLeaderboard(message.board, message.value);
                 break;
         }
     });
 
     ws.on('close', function() {
         console.log('close');
-        if (authenticated) {
-            // TODO: check if actually subscribed.
+        intervals.forEach(function(v) {
+            clearInterval(v);
+        });
+        if (user.authenticated && subscribed) {
             clientPub.unsubscribe();
-            console.log('not playing');
-            clientData.hdel('playing', username);
         }
+        user.finish();
         clientPub.end();
         clientData.end();
     });
 
     clientPub.on('message', function(channel, message) {
-        if (!authenticated) {
+        if (!user.authenticated) {
             return;
         }
         ws.send(message);
     });
-
-    // ws.send(JSON.stringify({data: 'open'}), function() { });
+    clientPub.on('subscribe', function() {
+        subscribed = true;
+    });
 });
 
 // TODO:

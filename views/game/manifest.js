@@ -1,6 +1,6 @@
 var _ = require('lodash');
 
-var db = require('../.././db');
+var db = require('../../db');
 
 
 module.exports = function(server) {

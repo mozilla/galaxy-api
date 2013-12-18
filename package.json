@@ -6,7 +6,9 @@
     "node-restify-swagger": "*",
     "node-restify-validation": "*",
     "redis": "*",
+    "request": "2.30.x",
     "restify": "*",
+    "node-uuid": "1.4.*",
     "ws": "*"
   },
   "engines": {

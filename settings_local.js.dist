@@ -1,0 +1,2 @@
+exports.DEBUG = false;
+exports.SECRET = 'Change this to something witty.';

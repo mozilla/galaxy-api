@@ -82,21 +82,6 @@ ws.onopen = function() {
         user: user,
         game: game
     }));
-
-    // TODO: Do better than a setinterval.
-    // Ensure that playtime actually got recorded.
-    // Record time in between the current setInterval and when the
-    // websocket was closed.
-    intervals.push(setInterval(function() {
-        ws.sendd(JSON.stringify({
-            type: 'playtime',
-            user: user,
-            game: game,
-            data: {
-                ms: 5000
-            }
-        }));
-    }, 3000));
 };
 
 }
