@@ -14,6 +14,10 @@ server.use(restify.gzipResponse());
 server.use(restify.queryParser());
 server.use(restifyValidation.validationPlugin({errorsAsArray: false}));
 
+server.get(/.*/, restify.serveStatic({
+    directory: './static'
+}));
+
 restifySwagger.configure(server);
 restifySwagger.loadRestifyRoutes();
 
