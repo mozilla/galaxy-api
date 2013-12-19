@@ -70,9 +70,9 @@ module.exports = function(server) {
             }
         }
     }, db.redisView(function(client, done, req, res, wrap) {
-        var DEL = req.params;
+        var DATA = req.params;
 
-        console.log(DATA)
+        var slug = DATA.slug;
 
         // TODO: Check for valid game.
         // TODO: Accept ID *or* slug.
