@@ -5,7 +5,7 @@ var user = require('../../lib/user');
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl 'http://localhost:5000/user/friends?user=ssatoken'
+    // % curl 'http://localhost:5000/user/friends?_user=ssatoken'
     server.get({
         url: '/user/friends',
         validation: {
@@ -46,7 +46,7 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/user/friends' -d 'user=ssatoken&recipient=uid'
+    // % curl -X POST 'http://localhost:5000/user/friends' -d '_user=ssatoken&recipient=uid'
     server.post({
         url: '/user/friends/request',
         swagger: {
@@ -55,7 +55,7 @@ module.exports = function(server) {
             summary: 'Send friend request'
         },
         validation: {
-            user: {
+            _user: {
                 description: 'A user\'s SSA token.',
                 isRequired: true
             },
@@ -67,7 +67,7 @@ module.exports = function(server) {
     }, db.redisView(function(client, done, req, res) {
         var POST = req.params;
 
-        var _user = POST.user;
+        var _user = POST._user;
         var email;
         if (!(email = auth.verifySSA(_user))) {
             res.json(403, {error: 'bad_user'});
@@ -147,7 +147,7 @@ module.exports = function(server) {
             summary: 'List of friend requests'
         },
         validation: {
-            user: {
+            _user: {
                 description: 'A user\'s SSA token',
                 isRequired: true
             }
@@ -195,7 +195,7 @@ module.exports = function(server) {
             summary: 'Accept friend request'
         },
         validation: {
-            user: {
+            _user: {
                 description: 'A user\'s SSA token.',
                 isRequired: true
             },
@@ -268,7 +268,7 @@ module.exports = function(server) {
             summary: 'Ignore friend request'
         },
         validation: {
-            user: {
+            _user: {
                 description: 'A user\'s SSA token.',
                 isRequired: true
             },

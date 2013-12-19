@@ -5,7 +5,7 @@ var user = require('../../lib/user');
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/user/purchase' -d 'user=ssatoken&game=9'
+    // % curl -X POST 'http://localhost:5000/user/purchase' -d '_user=ssatoken&game=9'
     server.post({
         url: '/user/purchase',
         swagger: {
@@ -14,7 +14,7 @@ module.exports = function(server) {
             summary: 'Purchase game'
         },
         validation: {
-            user: {
+            _user: {
                 description: 'User (ID or username slug)',
                 isRequired: true
             },
@@ -26,9 +26,9 @@ module.exports = function(server) {
     }, function(req, res) {
         var POST = req.params;
 
-        var user = POST.user;
+        var _user = POST._user;
         var email;
-        if (!user || !(email = auth.verifySSA(user))) {
+        if (!(email = auth.verifySSA(_user))) {
             res.json(403, {error: 'bad_user'});
             return;
         }
