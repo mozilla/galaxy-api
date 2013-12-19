@@ -14,7 +14,8 @@ var user = require('./lib/user');
     'game/submit',
     'user/friends',
     'user/login',
-    'user/purchase'
+    'user/purchase',
+    'user/search'
 ].forEach(function(view) {
     require('./views/' + view)(server);
 });
@@ -37,7 +38,7 @@ wss.on('connection', function(ws) {
     var subscribed = false;
 
     var user = new user.User(clientData);
-    
+
     function send(data) {
         return ws.send(JSON.stringify(data));
     }
