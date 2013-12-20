@@ -169,6 +169,9 @@ window.addEventListener('message', function(e) {
         case 'pause':
             requestPause();
             break;
+        case 'error':
+            console.error('[galaxy]', data.error);
+            break;
     }
 });
 function send(data) {
