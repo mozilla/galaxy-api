@@ -1,5 +1,3 @@
-var _ = require('lodash');
-
 var auth = require('../../lib/auth');
 var db = require('../../db');
 var user = require('../../lib/user');
@@ -55,20 +53,6 @@ module.exports = function(server) {
         // TODO: Allow searching by username.
         // (i.e., if no results for email, look by username, etc.)
         if (lookup_q) {
-            if (_.isNumber(lookup_q)) {
-                var lookup_id = lookup_q;
-            } else {
-                var lookup_email = lookup_q;
-            }
-
-            if (lookup_id) {
-                // TODO: Exclude yourself from the object list.
-                user.getPublicUserObjList(client, [lookup_id], function(objs) {
-                    done();
-                    res.json(objs);
-                });
-            }
-
             user.getUserIDFromEmail(client, lookup, function(err, obj) {
                 if (err || !obj) {
                     res.json(400, {error: err || lookup_email ? 'bad_email' : 'bad_id'});
