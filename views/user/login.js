@@ -43,6 +43,7 @@ module.exports = function(server) {
                     } else if (!resp) {
                         resp = user.newUser(client, email);
                     }
+                    resp.avatar = user.getGravatarURL(email);
                     res.json({
                         error: null,
                         token: auth.createSSA(email),
