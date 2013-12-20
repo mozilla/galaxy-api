@@ -96,6 +96,41 @@ wss.on('connection', function(ws) {
                 });
                 break;
             case 'postBlob':
+                // TODO: Throttle this.
+                if (typeof message.value !== 'string' || message.value > 1024) {
+                    send({type: 'error', error: 'invalid_blob'});
+                    return;
+                } else if (!user_.get('currentlyPlaying')) {
+                    send({type: 'error', error: 'not_playing_a_game'});
+                    return;
+                }
+                var blob;
+                try {
+                    blob = JSON.parse(message.value);
+                } catch(e) {
+                    send({type: 'error', error: 'invalid_blob'});
+                    return;
+                }
+                user_.isFriendsWith(message.recipient, function(resp) {
+                    if (!resp) {
+                        send({type: 'error', error: 'not_friends'});
+                        return;
+                    }
+                    clientData.sismember('gamePlaying:' + user_.get('currentlyPlaying'), message.recipient, function(err, resp) {
+                        if (err || !resp) {
+                            send({type: 'error', error: 'friend_not_playing'});
+                            return;
+                        }
+                        clientData.publish(
+                            'user:' + message.recipient,
+                            JSON.stringify({
+                                type: 'blob',
+                                blob: blob,
+                                from: user_.get('id')
+                            });
+                        );
+                    });
+                });
                 break;
         }
     });

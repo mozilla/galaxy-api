@@ -164,7 +164,10 @@ window.addEventListener('message', function(e) {
             delete fetches[data.retrieved];
             break;
         case 'blob':
-            gotData(data.blob);
+            gotData(data.blob, data.from);
+            break;
+        case 'pause':
+            requestPause();
             break;
     }
 });
@@ -241,13 +244,13 @@ exports.authenticate = function() {
     return auth_def.promise();
 };
 
-exports.getFriends = function() {
+function _getFriends(only) {
     if (!authenticated) return [];
 
     var resp = Deferred();
     request({
         dispatch: 'friends',
-        url: '/user/friends',
+        url: '/user/friends?only=' + only + '&game=' + encodeURIComponent(game),
         signed: true,
         method: 'GET'
     }, function(data) {
@@ -257,6 +260,26 @@ exports.getFriends = function() {
             resp.reject();
     });
     return resp.promise();
+}
+
+exports.getFriends = function() {
+    return _getFriends('played');
+};
+
+exports.getFriendsPlaying = function() {
+    return _getFriends('playing');
+};
+
+// TODO: Throttle this.
+exports.postFriend = function(friendID, blob) {
+    // Allows posting a JSON blob to a friend who is also playing the game.
+    if (typeof blob !== 'string') {
+        blob = JSON.stringify(blob);
+    }
+    if (blob.length > 1024) {
+        throw new Error('Blob too large!');
+    }
+    send({type: 'blob', recipient: friendID, value: blob});
 };
 
 function requestPause() {
@@ -265,10 +288,11 @@ function requestPause() {
     window.dispatchEvent(e);
 }
 
-function gotData(blob) {
+function gotData(blob, from) {
     var ev = document.createEvent('Event');
     e.initEvent('gotData', true, false);
     e.value = blob;
+    e.from = from;
     window.dispatchEvent(e);
 }
 

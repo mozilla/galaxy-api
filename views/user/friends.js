@@ -6,6 +6,11 @@ var user = require('../../lib/user');
 module.exports = function(server) {
     // Sample usage:
     // % curl 'http://localhost:5000/user/friends?_user=ssatoken'
+    /*
+    Optional params:
+    ?only={online|played|playedOnline|playing}
+    &game=<game>
+    */
     server.get({
         url: '/user/friends',
         validation: {
@@ -31,8 +36,21 @@ module.exports = function(server) {
                 done();
                 return;
             }
-            console.log('got user', email, id);
-            client.smembers('friends:' + id, function(err, friends) {
+
+            (function(cb) {
+                var friends = 'friends:' + id;
+                if (GET.only === 'online') {
+                    return client.sinter(friends, 'authenticated', cb);
+                } else if (GET.only === 'played' && GET.game) {
+                    return client.sinter(friends, 'gamePlayed:' + GET.game, cb);
+                } else if (GET.only === 'playedOnline' && GET.game) {
+                    return client.sinter(friends, 'authenticated', 'gamePlayed:' + GET.game, cb);
+                } else if (GET.only === 'playing' && GET.game) {
+                    return client.sinter(friends, 'gamePlaying:' + GET.game, cb);
+                } else {
+                    return client.smembers(friends, cb);
+                }
+            })(function(err, friends) {
                 if (err || !friends) {
                     res.json(400, {error: 'no_friends'});
                     done();

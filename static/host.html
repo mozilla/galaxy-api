@@ -13,11 +13,32 @@ var origin = location.hash.substr(1);
 
 var errors = 0;
 
+var notification_types = {
+    'friend_request': 'Friend Request',
+    'friend_request_accepted': 'Friend Request Accepted'
+};
+
 function connect() {
     ws = new WebSocket(host);
     console.log('Starting socket');
     ws.onmessage = function(event) {
-        window.top.postMessage(JSON.parse(event.data), origin);
+        var data = JSON.parse(event.data);
+        switch (data.type) {
+            case 'notification':
+                notify(
+                    notification_types[data.notification_type],
+                    data.from.username,
+                    data.from.avatar,
+                    function() {
+                        // TODO: Wire this up to something. It's the callback if a user
+                        // clicks on the notification.
+                        window.top.postMessage({type: 'pause'}, origin);
+                    }
+                );
+                return;
+        }
+
+        window.top.postMessage(data, origin);
     };
 
     ws.onerror = function(error) {
