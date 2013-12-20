@@ -142,9 +142,8 @@ window.addEventListener('message', function(e) {
     }
     console.log('host', e);
     var data = e.data;
-    if (data.request) {
-        ws.send(JSON.stringify(data.request));
-        return;
+    if (data.type) {
+        ws.send(JSON.stringify(data));
     } else if (data.require) {
         switch(data.require) {
             case 'auth':
