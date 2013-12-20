@@ -234,7 +234,6 @@ exports.retrieve = function(type) {
 // TODO: Throttle this method the same as on the server.
 exports.updateScore = requireAuth(function(board, increment) {
     if (!playing) return;
-    playing = false;
     // Do basic validation that increment is within the right range.
     send({type: 'score', board: board, game: game, value: increment | 0 || 0});  // NaN trap.
 });
