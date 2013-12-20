@@ -14,7 +14,7 @@ server.use(restify.gzipResponse());
 server.use(restify.queryParser());
 server.use(restifyValidation.validationPlugin({errorsAsArray: false}));
 
-server.get(/.*/, restify.serveStatic({
+server.get(/\/static\/?.*/, restify.serveStatic({
     directory: './static'
 }));
 

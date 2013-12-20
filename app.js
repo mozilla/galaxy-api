@@ -95,6 +95,8 @@ wss.on('connection', function(ws) {
                     send({type: 'error', error: err});
                 });
                 break;
+            case 'postBlob':
+                break;
         }
     });
 

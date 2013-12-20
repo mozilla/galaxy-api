@@ -155,13 +155,21 @@ window.addEventListener('message', function(e) {
         }
     } else if (data.dispatch) {
         var url = data.url;
-        if (data.signed && authenticated) {
+        if (data.signed && ssa) {
             url += (url.indexOf('?') === -1) ? '?' : '&';
             url += '_user=' + encodeURIComponent(ssa);
         }
         xhr(data.method, url, data.data, function(resp) {
             window.top.postMessage({type: 'response', response: data.dispatch, data: resp}, origin);
         });
+    } else if (data.save) {
+        localStorage.setItem('storage::' + encodeURIComponent(origin) + '::' + data.save, data.value);
+    } else if (data.retrieve) {
+        window.top.postMessage({
+            type: 'retrieved',
+            retrieved: data.retrieve,
+            value: localStorage.getItem('storage::' + encodeURIComponent(origin) + '::' + data.retrieve)
+        }, origin);
     }
 });
 

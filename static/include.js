@@ -4,7 +4,7 @@ var origin = window.location.protocol + '//' + window.location.host;
 var slice = function(arr) {return Array.prototype.slice.call(arr, 0)};
 
 var ifr = document.createElement('iframe');
-ifr.src = 'http://localhost:5000/host.html#' + origin;
+ifr.src = 'http://localhost:5000/static/host.html#' + origin;
 ifr.style.display = 'none';
 document.body.appendChild(ifr);
 
@@ -129,6 +129,7 @@ var initializer = Deferred();
 var initialized = false;
 
 var waiting = {};
+var fetches = {};
 window.addEventListener('message', function(e) {
     if (e.origin === origin) return;
     console.log('include', e);
@@ -145,18 +146,27 @@ window.addEventListener('message', function(e) {
         return;
     }
     var data = e.data;
-    // XHR message bus.
-    if (data.type === 'authenticated') {
-        authenticated = true;
-        auth_def.resolve();
-    } else if (data.type === 'response') {
-        if (!(data.response in waiting)) return;
-        waiting[data.response].forEach(function(cb) {
-            cb(data.data);
-        });
-        delete waiting[data.response];
+    switch(data.type) {
+        case 'authenticated':
+            authenticated = true;
+            auth_def.resolve();
+            break;
+        case 'response':
+            if (!(data.response in waiting)) return;
+            waiting[data.response].forEach(function(cb) {
+                cb(data.data);
+            });
+            delete waiting[data.response];
+            break;
+        case 'retrieved':
+            if (!(data.retrieved in fetches)) return;
+            fetches[data.retrieved].resolve(data.value);
+            delete fetches[data.retrieved];
+            break;
+        case 'blob':
+            gotData(data.blob);
+            break;
     }
-
 });
 function send(data) {
     // TODO: Make this point at the Galaxy API origin.
@@ -205,6 +215,16 @@ exports.donePlaying = requireAuth(function() {
     send({type: 'notPlaying'});
 });
 
+exports.store = function(type, value) {
+    send({save: type, value: value});
+};
+
+exports.retrieve = function(type) {
+    var def = fetches[type] || (fetches[type] = Deferred());
+    send({retrieve: type});
+    return def.promise();
+};
+
 // TODO: Throttle this method the same as on the server.
 exports.updateScore = requireAuth(function(board, increment) {
     if (!playing) return;
@@ -242,6 +262,13 @@ exports.getFriends = function() {
 function requestPause() {
     var ev = document.createEvent('Event');
     e.initEvent('requestPause', true, false);
+    window.dispatchEvent(e);
+}
+
+function gotData(blob) {
+    var ev = document.createEvent('Event');
+    e.initEvent('gotData', true, false);
+    e.value = blob;
     window.dispatchEvent(e);
 }
 

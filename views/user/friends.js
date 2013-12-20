@@ -31,9 +31,10 @@ module.exports = function(server) {
                 done();
                 return;
             }
+            console.log('got user', email, id);
             client.smembers('friends:' + id, function(err, friends) {
                 if (err || !friends) {
-                    res.json(500, {error: 'no_friends'});
+                    res.json(400, {error: 'no_friends'});
                     done();
                     return;
                 }
