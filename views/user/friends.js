@@ -100,7 +100,7 @@ module.exports = function(server) {
 
         user.getUserIDFromEmail(client, email, function(err, id) {
             if (err || !id) {
-                res.json(500, {error: err || 'db_eror'});
+                res.json(500, {error: err || 'db_error'});
                 done();
                 return;
             }
@@ -139,7 +139,7 @@ module.exports = function(server) {
         }
         function addFriendRequest(id) {
             client.sadd('friendRequests:' + recipient, id);
-            res.json(204, {error: null});
+            res.json(202, {success: true});
             // If the sender's request is fulfilled, publish the recipient a notification.
             client.sismember('ignoredFriendRequests:' + recipient, id, function(err, resp) {
                 if (!resp) {
@@ -186,7 +186,7 @@ module.exports = function(server) {
 
         user.getUserIDFromEmail(client, email, function(err, id) {
             if (err || !id) {
-                res.json(500, {error: err || 'db_eror'});
+                res.json(500, {error: err || 'db_error'});
                 done();
                 return;
             }
@@ -240,7 +240,7 @@ module.exports = function(server) {
 
         user.getUserIDFromEmail(client, email, function(err, id) {
             if (err || !id) {
-                res.json(500, {error: err || 'db_eror'});
+                res.json(500, {error: err || 'db_error'});
                 done();
                 return;
             }
@@ -257,6 +257,7 @@ module.exports = function(server) {
                 addFriends(id);
             });
         }
+
         function addFriends(id) {
             client.sadd('friends:' + acceptee, id);
             client.sadd('friends:' + id, acceptee);
@@ -264,7 +265,7 @@ module.exports = function(server) {
             client.srem('friendRequests:' + id, acceptee);
             client.srem('ignoreFriendRequests:' + acceptee, id);
             client.srem('ignoreFriendRequests:' + id, acceptee);
-            res.json(204, {error: null});
+            res.json(202, {success: true});
             // If the sender's request is fulfilled, publish the recipient a notification.
             user.getUserFromID(client, id, function(err, publicUser) {
                 if (err || !publicUser) {
@@ -313,7 +314,7 @@ module.exports = function(server) {
 
         user.getUserIDFromEmail(client, email, function(err, id) {
             if (err || !id) {
-                res.json(500, {error: err || 'db_eror'});
+                res.json(500, {error: err || 'db_error'});
                 done();
                 return;
             }
@@ -324,10 +325,67 @@ module.exports = function(server) {
                     return;
                 }
                 client.sadd('ignoreFriendRequests:' + id, rejectee);
-                res.json(204, {error: null});
+                res.json(202, {success: true});
                 done();
             });
         });
+    }));
 
+    server.post({
+        url: '/user/friends/unfriend',
+        swagger: {
+            nickname: 'unfriend-friend',
+            notes: 'Unfriends a friend',
+            summary: 'Unfriend friend'
+        },
+        validation: {
+            _user: {
+                description: 'A user\'s SSA token.',
+                isRequired: true
+            },
+            exfriend: {
+                description: 'The user ID of someone whom to the user wants to unfriend',
+                isRequired: true
+            }
+        }
+    }, db.redisView(function(client, done, req, res) {
+        var POST = req.params;
+
+        var _user = POST._user;
+        var email;
+        if (!(email = auth.verifySSA(_user))) {
+            res.json(403, {error: 'bad_user'});
+            done();
+            return;
+        }
+
+        var exfriend = POST.exfriend;
+
+        user.getUserIDFromEmail(client, email, function(err, id) {
+            if (err || !id) {
+                res.json(500, {error: err || 'db_error'});
+                done();
+                return;
+            }
+            checkFriendExists(id);
+        });
+
+        function checkFriendExists(id) {
+            client.sismember('friends:' + id, exfriend, function(err, resp) {
+                if (err || !resp) {
+                    res.json(400, {error: 'friend_not_found'});
+                    done();
+                    return;
+                }
+                unfriendFriend(id);
+            });
+        }
+
+        function unfriendFriend(id) {
+            client.srem('friends:' + exfriend, id);
+            client.srem('friends:' + id, exfriend);
+            res.json(202, {success: true});
+            done();
+        }
     }));
 };
