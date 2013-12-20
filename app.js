@@ -37,7 +37,7 @@ wss.on('connection', function(ws) {
     var authenticated = false;
     var subscribed = false;
 
-    var user = new user.User(clientData);
+    var user_ = new user.User(clientData);
 
     function send(data) {
         return ws.send(JSON.stringify(data));
@@ -53,8 +53,8 @@ wss.on('connection', function(ws) {
             return;
         }
 
-        console.log('auth', user.authenticated);
-        if (!user.authenticated) {
+        console.log('auth', user_.authenticated);
+        if (!user_.authenticated) {
             if (message.type !== 'auth') {
                 // Ignore non-auth requests from the client until
                 // authentication has taken place.
@@ -66,12 +66,12 @@ wss.on('connection', function(ws) {
                 send({type: 'error', error: 'bad_token'});
                 return;
             }
-            user.authenticate(result, function(err) {
+            user_.authenticate(result, function(err) {
                 if (err) {
                     send({type: 'error', error: err});
                 } else {
-                    clientPub.subscribe('user:' + user.get('id'));
-                    send({type: 'authenticated', id: user.get('id')});
+                    clientPub.subscribe('user:' + user_.get('id'));
+                    send({type: 'authenticated', id: user_.get('id')});
                     // TODO: broadcast to friends that user is online.
                 }
             });
@@ -80,17 +80,17 @@ wss.on('connection', function(ws) {
         console.log('message', message)
         switch (message.type) {
             case 'playing':
-                user.startPlaying(message.game, function(err) {
+                user_.startPlaying(message.game, function(err) {
                     if (!err) return;
                     send({type: 'error', error: err});
                 });
                 // TODO: broadcast this to friends.
                 break;
             case 'notPlaying':
-                user.donePlaying();
+                user_.donePlaying();
                 break;
             case 'score':
-                user.updateLeaderboard(message.board, message.value, function(err) {
+                user_.updateLeaderboard(message.board, message.value, function(err) {
                     if (!err) return;
                     send({type: 'error', error: err});
                 });
@@ -100,19 +100,16 @@ wss.on('connection', function(ws) {
 
     ws.on('close', function() {
         console.log('close');
-        intervals.forEach(function(v) {
-            clearInterval(v);
-        });
-        if (user.authenticated && subscribed) {
+        if (user_.authenticated && subscribed) {
             clientPub.unsubscribe();
         }
-        user.finish();
+        user_.finish();
         clientPub.end();
         clientData.end();
     });
 
     clientPub.on('message', function(channel, message) {
-        if (!user.authenticated) {
+        if (!user_.authenticated) {
             return;
         }
         ws.send(message);

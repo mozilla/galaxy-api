@@ -17,3 +17,4 @@ node_modules
 
 settings_local.js
 data/
+dump.rdb

@@ -1,0 +1,180 @@
+<html>
+<head>
+  <title>Galaxy</title>
+</head>
+<body>
+<script src="https://login.persona.org/include.js"></script>
+<script type="text/javascript">
+<!--
+var host = 'ws://' + window.location.host;
+var ws;
+
+var origin = location.hash.substr(1);
+
+var errors = 0;
+
+function connect() {
+    ws = new WebSocket(host);
+    console.log('Starting socket');
+    ws.onmessage = function(event) {
+        window.top.postMessage(JSON.parse(event.data), origin);
+    };
+
+    ws.onerror = function(error) {
+        console.error('[websocket] Error:', error.toString());
+    };
+
+    ws.onclose = function() {
+        console.log('[websocket] close');
+        errors++;
+        if (errors > 10) return;
+        connect();
+    };
+
+    ws.sendd = function(msg) {
+        console.log(msg);
+        return this.send(msg);
+    };
+
+    ws.onopen = function() {
+        console.log('[websocket] open');
+        if (ssa) {
+            ws.send(JSON.stringify({type: 'auth', token: ssa}));
+        }
+        ready();
+    };
+}
+
+function xhr(method, url, data, callback) {
+    // TODO: Make this hardier.
+    var req = new XMLHttpRequest();
+    req.onload = function() {
+        if (Math.floor(req.status / 100) !== 2) {
+            callback(null);
+            return;
+        }
+        callback(req.responseText);
+    };
+    req.onerror = function() {
+        callback(null);
+    };
+    req.open(method, url, true);
+    if (data) {
+        req.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+    }
+    req.send(data);
+}
+
+var SSATOKEN = '0::user';
+var ssa = window.localStorage.getItem(SSATOKEN);
+function authenticate(callback, callback_cancel) {
+    // TODO: Port login.js to work here instead.
+    if (ssa) return callback(ssa), null;
+    navigator.id.watch({
+        onlogin: function(assertion) {
+            xhr(
+                'POST',
+                '/user/login',
+                'assertion=' + encodeURIComponent(assertion) +
+                    '&audience=' + encodeURIComponent(
+                        window.location.protocol + '//' + window.location.host),
+                function(resp) {
+                    var data;
+                    try {
+                        data = JSON.parse(resp);
+                    } catch (e) {
+                        callback_cancel();
+                        return;
+                    }
+                    ssa = data.token;
+                    localStorage.setItem(SSATOKEN, data.token);
+                    if (wasReady) {
+                        ws.send(JSON.stringify({type: 'auth', token: data.token}));
+                    }
+                    callback(data);
+                }
+            );
+        },
+        onlogout: function() {}
+    });
+    navigator.id.request({
+        siteName: 'Mozilla Galaxy',
+        oncancel: callback_cancel
+    });
+}
+
+function notify(title, body, icon, callback) {
+    if (window.Notification) {
+        function donotify() {
+            var notification = new Notification(title, {
+                body: body,
+                icon: icon
+            });
+            notification.onclick = callback;
+        }
+        if (Notification.permission === 'granted') {
+            donotify();
+        } else if (Notification.permission !== 'denied') {
+            Notification.requestPermission(function(permission) {
+                if (permission !== 'granted') return;
+                donotify();
+            });
+        }
+    } else {
+        var havePermission = window.webkitNotifications.checkPermission();
+        if (havePermission === 0) {
+            var notification = window.webkitNotifications.createNotification(
+                icon || null,
+                title,
+                body
+            );
+            notification.onclick = callback;
+            notification.show();
+        } else {
+            window.webkitNotifications.requestPermission();
+        }
+    }
+}
+
+window.addEventListener('message', function(e) {
+    if (e.origin !== origin) {
+        return;
+    }
+    console.log('host', e);
+    var data = e.data;
+    if (data.request) {
+        ws.send(JSON.stringify(data.request));
+        return;
+    } else if (data.require) {
+        switch(data.require) {
+            case 'auth':
+                authenticate(function() {
+                    // Noop. The server sends the official authenticated message.
+                }, function() {
+                    window.top.postMessage({type: 'error', error: 'could_not_auth'}, origin);
+                });
+        }
+    } else if (data.dispatch) {
+        var url = data.url;
+        if (data.signed && authenticated) {
+            url += (url.indexOf('?') === -1) ? '?' : '&';
+            url += '_user=' + encodeURIComponent(ssa);
+        }
+        xhr(data.method, url, data.data, function(resp) {
+            window.top.postMessage({type: 'response', response: data.dispatch, data: resp}, origin);
+        });
+    }
+});
+
+var wasReady = false;
+function ready() {
+    if (wasReady) return;
+    wasReady = true;
+    console.log('Galaxy Ready!');
+    window.top.postMessage('galaxy ready', origin);
+}
+connect();
+-->
+</script>
+</body>
+</html>

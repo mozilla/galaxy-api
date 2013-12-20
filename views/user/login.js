@@ -20,7 +20,7 @@ module.exports = function(server) {
         var audience = POST.audience || '';
 
         console.log('Attempting verification:', audience);
-        
+
         auth.verifyPersonaAssertion(
             assertion,
             audience,
@@ -46,11 +46,8 @@ module.exports = function(server) {
                     res.json({
                         error: null,
                         token: auth.createSSA(email),
-                        settings: {
-                            username: resp.username,
-                            email: email,
-                            id: resp.id
-                        },
+                        settings: resp,
+                        public: user.publicUserObj(resp),
                         permissions: {}
                     });
                     client.end();
