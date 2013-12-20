@@ -236,7 +236,7 @@ exports.updateScore = requireAuth(function(board, increment) {
     if (!playing) return;
     playing = false;
     // Do basic validation that increment is within the right range.
-    send({type: 'score', game: game, value: increment | 0 || 0});  // NaN trap.
+    send({type: 'score', board: board, game: game, value: increment | 0 || 0});  // NaN trap.
 });
 
 exports.authenticate = function() {

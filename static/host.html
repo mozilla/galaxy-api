@@ -24,17 +24,20 @@ function connect() {
     console.log('Starting socket');
     ws.onmessage = function(event) {
         var data = JSON.parse(event.data);
+        console.log('ws', data);
         switch (data.type) {
             case 'notification':
+                console.log('[galaxy]', 'Inbound notification...')
                 var title = notification_types[data.notification_type];
                 var body = data.from.username;
+                console.log('nt', data.notification_type);
                 if (data.notification_type === 'friend_online') {
                     // TODO: L10n
                     title = data.from.username + ' online';
                     body = 'Friend now online';
                 } else if(data.notification_type === 'friend_playing') {
                     // TODO: L10n
-                    title = data.from.username + ' playing game';
+                    title = data.from.username + ' playing ' + data.game;
                     body = data.game;
                 }
                 notify(
@@ -139,6 +142,7 @@ function authenticate(callback, callback_cancel) {
 function notify(title, body, icon, callback) {
     if (window.Notification) {
         function donotify() {
+            console.log('[galaxy]', 'Sending notification:', title, body);
             var notification = new Notification(title, {
                 body: body,
                 icon: icon
@@ -148,7 +152,9 @@ function notify(title, body, icon, callback) {
         if (Notification.permission === 'granted') {
             donotify();
         } else if (Notification.permission !== 'denied') {
+            console.log('[galaxy]', 'Requesting gecko notification permissions');
             Notification.requestPermission(function(permission) {
+                console.log(permission);
                 if (permission !== 'granted') return;
                 donotify();
             });
@@ -156,6 +162,7 @@ function notify(title, body, icon, callback) {
     } else {
         var havePermission = window.webkitNotifications.checkPermission();
         if (havePermission === 0) {
+            console.log('[galaxy]', 'Sending notification:', title, body);
             var notification = window.webkitNotifications.createNotification(
                 icon || null,
                 title,
@@ -164,6 +171,7 @@ function notify(title, body, icon, callback) {
             notification.onclick = callback;
             notification.show();
         } else {
+            console.log('[galaxy]', 'Requesting webkit notification permissions');
             window.webkitNotifications.requestPermission();
         }
     }

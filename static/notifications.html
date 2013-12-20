@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>Permission Hack</title>
+</head>
+<body>
+<a href="#">Set up desktop notifications</a>
+<script>
+document.querySelector('a').addEventListener('click', function(e) {
+    Notification.requestPermission(function(perm) {
+        if (perm === 'granted')
+            alert('Great! Notifications are set up.');
+        else
+            alert('Womp womp, we didn\'t get permission.');
+    });
+});
+</script>
+</body>
+</html>
