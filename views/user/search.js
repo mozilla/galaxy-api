@@ -74,11 +74,15 @@ module.exports = function(server) {
                     return;
                 }
                 // TODO: Look up `id` from `getUserIDFromEmail` and compare.
-                if (obj.email === email) {
-                    res.json(400, {error: err || 'thats_you_silly'});
-                    done();
-                    return;
-                }
+                // We don't necessarily want to exclude user from looking up
+                // himself/herself (think of the case of accessing user
+                // profile page).
+
+                // if (obj.email === email) {
+                //     res.json(400, {error: err || 'thats_you_silly'});
+                //     done();
+                //     return;
+                // }
                 res.json(user.publicUserObj(obj));
                 done();
             });
