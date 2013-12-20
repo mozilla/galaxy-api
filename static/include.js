@@ -249,7 +249,7 @@ function _getFriends(only) {
 
     var resp = Deferred();
     request({
-        dispatch: 'friends',
+        dispatch: 'friends_' + only,
         url: '/user/friends?only=' + only + '&game=' + encodeURIComponent(game),
         signed: true,
         method: 'GET'
