@@ -127,7 +127,7 @@ wss.on('connection', function(ws) {
                                 type: 'blob',
                                 blob: blob,
                                 from: user_.get('id')
-                            });
+                            })
                         );
                     });
                 });

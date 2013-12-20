@@ -279,17 +279,17 @@ exports.postFriend = function(friendID, blob) {
     if (blob.length > 1024) {
         throw new Error('Blob too large!');
     }
-    send({type: 'blob', recipient: friendID, value: blob});
+    send({type: 'postBlob', recipient: friendID, value: blob});
 };
 
 function requestPause() {
-    var ev = document.createEvent('Event');
+    var e = document.createEvent('Event');
     e.initEvent('requestPause', true, false);
     window.dispatchEvent(e);
 }
 
 function gotData(blob, from) {
-    var ev = document.createEvent('Event');
+    var e = document.createEvent('Event');
     e.initEvent('gotData', true, false);
     e.value = blob;
     e.from = from;

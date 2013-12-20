@@ -146,11 +146,11 @@ module.exports = function(server) {
                             done();
                             return;
                         }
-                        client.publish('user:' + recipient, {
+                        client.publish('user:' + recipient, JSON.stringify({
                             type: 'notification',
                             notification_type: 'friend_request',
                             from: publicUser
-                        });
+                        }));
                         done();
                     });
                 }
@@ -174,7 +174,7 @@ module.exports = function(server) {
     }, db.redisView(function(client, done, req, res) {
         var GET = req.params;
 
-        var _user = GET.user;
+        var _user = GET._user;
         var email;
         if (!(email = auth.verifySSA(_user))) {
             res.json(403, {error: 'bad_user'});
@@ -269,11 +269,11 @@ module.exports = function(server) {
                     done();
                     return;
                 }
-                client.publish('user:' + acceptee, {
+                client.publish('user:' + acceptee, JSON.stringify({
                     type: 'notification',
                     notification_type: 'friend_request_accepted',
                     from: publicUser
-                });
+                }));
                 done();
             });
         }
