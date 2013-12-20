@@ -4,7 +4,7 @@ var origin = window.location.protocol + '//' + window.location.host;
 var slice = function(arr) {return Array.prototype.slice.call(arr, 0)};
 
 var ifr = document.createElement('iframe');
-ifr.src = 'http://localhost:5000/static/host.html#' + origin;
+ifr.src = 'http://localhost:5000/static/host.html?' + Math.random() + '#' + origin;
 ifr.style.display = 'none';
 document.body.appendChild(ifr);
 
