@@ -13,6 +13,7 @@ var origin = location.hash.substr(1);
 
 var errors = 0;
 
+// TODO: L10n
 var notification_types = {
     'friend_request': 'Friend Request',
     'friend_request_accepted': 'Friend Request Accepted'
@@ -25,8 +26,19 @@ function connect() {
         var data = JSON.parse(event.data);
         switch (data.type) {
             case 'notification':
+                var title = notification_types[data.notification_type];
+                var body = data.from.username;
+                if (data.notification_type === 'friend_online') {
+                    // TODO: L10n
+                    title = data.from.username + ' online';
+                    body = 'Friend now online';
+                } else if(data.notification_type === 'friend_playing') {
+                    // TODO: L10n
+                    title = data.from.username + ' playing game';
+                    body = data.game;
+                }
                 notify(
-                    notification_types[data.notification_type],
+                    title,
                     data.from.username,
                     data.from.avatar,
                     function() {
