@@ -5,9 +5,9 @@ var user = require('../../lib/user');
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl 'http://localhost:5000/user/friends?_user=ssatoken'
+    // % curl 'http://localhost:5000/user/search?_user=ssatoken'
     server.get({
-        url: '/user/friends',
+        url: '/user/search',
         validation: {
             _user: {
                 description: "A user's SSA token",
@@ -24,13 +24,16 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res) {
         var DATA = req.params;
+        console.log(DATA);
 
         var lookup_email = DATA.email;
         var lookup_id = DATA.id;
         var lookup = lookup_email || lookup_id;
 
-        if (lookup) {
-            res.json(400, {error: 'Must provide email or user ID'});
+        if (!lookup) {
+            res.json(400, {error: 'Must provide either email or user ID'});
+            done();
+            return;
         }
 
         var _user = DATA._user;
@@ -41,28 +44,27 @@ module.exports = function(server) {
             return;
         }
 
-        user.getUserIDFromEmail(client, email, function(err, id) {
-            if (err || !id) {
-                res.json(500, {error: err || 'db_error'});
+        if (lookup_email) {
+            user.getUserFromEmail(client, lookup_email, function(err, obj) {
+                console.log('obj',obj)
+                if (err || !obj) {
+                    res.json(400, {error: err || 'bad_email'});
+                    done();
+                    return;
+                }
+                res.json(user.publicUserObj(obj));
                 done();
-                return;
-            }
-
-            if (lookup_email) {
-                user.getUserFromEmail(client, lookup_email, function(err, id) {
-                    user.getPublicUserObjList(client, id, function(objs) {
-                        done();
-                        res.json(objs);
-                    });
-                });
-            } else if (lookup_id) {
-                user.getUserFromID(client, lookup_email, function(err, id) {
-                    user.getPublicUserObjList(client, id, function(objs) {
-                        done();
-                        res.json(objs);
-                    });
-                });
-            }
-        });
+            });
+        } else if (lookup_id) {
+            user.getUserFromID(client, lookup_email, function(err, obj) {
+                if (err || !obj) {
+                    res.json(400, {error: err || 'bad_id'});
+                    done();
+                    return;
+                }
+                res.json(user.publicUserObj(obj));
+                done();
+            });
+        }
     }));
 };

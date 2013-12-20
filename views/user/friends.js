@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 var auth = require('../../lib/auth');
 var db = require('../../db');
 var user = require('../../lib/user');
