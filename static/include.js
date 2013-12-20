@@ -144,12 +144,7 @@ window.addEventListener('message', function(e) {
         }
         return;
     }
-    var data;
-    try {
-        data = JSON.parse(e.data);
-    } catch (e) {
-        return;
-    }
+    var data = e.data;
     // XHR message bus.
     if (data.type === 'authenticated') {
         authenticated = true;
