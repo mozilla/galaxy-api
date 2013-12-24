@@ -19,6 +19,10 @@
         directory: './static'
     }));
 
+    server.get(/\/data\/?.*/, restify.serveStatic({
+        directory: './data'
+    }));
+
     restifySwagger.configure(server);
     restifySwagger.loadRestifyRoutes();
 

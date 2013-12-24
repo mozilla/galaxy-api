@@ -43,20 +43,20 @@ module.exports = function(server) {
         var data = {
             app_url: POST.app_url,
             appcache_path: POST.appcache_path,
+            created: new Date(),
             default_locale: POST.default_locale,
             description: POST.description,
             developer_name: POST.developer_name,
             developer_url: POST.developer_url,
             fullscreen: POST.fullscreen,
+            genre: POST.genre,
             homepage_url: POST.homepage_url,
             icons: POST.icons,
+            license: POST.license,
             locales: POST.locales,
             name: POST.name,
             orientation: POST.orientation,
-
-            // Galaxy-specific metadata.
-            license: POST.license,
-            privacy: POST.privacy_policy,
+            privacy_policy_url: POST.privacy_policy_url,
             screenshots: POST.screenshots,
             slug: slug
         };

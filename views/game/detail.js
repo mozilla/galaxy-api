@@ -22,11 +22,13 @@ module.exports = function(server) {
         var keys = [
             'app_url',
             'appcache_path',
+            'created',
             'default_locale',
             'description',
             'developer_name',
             'developer_url',
             'fullscreen',
+            'genre',
             'homepage_url',
             'icons',
             'license',
@@ -44,7 +46,7 @@ module.exports = function(server) {
     });
 
     // TODO: Serve each manifest from a separate subdomain.
-   server.get({
+    server.get({
         url: '/manifest.html'
     }, function(req, res) {
         var app_url = req.url.split('?')[1];
