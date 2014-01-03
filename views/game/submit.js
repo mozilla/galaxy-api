@@ -46,8 +46,10 @@ module.exports = function(server) {
             created: new Date(),
             default_locale: POST.default_locale,
             description: POST.description,
-            developer_name: POST.developer_name,
-            developer_url: POST.developer_url,
+            developer: {
+                name: POST.developer_name,
+                url: POST.developer_url
+            },
             fullscreen: POST.fullscreen,
             genre: POST.genre,
             homepage_url: POST.homepage_url,
