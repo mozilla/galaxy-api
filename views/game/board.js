@@ -5,13 +5,56 @@ var db = require('../../db');
 
 module.exports = function(server) {
     // Sample usage:
+    // % curl 'http://localhost:5000/game/mario-bros/boards'
+    server.get({
+        url: '/game/:game/boards',
+        swagger: {
+            nickname: 'get-board',
+            notes: 'Returns a list of the leaderboards boards that are ' +
+                   'available for a particular game.',
+            summary: 'Create a Game Leaderboard'
+        }
+    }, db.redisView(function(client, done, req, res, wrap) {
+        var DATA = req.params;
+
+        // TODO: Check for valid game.
+        // TODO: Accept ID *or* slug.
+        var game = DATA.game;
+        if (!game) {
+            res.json(400, {error: 'bad_game'});
+            done();
+        }
+
+        // TODO: wrap
+        client.hvals('leaderboards:' + game, function(err, boards) {
+            if (err) {
+                res.json(400, {error: true});
+                done();
+            }
+            boards.forEach(function(board) {
+                board = JSON.parse(board);
+                // client.zrange('leaderboards:' + game + ':' + board.slug, 0, -1, function(err, scores) {
+                //     if (err) {
+                //         res.json(400, {error: true});
+                //         done();
+                //     }
+                //     board.scores = JSON.parse(scores);
+                //     console.log(board);
+                // });
+            });
+
+            res.json(boards);
+            done();
+        });
+    }));
+
+    // Sample usage:
     // % curl -X POST 'http://localhost:5000/game/mario-bros/board' -d 'name=Warios Smashed&slug=warios-smashed'
     server.post({
         url: '/game/:game/board',
         swagger: {
             nickname: 'create-board',
-            notes: 'Returns a list of the leaderboards boards that are ' +
-                   'available for a particular game.',
+            notes: 'Creates a leaderboard board for a particular game.',
             summary: 'Create a Game Leaderboard'
         },
         validation: {
