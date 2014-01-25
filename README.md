@@ -21,6 +21,7 @@ If you'd like to run the server for development, consider using `nodemon` instea
 nodemon app.js
 ```
 
+Make sure you have [redis](http://redis.io/topics/quickstart) installed and running before starting the server.
 
 ## Sample Usage
 
