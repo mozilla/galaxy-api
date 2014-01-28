@@ -35,9 +35,9 @@ module.exports = function(server) {
             }
         }
     }, db.redisView(function(client, done, req, res) {
-        var PUT = req.params;
+        var DATA = req.params;
 
-        var _user = PUT._user;
+        var _user = DATA._user;
         var email;
         if (!(email = auth.verifySSA(_user))) {
             res.json(403, {error: 'bad_user'});
@@ -45,7 +45,7 @@ module.exports = function(server) {
             return;
         }
 
-        var recipient = PUT.recipient;
+        var recipient = DATA.recipient;
 
         user.getUserFromEmail(client, email, function(err, userData) {
             if (err || !userData) {
@@ -57,8 +57,8 @@ module.exports = function(server) {
         });
         function updateUserData(data) {
             var hasChanges = false;
-            var newEmail = PUT.email;
-            var newUsername = PUT.username;
+            var newEmail = DATA.email;
+            var newUsername = DATA.username;
 
             updateEmail(data);
 
