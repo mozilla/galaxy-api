@@ -43,6 +43,9 @@ module.exports = function(server) {
         var data = {
             app_url: POST.app_url,
             appcache_path: POST.appcache_path,
+            artwork: {
+                background: POST.artwork_background
+            },
             created: new Date(),
             default_locale: POST.default_locale,
             description: POST.description,
