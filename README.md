@@ -7,7 +7,9 @@ Here lives the API that is consumed by the front-end interface for
 ## Installation
 
 ```bash
-# Install dependencies
+# Install redis via homebrew
+brew install redis
+# Install node dependencies
 npm install
 # Copy local configuration into place
 cp settings_local.js.dist settings_local.js
