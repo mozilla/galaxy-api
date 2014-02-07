@@ -20,6 +20,8 @@ module.exports = function(server) {
 
         var status = req.url.replace(/^\/game\/[a-zA-Z0-9\s-]+\//, "");
 
+        // TODO: save the new status to the db.
+
         res.json({slug: GET.slug, status: status})
     });
 };
