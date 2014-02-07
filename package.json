@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "private": true,
   "dependencies": {
+    "es6-promise": "*",
     "lodash": "2.4.x",
     "node-restify-swagger": "0.1.x",
     "node-restify-validation": "0.0.x",
