@@ -3,6 +3,7 @@ var serverHTTP = require('./server_http');
 var WebSocket = require('ws');
 var WebSocketServer = WebSocket.Server;
 
+var db = require('./db');
 
 module.exports.listen = function(cb) {
     var host = serverHTTP.url.replace(/https?:\/\//, 'ws://');
