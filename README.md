@@ -20,6 +20,7 @@ npm start
 If you'd like to run the server for development, consider using `nodemon` instead:
 
 ```bash
+npm install nodemon -g
 nodemon app.js
 ```
 
