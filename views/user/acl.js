@@ -1,3 +1,4 @@
+var auth = require('../../lib/auth');
 var db = require('../../db');
 var user = require('../../lib/user');
 
@@ -9,6 +10,10 @@ module.exports = function(server) {
     server.post({
         url: '/user/acl',
         validation: {
+            _user: {
+                description: "A user's SSA token",
+                isRequired: true
+            },
             id: {
                 description: 'User ID to change permissions for',
                 isRequired: true
@@ -41,32 +46,56 @@ module.exports = function(server) {
         // Convert from string to bool
         var isDev = !!+POST.dev;
         var isRev = !!+POST.reviewer;
-        var isAdmin = !!+POST.admin || false;
+        var isAdmin = !!+POST.admin;
+        var _user = POST._user;
 
-        console.log('Attempting permission update:');
+        var email = auth.verifySSA(_user);
+        if (!email) {
+            res.json(403, {error: 'bad_user'});
+            done();
+            return;
+        }
 
-        user.getUserFromID(client, userID, function(err, resp) {
-            if (err || !resp) {
-                res.json(500, {error: err || 'db_error'});
+        // Get user who is sending request and make sure it is an admin
+        user.getUserFromEmail(client, email, function(err, authenticator) {
+            if (err || !authenticator) {
+                res.json(500, {error: 'db_error'});
                 done();
                 return;
             }
 
-            user.updateUser(client, resp, {
-                permissions: {
-                  developer: isDev,
-                  reviewer: isRev,
-                  admin: isAdmin
-                }
-            }, function(err, newData) {
-                if (err) {
-                    res.json(500, {error: err});
-                } else {
-                    res.json(200, {permissions: newData.permissions});
-                }
+            // make sure it is admin
+            if (authenticator.permissions.admin !== true) {
+                res.json(403, {error: 'bad_permission'});
                 done();
+                return;
+            } 
+
+            // update permissions of target user
+            user.getUserFromID(client, userID, function(err, resp) {
+                if (err || !resp) {
+                    res.json(500, {error: 'db_error'});
+                    done();
+                    return;
+                }
+
+                user.updateUser(client, resp, {
+                    permissions: {
+                      developer: isDev,
+                      reviewer: isRev,
+                      admin: isAdmin
+                    }
+                }, function(err, newData) {
+                    if (err) {
+                        res.json(500, {error: err});
+                    } else {
+                        res.json(200, {permissions: newData.permissions});
+                    }
+                    done();
+                });
+
             });
         });
-      })
+    })
     );
 };
