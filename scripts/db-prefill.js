@@ -215,7 +215,7 @@ function purchaseGames(userSSAs, gameSlugs) {
         });
     }
 
-    return promises;
+    return Promise.all(promises);
 }
 
 utils.promiseMap({
