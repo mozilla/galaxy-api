@@ -63,7 +63,8 @@ module.exports = function(server) {
             orientation: POST.orientation,
             privacy_policy_url: POST.privacy_policy_url,
             screenshots: POST.screenshots,
-            slug: slug
+            slug: slug,
+            videos: POST.videos
         };
         db.flatfile.write('game', slug, data);
         res.json(data);
