@@ -1,27 +1,32 @@
-var db = require('../../db');
-var utils = require('../../lib/utils');
-
+var redis = require('../../db').redis;
+var url = require('url');
+var _ = require('lodash');
 
 module.exports = function(server) {
     // Sample usage:
     // % curl http://localhost:5000/game/mario-bros/approve'
 
-    server.get({
-        url: '/game/:slug/:type(approve|pending|reject|disabled|delete)/',
-        swagger: {
-            nickname: 'approve',
-            notes: 'Approve game',
-            summary: 'Approve a game for submission'
-        },
-        validation: { }
-    }, function(req, res) {
-        var GET = req.params;
-        var slug = GET.slug
 
-        var status = req.url.replace(/^\/game\/[a-zA-Z0-9\s-]+\//, "");
+    statuses = ['approve', 'pending', 'reject', 'disabled', 'delete'];
 
-        // TODO: save the new status to the db.
+    statuses.forEach(function (status) {
+        server.get({
+                url: '/game/:slug/' + status,
+                swagger: {
+                    nickname: status,
+                    notes: status + ' game',
+                    summary: 'Change the status of a game to ' + status
+                }
+            }, function(req, res) {
 
-        res.json({slug: GET.slug, status: status})
+                var GET = req.params;
+                var slug = GET.slug;
+
+                //TODO: save new status to redis
+
+                res.json({slug: slug, status: status});
+            }
+        );
     });
+   
 };
