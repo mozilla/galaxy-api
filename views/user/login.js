@@ -1,6 +1,7 @@
 var auth = require('../../lib/auth');
 var db = require('../../db');
 var user = require('../../lib/user');
+var utils = require('../../lib/utils');
 
 
 module.exports = function(server) {
@@ -40,7 +41,11 @@ module.exports = function(server) {
                     if (err) {
                         res.json(500, {error: err});
                         return;
-                    } else if (!resp) {
+                    } 
+                    // update login date if user already exists
+                    if (resp) {
+                        resp = user.updateUser(client, resp, {dateLastLogin: utils.now()});
+                    } else {
                         resp = user.newUser(client, email);
                     }
                     resp.avatar = user.getGravatarURL(email);
