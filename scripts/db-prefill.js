@@ -114,16 +114,24 @@ function createFriends(users) {
         });
     }
 
-    function acceptRequest(request) {
-        if (!(request.user && request.recipient))
-            // silently ignore acceptable errors
-            return;
+    function acceptRequest(friendRequest) {
         return new Promise(function(resolve,reject){
+            function done() {
+                resolve({
+                    user: friendRequest.user,
+                    recipient: friendRequest.recipient
+                });
+            }
+            if (!(friendRequest.user && friendRequest.recipient)) {
+                // silently ignore acceptable errors
+                done();
+                return;
+            }
             request.post({
                 url: API_ENDPOINT+'/user/friends/accept',
                 form: {
-                    _user: request.recipient.token,
-                    acceptee: request.user.id
+                    _user: friendRequest.recipient.token,
+                    acceptee: friendRequest.user.id
                 }
             }, function(err, resp, body) {
                 if (err) {
@@ -136,19 +144,18 @@ function createFriends(users) {
                     reject("Friend accept failed: " + json_resp.error)
                     return;
                 }
-                resolve({
-                    user: request.user,
-                    recipient: request.recipient
-                });
+                done();
             });
         });
     }
 
     var promises = [];
     _.each(users, function(user){
-        promises.push(sendRequests(user).then(acceptRequest));
+        promises.push(sendRequests(user).then(function(requests){
+            return Promise.all(requests.map(acceptRequest));
+        }));
     });
-    return Promise.all(promises)
+    return Promise.all(promises).then(_.flatten);
 }
 
 function createGames() {
@@ -224,11 +231,19 @@ utils.promiseMap({
 }).then(function(result){
     var gameSlugs = result.games.map(function(json) { return json.slug; });
     var userSSAs = result.users.map(function(user) { return user.token; });
-    // TODO: This promise should probably not be here
-    createFriends(result.users).then(function(result){console.log('done creating friends', result)})
-    return purchaseGames(userSSAs, gameSlugs);
+    var purchasePromise = purchaseGames(userSSAs, gameSlugs);
+
+    var friendsPromise = createFriends(result.users).then(function(result){
+        console.log('done creating friends', result);
+        return result;
+    });
+
+    return utils.promiseMap({
+        friends: friendsPromise,
+        purchases: purchasePromise
+    });
 }).then(function(result) {
-    console.log('purchased games:', result);
+    console.log('done! result:', result);
 }).catch(function(err) {
-    console.log('error:', err.stack);
+    console.log('error:', err, 'stack trace:', err.stack);
 });
