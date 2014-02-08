@@ -50,8 +50,12 @@ function createUsers() {
                     reject('Galaxy login failed: ' + json_resp.error);
                     return;
                 }
-
-                resolve({email:email, token:json_resp.token});
+                resolve({
+                    email:email,
+                    token:json_resp.token,
+                    username:json_resp.public.username,
+                    id:json_resp.public.id
+                });
             });
         });
     };
@@ -61,10 +65,6 @@ function createUsers() {
         promises.push(createUser('test' + i + '@test.com').then(login));
     }
     return Promise.all(promises);
-}
-
-function createGames() {
-    // do stuff
 }
 
 function createGames() {
@@ -106,7 +106,7 @@ function createGames() {
 }
 
 createUsers().then(function(result){
-    console.log('user creation done!');
+    console.log('user creation done!', result);
 }, function(err) {
     console.log('user creation error', err);
 });
