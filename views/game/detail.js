@@ -1,6 +1,7 @@
 var _ = require('lodash');
 
 var db = require('../../db');
+var gamelib = require('../../lib/game');
 
 
 module.exports = function(server) {
@@ -13,37 +14,36 @@ module.exports = function(server) {
             notes: 'Specific details and metadata about a game',
             summary: 'Game Details'
         }
-    }, function(req, res) {
+    }, db.redisView(function(client, done, req, res, wrap) {
         var GET = req.params;
         var slug = GET.slug;
 
-        var game = db.flatfile.read('game', slug);
+        if (!slug) {
+            res.json(400, {error: 'bad_game'});
+            done();
+            return;
+        }
 
-        var keys = [
-            'app_url',
-            'appcache_path',
-            'created',
-            'default_locale',
-            'description',
-            'developer_name',
-            'developer_url',
-            'fullscreen',
-            'genre',
-            'homepage_url',
-            'icons',
-            'license',
-            'locales',
-            'name',
-            'orientation',
-            'privacy',
-            'screenshots',
-            'slug'
-        ];
+        gamelib.getGameIDFromSlug(client, slug, function(err, id) {
+            if (err) {
+                res.json(400, {error: err});
+                done();
+                return;
+            }
 
-        var data = _.pick(game, keys);
+            gamelib.getPublicGameObj(client, id, function(game) {
+                if (!game) {
+                    res.json(500, {error: 'db_error'});
+                    done();
+                    return;
+                }
 
-        res.json(data);
-    });
+                res.json(game);
+                done();
+                return;
+            });
+        });
+    }));
 
     // TODO: Serve each manifest from a separate subdomain.
     server.get({
