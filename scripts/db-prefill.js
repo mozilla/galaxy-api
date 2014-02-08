@@ -9,52 +9,58 @@ const PERSONA_ENDPOINT = 'http://localhost:9001';
 const USER_COUNT = 100;
 
 function createUsers() {
-    var SSATokens = [];
-
-    function createUser(email){
-        var req = request.post({
-            url: PERSONA_ENDPOINT+'/generate',
-            form: {
-                email: email
-            }
-        }, function(err, resp, body) {
-            if (err) {
-                console.log('Connection to assertion generator failed.', null);
-                return;
-            }
-            
-            var json_resp = JSON.parse(body);
-            login(email, json_resp.assertion);
+    function createUser(email) {
+        return new Promise(function(resolve,reject){
+            request.post({
+                url: PERSONA_ENDPOINT+'/generate',
+                form: {
+                    email: email
+                }
+            }, function(err, resp, body) {
+                if (err) {
+                    reject('Connection to assertion generator failed');
+                    return;
+                }
+                
+                var json_resp = JSON.parse(body);
+                resolve({email:email, assertion:json_resp.assertion});
+            });
         });
     };
 
-    function login(email, assertion){
-        var req = request.post({
-            url: API_ENDPOINT+'/user/login',
-            form: {
-                assertion: assertion,
-                audience: API_ENDPOINT
-            }
-        }, function(err, resp, body) {
-            if (err) {
-                console.log('Galaxy login failed.', null);
-                return;
-            }
-            
-            var json_resp = JSON.parse(body);
-            if (json_resp.error) {
-                console.log('Galaxy login failed:', json_resp.error);
-                return;
-            }
+    function login(emailAssertion){
+        var email = emailAssertion.email;
+        var assertion = emailAssertion.assertion;
 
-            SSATokens[email] = json_resp.token;
-            console.log(json_resp)
+        return new Promise(function(resolve,reject){
+            request.post({
+                url: API_ENDPOINT+'/user/login',
+                form: {
+                    assertion: assertion,
+                    audience: API_ENDPOINT
+                }
+            }, function(err, resp, body) {
+                if (err) {
+                    reject('Galaxy login failed.');
+                    return;
+                }
+                
+                var json_resp = JSON.parse(body);
+                if (json_resp.error) {
+                    reject('Galaxy login failed: ' + json_resp.error);
+                    return;
+                }
+
+                resolve({email:email, token:json_resp.token});
+            });
         });
     };
 
+    var promises = [];
     for (var i = 0; i < USER_COUNT; i++){
-        createUser('test' + i + '@test.com')
+        promises.push(createUser('test' + i + '@test.com').then(login));
     }
+    return Promise.all(promises);
 }
 
 function createGames() {
@@ -99,10 +105,14 @@ function createGames() {
     return Promise.all(promises);
 }
 
-createUsers();
+createUsers().then(function(result){
+    console.log('user creation done!');
+}, function(err) {
+    console.log('user creation error', err);
+});
 
 createGames().then(function(result){
-    console.log('games done! result:', result);
+    console.log('game creation done! result:', result);
 }, function(err) {
-    console.log('games error:', err);
+    console.log('game creation error:', err);
 });
