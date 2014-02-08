@@ -97,11 +97,15 @@ function createFriends(users) {
                     if (json_resp.error === 'already_friends') {
                         console.log("Friend request failed:", json_resp.error);
                         resolve({});
+                    } if (json_resp.error === 'already_requested') {
+                        console.log("Friend request failed:", json_resp.error);
+                        resolve({});
                     } else {
-                        reject('Friend request failed: '+ json_resp.error);
+                        reject(json_resp.error);
                     }
                     return;
                 }
+                
                 resolve({
                     user: user,
                     recipient: recipient
@@ -111,7 +115,7 @@ function createFriends(users) {
     }
 
     function acceptRequests(requests) {
-        console.log(requests)
+        requests = _.flatten(requests);
         var promises = [];
         _.each(recipients, function(request){
             promises.push(acceptRequest(request));
@@ -151,7 +155,7 @@ function createFriends(users) {
         promises.push(sendRequests(user));
     });
     return Promise.all(promises).then(acceptRequests, function(err) {
-        console.log('user request error', err);
+        console.log('friend request error', err);
     });
 }
 
@@ -228,6 +232,8 @@ utils.promiseMap({
 }).then(function(result){
     var gameSlugs = result.games.map(function(json) { return json.slug; });
     var userSSAs = result.users.map(function(user) { return user.token; });
+    // TODO: This promise should probably not be here
+    createFriends(result.users).then(function(result){console.log('done', result)})
     return purchaseGames(userSSAs, gameSlugs);
 }).then(function(result) {
     console.log('purchased games:', result);
