@@ -4,15 +4,6 @@ var settings_local = require('../settings_local');
 var _ = require('lodash');
 var Promise = require('es6-promise').Promise;
 
-var newPromise = new Promise(function(resolve, reject){
-    console.log('hi');
-    resolve('done!');
-});
-
-newPromise.then(function(result){
-    console.log('promise result:', result);
-});
-
 const API_ENDPOINT = 'http://localhost:5000';
 const PERSONA_ENDPOINT = 'http://localhost:9001';
 const USER_COUNT = 100;
@@ -90,20 +81,28 @@ function createGames() {
         }
     ];
 
+    var promises = [];
     _.each(fake_games, function(game) {
-        request.post({
-            url: API_ENDPOINT + '/game/submit',
-            form: _.defaults(game, default_params)
-        }, function(err, resp, body) {
-            if (err) {
-                throw new Error(err);
-                return;
-            }
-
-            console.log('game! body:', body);
-        });
+        promises.push(new Promise(function(resolve, reject) {
+            request.post({
+                url: API_ENDPOINT + '/game/submit',
+                form: _.defaults(game, default_params)
+            }, function(err, resp, body) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(body);
+            });
+        }));
     });
+    return Promise.all(promises);
 }
 
 createUsers();
-createGames();
+
+createGames().then(function(result){
+    console.log('games done! result:', result);
+}, function(err) {
+    console.log('games error:', err);
+});
