@@ -29,10 +29,9 @@ function createUsers() {
     };
 
     function login(emailAssertion){
-        var email = emailAssertion.email;
-        var assertion = emailAssertion.assertion;
-
         return new Promise(function(resolve,reject){
+            var email = emailAssertion.email;
+            var assertion = emailAssertion.assertion;
             request.post({
                 url: API_ENDPOINT+'/user/login',
                 form: {
@@ -65,6 +64,93 @@ function createUsers() {
         promises.push(createUser('test' + i + '@test.com').then(login));
     }
     return Promise.all(promises);
+}
+
+function createFriends(users) {
+    function sendRequests(user) {
+        var recipients = _.sample(users, Math.min(3,USER_COUNT));
+        var promises = [];
+        _.each(recipients, function(recipient){
+            promises.push(sendRequest(user, recipient));
+        });
+        return Promise.all(promises);
+    }
+
+    function sendRequest(user, recipient) {
+        return new Promise(function(resolve,reject){
+            request.post({
+                url: API_ENDPOINT+'/user/friends/request',
+                form: {
+                    _user: user.token,
+                    recipient: recipient.id
+                }
+            }, function(err, resp, body) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                
+                var json_resp = JSON.parse(body);
+                if (json_resp.error) {
+                    if (json_resp.error === 'already_friends') {
+                        console.log("Friend request failed:", json_resp.error);
+                        resolve({});
+                    } else {
+                        reject('Friend request failed: '+ json_resp.error);
+                    }
+                    return;
+                }
+                resolve({
+                    user: user,
+                    recipient: recipient
+                });
+            });
+        });
+    }
+
+    function acceptRequests(requests) {
+        console.log(requests)
+        var promises = [];
+        _.each(recipients, function(request){
+            promises.push(acceptRequest(request));
+        });
+        return Promise.all(promises);
+    }
+
+    function acceptRequest(request) {
+        return new Promise(function(resolve,reject){
+            request.post({
+                url: API_ENDPOINT+'/user/friends/accept',
+                form: {
+                    _user: request.recipient.token,
+                    acceptee: request.user.id
+                }
+            }, function(err, resp, body) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                
+                var json_resp = JSON.parse(body);
+                if (json_resp.error) {
+                    reject("Friend accept failed: " + json_resp.error)
+                    return;
+                }
+                resolve({
+                    user: request.user,
+                    recipient: request.recipient
+                });
+            });
+        });
+    }
+
+    var promises = [];
+    _.each(users, function(user){
+        promises.push(sendRequests(user));
+    });
+    return Promise.all(promises).then(acceptRequests, function(err) {
+        console.log('user request error', err);
+    });
 }
 
 function createGames() {
@@ -106,7 +192,7 @@ function createGames() {
 }
 
 createUsers().then(function(result){
-    console.log('user creation done!', result);
+    console.log('user creation done!');
 }, function(err) {
     console.log('user creation error', err);
 });
