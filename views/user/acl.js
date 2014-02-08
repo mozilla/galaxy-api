@@ -1,12 +1,10 @@
-var auth = require('../../lib/auth');
 var db = require('../../db');
 var user = require('../../lib/user');
-var utils = require('../../lib/utils');
 
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/user/acl' -d 'id=1&dev=true&rev=true'
+    // % curl -X POST 'http://localhost:5000/user/acl' -d 'id=1&dev=1&rev=1&admin=1'
     // TODO: Make sure only admins can do this
     server.post({
         url: '/user/acl',
@@ -17,15 +15,18 @@ module.exports = function(server) {
             },
             dev: {
                 description: 'Whether or not user should have developer permissions',
-                isRequired: false
+                isRequired: true,
+                isIn: ["0", "1"]
             },
             rev: {
                 description: 'Whether or not user should have reviewer permissions',
-                isRequired: false
+                isRequired: true,
+                isIn: ["0", "1"]
             },
             admin: {
                 description: 'Whether or not user should have admin permissions',
-                isRequired: false
+                isRequired: true,
+                isIn: ["0", "1"]
             }
         },
         swagger: {
@@ -37,63 +38,12 @@ module.exports = function(server) {
         var POST = req.params;
 
         var userID = POST.id;
-        var isDev = POST.dev || null;
-        var isRev = POST.rev || null;
-        var isAdmin = POST.admin || null;
+        // Convert from string to bool
+        var isDev = Boolean(+POST.dev);
+        var isRev = Boolean(+POST.rev);
+        var isAdmin = Boolean(+POST.admin);
 
         console.log('Attempting permission update:');
-
-        // make sure isDev and isRev are bools, not strings
-        switch (isDev) {
-            case "true":
-                isDev = true;
-                break;
-            case "false":
-                isDev = false;
-                break;
-            case null:
-            case true:
-            case false:
-                break;
-            default:
-                res.json(500, {error: "Dev must be 'true' or 'false'"});
-                done();
-                return;
-        }
-
-        switch (isRev) {
-            case "true":
-                isRev = true;
-                break;
-            case "false":
-                isRev = false;
-                break;
-            case null:
-            case true:
-            case false:
-                break;
-            default:
-                res.json(500, {error: "Rev must be 'true' or 'false'"});
-                done();
-                return;
-        }
-
-        switch (isAdmin) {
-            case "true":
-                isAdmin = true;
-                break;
-            case "false":
-                isAdmin = false;
-                break;
-            case null:
-            case true:
-            case false:
-                break;
-            default:
-                res.json(500, {error: "Admin must be 'true' or 'false'"});
-                done();
-                return;
-        }
 
         user.getUserFromID(client, userID, function(err, resp) {
             if (err || !resp) {
@@ -102,23 +52,19 @@ module.exports = function(server) {
                 return;
             }
 
-
             var newData = user.updateUser(client, resp, {
                 permissions: {
-                  developer: isDev != null ? isDev : resp.permissions.developer,
-                  reviewer: isRev != null ? isRev : resp.permissions.reviewer,
-                  admin: isAdmin != null ? isAdmin : resp.permissions.admin
+                  developer: isDev,
+                  reviewer: isRev,
+                  admin: isAdmin
                 }
             });
-
-            console.log('permissions granted.');
 
             res.json(200, {
                 permissions: newData.permissions
             });
 
             done();
-            return;
 
         });
         

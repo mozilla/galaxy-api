@@ -14,11 +14,11 @@ var user = require('./lib/user');
     'game/manifest',
     'game/moderate',
     'game/submit',
+    'user/acl',
     'user/friends',
     'user/login',
     'user/purchase',
-    'user/search',
-    'user/acl'
+    'user/search'
 ].forEach(function(view) {
     require('./views/' + view)(serverHTTP);
 });
