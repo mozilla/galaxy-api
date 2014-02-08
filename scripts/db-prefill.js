@@ -2,6 +2,16 @@ var request = require('request');
 var settings = require('../settings');
 var settings_local = require('../settings_local');
 var _ = require('lodash');
+var Promise = require('es6-promise').Promise;
+
+var newPromise = new Promise(function(resolve, reject){
+    console.log('hi');
+    resolve('done!');
+});
+
+newPromise.then(function(result){
+    console.log('promise result:', result);
+});
 
 const API_ENDPOINT = 'http://localhost:5000';
 const PERSONA_ENDPOINT = 'http://localhost:9001';
