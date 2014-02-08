@@ -22,6 +22,10 @@ module.exports = function(server) {
             rev: {
                 description: 'Whether or not user should have reviewer permissions',
                 isRequired: false
+            },
+            admin: {
+                description: 'Whether or not user should have admin permissions',
+                isRequired: false
             }
         },
         swagger: {
@@ -35,6 +39,7 @@ module.exports = function(server) {
         var userID = POST.id;
         var isDev = POST.dev || null;
         var isRev = POST.rev || null;
+        var isAdmin = POST.admin || null;
 
         console.log('Attempting permission update:');
 
@@ -72,6 +77,24 @@ module.exports = function(server) {
                 done();
                 return;
         }
+
+        switch (isAdmin) {
+            case "true":
+                isAdmin = true;
+                break;
+            case "false":
+                isAdmin = false;
+                break;
+            case null:
+            case true:
+            case false:
+                break;
+            default:
+                res.json(500, {error: "Admin must be 'true' or 'false'"});
+                done();
+                return;
+        }
+
         user.getUserFromID(client, userID, function(err, resp) {
             if (err || !resp) {
                 res.json(500, {error: err || 'db_error'});
@@ -83,7 +106,8 @@ module.exports = function(server) {
             var newData = user.updateUser(client, resp, {
                 permissions: {
                   developer: isDev != null ? isDev : resp.permissions.developer,
-                  reviewer: isRev != null ? isRev : resp.permissions.reviewer
+                  reviewer: isRev != null ? isRev : resp.permissions.reviewer,
+                  admin: isAdmin != null ? isAdmin : resp.permissions.admin
                 }
             });
 
