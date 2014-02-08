@@ -1,8 +1,10 @@
 var request = require('request');
-var settings = require('../settings');
-var settings_local = require('../settings_local');
 var _ = require('lodash');
 var Promise = require('es6-promise').Promise;
+
+var settings = require('../settings');
+var settings_local = require('../settings_local');
+var utils = require('../lib/utils');
 
 const API_ENDPOINT = 'http://localhost:5000';
 const PERSONA_ENDPOINT = 'http://localhost:9001';
@@ -186,19 +188,49 @@ function createGames() {
                 }
                 resolve(body);
             });
-        }));
+        }).then(JSON.parse));
     });
     return Promise.all(promises);
 }
 
-createUsers().then(function(result){
-    console.log('user creation done!');
-}, function(err) {
-    console.log('user creation error', err);
-});
+function purchaseGames(userSSAs, gameSlugs) {
+    var promises = [];
+    _.each(userSSAs, function(user){
+        _.each(_.sample(gameSlugs, 2), function(game) {
+            promises.push(newPurchase(user, game));
+        });
+    });
 
-createGames().then(function(result){
-    console.log('game creation done! result:', result);
-}, function(err) {
-    console.log('game creation error:', err);
+    function newPurchase(user, game) {
+        return new Promise(function(resolve, reject) {
+            request.post({
+                url: API_ENDPOINT + '/user/purchase',
+                form: {
+                    _user: user,
+                    game: game
+                }
+            }, function(err, resp, body) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(body);
+            });
+        });
+    }
+
+    return promises;
+}
+
+utils.promiseMap({
+    users: createUsers(), 
+    games: createGames()
+}).then(function(result){
+    var gameSlugs = result.games.map(function(json) { return json.slug; });
+    var userSSAs = result.users.map(function(user) { return user.token; });
+    return purchaseGames(userSSAs, gameSlugs);
+}).then(function(result) {
+    console.log('purchased games:', result);
+}).catch(function(err) {
+    console.log('error:', err.stack);
 });
