@@ -1,8 +1,10 @@
 var request = require('request');
-var settings = require('../settings');
-var settings_local = require('../settings_local');
 var _ = require('lodash');
 var Promise = require('es6-promise').Promise;
+
+var settings = require('../settings');
+var settings_local = require('../settings_local');
+var utils = require('../lib/utils');
 
 const API_ENDPOINT = 'http://localhost:5000';
 const PERSONA_ENDPOINT = 'http://localhost:9001';
@@ -96,14 +98,14 @@ function createGames() {
                 }
                 resolve(body);
             });
-        }));
+        }).then(JSON.parse));
     });
     return Promise.all(promises);
 }
 
-function purchaseGames(userIDs, gameSlugs) {
+function purchaseGames(userSSAs, gameSlugs) {
     var promises = [];
-    _.each(userIDs, function(user){
+    _.each(userSSAs, function(user){
         _.each(_.sample(gameSlugs, 2), function(game) {
             promises.push(newPurchase(user, game));
         });
@@ -130,17 +132,15 @@ function purchaseGames(userIDs, gameSlugs) {
     return promises;
 }
 
-createUsers().then(function(result){
-    console.log('user creation done!');
-}, function(err) {
-    console.log('user creation error', err);
-});
-
-createGames().then(function(result){
-    var gameSlugs = _.map(result, function(json) { 
-        return JSON.parse(json).slug; 
-    });
-    
-}, function(err) {
-    console.log('game creation error:', err);
+utils.promiseMap({
+    users: createUsers(), 
+    games: createGames()
+}).then(function(result){
+    var gameSlugs = result.games.map(function(json) { return json.slug; });
+    var userSSAs = result.users.map(function(user) { return user.token; });
+    return purchaseGames(userSSAs, gameSlugs);
+}).then(function(result) {
+    console.log('purchased games:', result);
+}).catch(function(err) {
+    console.log('error:', err.stack);
 });
