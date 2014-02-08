@@ -54,7 +54,7 @@ module.exports = function(server) {
                         token: auth.createSSA(email),
                         settings: resp,
                         public: user.publicUserObj(resp),
-                        permissions: {}
+                        permissions: resp.permissions
                     });
                     client.end();
                 });
