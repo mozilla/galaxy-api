@@ -52,8 +52,12 @@ function createUsers() {
                     reject('Galaxy login failed: ' + json_resp.error);
                     return;
                 }
-
-                resolve({email:email, token:json_resp.token});
+                resolve({
+                    email:email,
+                    token:json_resp.token,
+                    username:json_resp.public.username,
+                    id:json_resp.public.id
+                });
             });
         });
     };
