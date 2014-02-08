@@ -58,10 +58,6 @@ function createUsers() {
 }
 
 function createGames() {
-    // do stuff
-}
-
-function createGames() {
     var default_params = {
         icons: '128',
         screenshots: 'yes'
@@ -99,10 +95,42 @@ function createGames() {
     return Promise.all(promises);
 }
 
+function purchaseGames(userIDs, gameSlugs) {
+    var promises = [];
+    _.each(userIDs, function(user){
+        _.each(_.sample(gameSlugs, 2), function(game) {
+            promises.push(newPurchase(user, game));
+        });
+    });
+
+    function newPurchase(user, game) {
+        return new Promise(function(resolve, reject) {
+            request.post({
+                url: API_ENDPOINT + '/user/purchase',
+                form: {
+                    _user: user,
+                    game: game
+                }
+            }, function(err, resp, body) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(body);
+            });
+        });
+    }
+
+    return promises;
+}
+
 createUsers();
 
 createGames().then(function(result){
-    console.log('games done! result:', result);
+    var gameSlugs = _.map(result, function(json) { 
+        return JSON.parse(json).slug; 
+    });
+
 }, function(err) {
     console.log('games error:', err);
 });
