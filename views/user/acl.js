@@ -4,7 +4,7 @@ var user = require('../../lib/user');
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/user/acl' -d 'id=1&dev=1&rev=1&admin=1'
+    // % curl -X POST 'http://localhost:5000/user/acl' -d 'id=1&dev=1&reviewer=1&admin=1'
     // TODO: Make sure only admins can do this
     server.post({
         url: '/user/acl',
@@ -16,17 +16,17 @@ module.exports = function(server) {
             dev: {
                 description: 'Whether or not user should have developer permissions',
                 isRequired: true,
-                isIn: ["0", "1"]
+                isIn: ['0', '1']
             },
-            rev: {
+            reviewer: {
                 description: 'Whether or not user should have reviewer permissions',
                 isRequired: true,
-                isIn: ["0", "1"]
+                isIn: ['0', '1']
             },
             admin: {
                 description: 'Whether or not user should have admin permissions',
-                isRequired: true,
-                isIn: ["0", "1"]
+                isRequired: false,
+                isIn: ['0', '1']
             }
         },
         swagger: {
@@ -39,9 +39,9 @@ module.exports = function(server) {
 
         var userID = POST.id;
         // Convert from string to bool
-        var isDev = Boolean(+POST.dev);
-        var isRev = Boolean(+POST.rev);
-        var isAdmin = Boolean(+POST.admin);
+        var isDev = !!+POST.dev;
+        var isRev = !!+POST.reviewer;
+        var isAdmin = !!+POST.admin || false;
 
         console.log('Attempting permission update:');
 
