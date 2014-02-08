@@ -114,16 +114,10 @@ function createFriends(users) {
         });
     }
 
-    function acceptRequests(requests) {
-        requests = _.flatten(requests);
-        var promises = [];
-        _.each(recipients, function(request){
-            promises.push(acceptRequest(request));
-        });
-        return Promise.all(promises);
-    }
-
     function acceptRequest(request) {
+        if (!(request.user && request.recipient))
+            // silently ignore acceptable errors
+            return;
         return new Promise(function(resolve,reject){
             request.post({
                 url: API_ENDPOINT+'/user/friends/accept',
@@ -152,11 +146,9 @@ function createFriends(users) {
 
     var promises = [];
     _.each(users, function(user){
-        promises.push(sendRequests(user));
+        promises.push(sendRequests(user).then(acceptRequest));
     });
-    return Promise.all(promises).then(acceptRequests, function(err) {
-        console.log('friend request error', err);
-    });
+    return Promise.all(promises)
 }
 
 function createGames() {
@@ -233,7 +225,7 @@ utils.promiseMap({
     var gameSlugs = result.games.map(function(json) { return json.slug; });
     var userSSAs = result.users.map(function(user) { return user.token; });
     // TODO: This promise should probably not be here
-    createFriends(result.users).then(function(result){console.log('done', result)})
+    createFriends(result.users).then(function(result){console.log('done creating friends', result)})
     return purchaseGames(userSSAs, gameSlugs);
 }).then(function(result) {
     console.log('purchased games:', result);
