@@ -26,7 +26,7 @@ module.exports = function(server) {
 
         gamelib.getGameIDFromSlug(client, slug, function(err, id) {
             if (err) {
-                res.json(400, {error: err});
+                res.json(500, {error: 'db_error'});
                 done();
                 return;
             }
@@ -34,13 +34,10 @@ module.exports = function(server) {
             gamelib.getPublicGameObj(client, id, function(game) {
                 if (!game) {
                     res.json(500, {error: 'db_error'});
-                    done();
-                    return;
+                } else {
+                    res.json(game);
                 }
-
-                res.json(game);
                 done();
-                return;
             });
         });
     }));
