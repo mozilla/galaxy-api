@@ -50,7 +50,7 @@ module.exports = function(server) {
             var data = _.pick(game, keys);
 
             res.contentType = 'application/x-web-app-manifest+json';
-            res.send(JSON.stringify(data));
+            res.json(data);
             done();
         });
     }));

@@ -1,6 +1,6 @@
 var db = require('../../db');
-var utils = require('../../lib/utils');
 var gamelib = require('../../lib/game');
+var utils = require('../../lib/utils');
 
 
 module.exports = function(server) {
