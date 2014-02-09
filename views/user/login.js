@@ -45,13 +45,13 @@ module.exports = function(server) {
 
                     // update login date if user already exists
                     if (resp) {
-                        user.updateUser(client, resp, {
+                        user.updateUser(client, resp.id, {
                             dateLastLogin: utils.now()
                         }, function(err, newData){
-                            done(newData);
+                            done(err, newData);
                         });
                     } else {
-                        done(user.newUser(client, email));
+                        done(undefined, user.newUser(client, email));
                     }
 
                     function done(err, newData) {
