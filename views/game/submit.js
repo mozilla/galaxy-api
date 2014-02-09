@@ -1,5 +1,6 @@
 var db = require('../../db');
 var utils = require('../../lib/utils');
+var gamelib = require('../../lib/game');
 
 
 module.exports = function(server) {
@@ -37,7 +38,7 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, function(req, res) {
+    }, db.redisView(function(client, done, req, res, wrap) {
         var POST = req.params;
         slug = utils.slugify(POST.slug || POST.name);
         var data = {
@@ -66,7 +67,8 @@ module.exports = function(server) {
             slug: slug,
             videos: POST.videos
         };
-        db.flatfile.write('game', slug, data);
+
+        gamelib.newGame(client, data);
         res.json(data);
-    });
+    }));
 };
