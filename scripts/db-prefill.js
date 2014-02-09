@@ -103,6 +103,48 @@ function createUsers() {
     return Promise.all(promises);
 }
 
+function createGames() {
+    var default_params = {
+        icons: '128',
+        screenshots: 'yes'
+    };
+
+    var promises = FAKE_GAMES.map(function(game) {
+        return postPromise(API_ENDPOINT + '/game/submit',
+            _.defaults(game, default_params));
+    });
+    return Promise.all(promises);
+}
+
+function purchaseGames(userSSAs, gameSlugs) {
+    var promises = [];
+    _.each(userSSAs, function(user){
+        _.each(_.sample(gameSlugs, 2), function(game) {
+            promises.push(newPurchase(user, game));
+        });
+    });
+
+    function newPurchase(user, game) {
+        return new Promise(function(resolve, reject) {
+            request.post({
+                url: API_ENDPOINT + '/user/purchase',
+                form: {
+                    _user: user,
+                    game: game
+                }
+            }, function(err, resp, body) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(body);
+            });
+        });
+    }
+
+    return Promise.all(promises);
+}
+
 function createFriends(users) {
     function sendRequests(user) {
         var recipients = _.sample(users, Math.min(3, USER_COUNT));
@@ -185,65 +227,28 @@ function createFriends(users) {
     }
 
     var promises = [];
-    _.each(users, function(user){
-        promises.push(sendRequests(user).then(function(requests){
-            return Promise.all(requests.map(acceptRequest));
-        }));
+    var promises = users.map(function(user) {
+        return sendRequests(user).then(function(requests) {
+            return Promise.all(requests.map(acceptRequest))
+        });
     });
     return Promise.all(promises).then(_.flatten);
 }
 
-function createGames() {
-    var default_params = {
-        icons: '128',
-        screenshots: 'yes'
-    };
-
-    var promises = [];
-    _.each(FAKE_GAMES, function(game) {
-        promises.push(new Promise(function(resolve, reject) {
-            request.post({
-                url: API_ENDPOINT + '/game/submit',
-                form: _.defaults(game, default_params)
-            }, function(err, resp, body) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(body);
-            });
-        }).then(JSON.parse));
-    });
-    return Promise.all(promises);
-}
-
-function purchaseGames(userSSAs, gameSlugs) {
-    var promises = [];
-    _.each(userSSAs, function(user){
-        _.each(_.sample(gameSlugs, 2), function(game) {
-            promises.push(newPurchase(user, game));
+// Helper function that returns a promise for a post
+function postPromise(url, form) {
+    return new Promise(function(resolve, reject) {
+        request.post({
+            url: url,
+            form: form
+        }, function(err, resp, body) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(JSON.parse(body));
         });
     });
-
-    function newPurchase(user, game) {
-        return new Promise(function(resolve, reject) {
-            request.post({
-                url: API_ENDPOINT + '/user/purchase',
-                form: {
-                    _user: user,
-                    game: game
-                }
-            }, function(err, resp, body) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(body);
-            });
-        });
-    }
-
-    return Promise.all(promises);
 }
 
 function run() {
@@ -262,7 +267,6 @@ function run() {
             purchases: purchasePromise
         });
     }).then(function(result) {
-        console.log('created', USER_COUNT, 'users and', Object.keys(FAKE_GAMES).length, 'games');
         // TODO: log some form of useful output
         console.log('also generated purchases and friend requests');
     }).catch(function(err) {
