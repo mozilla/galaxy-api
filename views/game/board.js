@@ -229,9 +229,7 @@ module.exports = function(server) {
         }
 
         function boardCallback(err, result) {
-            db.plsNoError(res, done, function(jsonResult) {
-                res.json(jsonResult);
-            })(err, result);
+            db.plsNoError(res, done, res.json.bind(res))(err, result);
         }
 
         var params = leaderboard.boardParams(game, board, sortDesc, page, limit, email);
