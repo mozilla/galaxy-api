@@ -8,12 +8,12 @@ var settings = require('../settings');
 var settings_local = require('../settings_local');
 var utils = require('../lib/utils');
 
-// NOTE: In order to generate users with this script, you should first run
-// persona-faker (http://github.com/aricha/persona-faker) so that we can
-// generate fake Persona assertions (instead of flooding the production
-// Persona server with fake users). You should also update PERSONA_VERIFICATION_URL
-// in settings_local.js to point to this endpoint (ie. http://localhost:9001/verify)
-// so that galaxy-api actually touches this server.
+// NOTE: In order to generate users with this script, you should first start up
+// persona-faker (npm run-script persona-faker) so that we can generate fake
+// Persona assertions (instead of flooding the production Persona server with fake users).
+// You should also update PERSONA_VERIFICATION_URL in settings_local.js to point to
+// this endpoint (ie. http://localhost:9001/verify) so that galaxy-api actually 
+// touches this server.
 const API_ENDPOINT = 'http://localhost:5000';
 const PERSONA_ENDPOINT = 'http://localhost:9001';
 
