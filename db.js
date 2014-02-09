@@ -128,24 +128,37 @@ flatDB.prototype = {
                 console.error('Error creating', fn + ':', err);
             }
             if (callback) {
-                callback(err);
+                callback(err, data);
             }
         });
     },
     read: function(type, slug, callback) {
         var fn = path.resolve('data', type, utils.slugify(slug) + '.json');
+        var err = null;
         var output;
+
         try {
             output = JSON.parse(fs.readFileSync(fn, 'utf8').toString() || '{}');
-            if (callback) {
-                callback(null, output);
-            }
-            return output;
         } catch(e) {
             console.error('Error reading', fn + ':', e);
-            callback(e, {});
-            return {};
+            err = e;
+            output = {};
         }
+
+        if (callback) {
+            callback(err, output);
+        }
+
+        return output;
+    },
+    update: function(type, slug, data, callback) {
+        var fn = path.resolve('data', type, utils.slugify(slug) + '.json');
+        var err = null;
+
+        fs.readFile(fn, 'utf8', function(err, oldData) {
+            data = _.extend(oldData, data);
+            this.write(type, slug, data, callback);
+        });
     }
 };
 exports.flatfile = new flatDB();
