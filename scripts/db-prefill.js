@@ -1,6 +1,5 @@
 var _ = require('lodash');
 var request = require('request');
-
 var Promise = require('es6-promise').Promise;
 
 var db = require('../db');
@@ -48,9 +47,9 @@ if (settings_local.FLUSH_DB_ON_PREFILL) {
 
 function createUsers() {
     function createUser(email) {
-        return new Promise(function(resolve,reject){
+        return new Promise(function(resolve,reject) {
             request.post({
-                url: PERSONA_ENDPOINT+'/generate',
+                url: PERSONA_ENDPOINT + '/generate',
                 form: {
                     email: email
                 }
@@ -61,7 +60,7 @@ function createUsers() {
                 }
                 
                 var json_resp = JSON.parse(body);
-                resolve({email:email, assertion:json_resp.assertion});
+                resolve({email: email, assertion: json_resp.assertion});
             });
         });
     };
@@ -71,7 +70,7 @@ function createUsers() {
             var email = emailAssertion.email;
             var assertion = emailAssertion.assertion;
             request.post({
-                url: API_ENDPOINT+'/user/login',
+                url: API_ENDPOINT + '/user/login',
                 form: {
                     assertion: assertion,
                     audience: API_ENDPOINT
@@ -88,10 +87,10 @@ function createUsers() {
                     return;
                 }
                 resolve({
-                    email:email,
-                    token:json_resp.token,
-                    username:json_resp.public.username,
-                    id:json_resp.public.id
+                    email: email,
+                    token: json_resp.token,
+                    username: json_resp.public.username,
+                    id: json_resp.public.id
                 });
             });
         });
@@ -106,7 +105,7 @@ function createUsers() {
 
 function createFriends(users) {
     function sendRequests(user) {
-        var recipients = _.sample(users, Math.min(3,USER_COUNT));
+        var recipients = _.sample(users, Math.min(3, USER_COUNT));
         var promises = [];
         _.each(recipients, function(recipient){
             promises.push(sendRequest(user, recipient));
@@ -115,9 +114,9 @@ function createFriends(users) {
     }
 
     function sendRequest(user, recipient) {
-        return new Promise(function(resolve,reject){
+        return new Promise(function(resolve, reject){
             request.post({
-                url: API_ENDPOINT+'/user/friends/request',
+                url: API_ENDPOINT + '/user/friends/request',
                 form: {
                     _user: user.token,
                     recipient: recipient.id
@@ -130,11 +129,9 @@ function createFriends(users) {
                 
                 var json_resp = JSON.parse(body);
                 if (json_resp.error) {
-                    if (json_resp.error === 'already_friends') {
-                        console.log("Friend request failed:", json_resp.error);
-                        resolve({});
-                    } if (json_resp.error === 'already_requested') {
-                        console.log("Friend request failed:", json_resp.error);
+                    if ((json_resp.error === 'already_friends')
+                        || (json_resp.error === 'already_requested')) {
+                        console.log('Friend request warning:', json_resp.error);
                         resolve({});
                     } else {
                         reject(json_resp.error);
@@ -166,7 +163,7 @@ function createFriends(users) {
                 return;
             }
             request.post({
-                url: API_ENDPOINT+'/user/friends/accept',
+                url: API_ENDPOINT + '/user/friends/accept',
                 form: {
                     _user: friendRequest.recipient.token,
                     acceptee: friendRequest.user.id
