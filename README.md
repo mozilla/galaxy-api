@@ -24,8 +24,6 @@ npm install nodemon -g
 nodemon app.js
 ```
 
-Make sure you have [redis](http://redis.io/topics/quickstart) installed and running before starting the server. 
-Install using `brew install redis` (OS X) or `apt-get install redis-server`, then run using `redis-server`.
 
 ## Sample Usage
 
