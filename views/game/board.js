@@ -1,6 +1,7 @@
 var _ = require('lodash');
 
 var auth = require('../../lib/auth');
+var leaderboard = require('../../lib/leaderboard');
 var db = require('../../db');
 var user = require('../../lib/user');
 
@@ -200,9 +201,6 @@ module.exports = function(server) {
         var page = DATA.page ? parseInt(DATA.page, 10) : 0;
         var limit = DATA.limit ? parseInt(DATA.limit, 10) : 10;
 
-        var start = page * limit;
-        var stop = start + limit - 1;
-
         if (friendsOnly) {
             if (!_user) {
                 res.json(403, {error: 'missing_user'});
@@ -237,35 +235,17 @@ module.exports = function(server) {
             });
         }
 
-        var key = 'leaderboards:' + game + ':' + board;
-        var zRangeFunc = sortDesc ? 'zrevrange' : 'zrange';
+        function boardCallback(err, result) {
+            db.plsNoError(res, done, function(result) {
+                outputResult(result);
+            })(err, result);
+        }
 
+        var leaderboardParams = leaderboard.leaderboardParams(game, board, sortDesc, page, limit, email);
         if (friendsOnly) {
-            user.getUserIDFromEmail(client, email, db.plsNoError(res, done, function(id) {
-                var randomValue = Math.floor(Math.random() * 10000);
-                var interstoreKey = key + ':' + id + ':' + randomValue;
-                var friendsKey = 'friends:' + id;
-
-                var multi = client.multi();
-                // Create a temporary zset, containing only the scores of the user's friends
-                multi.zinterstore(interstoreKey, 2, key, friendsKey, 'AGGREGATE', 'MAX');
-
-                // Retrieve the scores from the temp zset
-                multi[zRangeFunc](interstoreKey, start, stop, 'WITHSCORES');
-
-                // Remove the temp zset
-                multi.del(interstoreKey);
-
-                // Execute the above mult command in an atomic fashion
-                multi.exec(db.plsNoError(res, done, function(reply) {
-                    outputResult(reply[1]);
-                }));
-            }));
+            leaderboard.getFriendsLeaderboard(client, leaderboardParams, boardCallback);
         } else {
-            var arguments = [key, start, stop, 'WITHSCORES'];
-            client[zRangeFunc](arguments, db.plsNoError(res, done, function(scores) {
-                outputResult(scores);
-            }));
+            leaderboard.getLeaderboard(client, leaderboardParams, boardCallback);
         }
     }));
 }
