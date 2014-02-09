@@ -7,7 +7,9 @@ Here lives the API that is consumed by the front-end interface for
 ## Installation
 
 ```bash
-# Install dependencies
+# Install redis via homebrew
+brew install redis
+# Install node dependencies
 npm install
 # Copy local configuration into place
 cp settings_local.js.dist settings_local.js
@@ -18,6 +20,7 @@ npm start
 If you'd like to run the server for development, consider using `nodemon` instead:
 
 ```bash
+npm install nodemon -g
 nodemon app.js
 ```
 
@@ -28,7 +31,7 @@ Install using `brew install redis` (OS X) or `apt-get install redis-server`, the
 
 ### Game Submission
 
-    curl -X POST 'http://localhost:5000/game/submit' -d 'name=Mario Bros&app_url=http://mariobro.se&icons=128&screenshots=yes'
+    curl -X POST 'http://localhost:5000/game/submit' -d 'name=Mario Bros&app_url=http://mariobro.se&icons=128&screenshots=yes&videos=yes'
 
 ### Game Details
 
