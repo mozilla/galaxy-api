@@ -36,13 +36,3 @@ Install using `brew install redis` (OS X) or `apt-get install redis-server`, the
 ### Game Details
 
     curl 'http://localhost:5000/game/mario-bros/detail'
-
-### Webapp
-
-#### Manifest JSON (Firefox)
-
-    curl 'http://localhost:5000/game/mario-bros/manifest'
-
-#### Manifest Launcher
-
-    curl 'http://localhost:5000/launch.html?https://mariobro.se'
