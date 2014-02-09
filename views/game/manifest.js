@@ -1,6 +1,7 @@
 var _ = require('lodash');
 
 var db = require('../../db');
+var gamelib = require('../../lib/game');
 
 
 module.exports = function(server) {
@@ -13,27 +14,46 @@ module.exports = function(server) {
             notes: 'Firefox Webapp Manifest JSON synthesised on the fly from app data',
             summary: 'Webapp manifest'
         }
-    }, function(req, res) {
+    }, db.redisView(function(client, done, req, res, wrap) {
         var GET = req.params;
         var slug = GET.slug;
 
-        var game = db.flatfile.read('game', slug);
+        if (!slug) {
+            res.json(400, {error: 'bad_game'});
+            done();
+            return;
+        }
 
-        var keys = [
-            'appcache_path',
-            'default_locale',
-            'description',
-            'icons',
-            'locales',
-            'name',
-            'orientation'
-        ];
+        gamelib.getGameFromSlug(client, slug, function(err, game) {
+            if (!game) {
+                res.json(400, {error: 'bad_game'});
+                done();
+                return;
+            }
 
-        var data = _.pick(game, keys);
+            if (err) {
+                res.json(500, {error: 'db_error'});
+                done();
+                return;
+            }
 
-        res.contentType = 'application/x-web-app-manifest+json';
-        res.send(JSON.stringify(data));
-    });
+            var keys = [
+                'appcache_path',
+                'default_locale',
+                'description',
+                'icons',
+                'locales',
+                'name',
+                'orientation'
+            ];
+
+            var data = _.pick(game, keys);
+
+            res.contentType = 'application/x-web-app-manifest+json';
+            res.send(JSON.stringify(data));
+            done();
+        });
+    }));
 
     // Sample usage:
     // % curl 'http://localhost:5000/launch.html?https://mariobro.se'
