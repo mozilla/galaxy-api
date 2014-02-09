@@ -1,14 +1,50 @@
-var request = require('request');
 var _ = require('lodash');
+var request = require('request');
+
 var Promise = require('es6-promise').Promise;
 
+var db = require('../db');
 var settings = require('../settings');
 var settings_local = require('../settings_local');
 var utils = require('../lib/utils');
 
+// NOTE: In order to generate users with this script, you should first run
+// persona-faker (http://github.com/aricha/persona-faker) so that we can
+// generate fake Persona assertions (instead of flooding the production
+// Persona server with fake users). You should also update PERSONA_VERIFICATION_URL
+// in settings_local.js to point to this endpoint (ie. http://localhost:9001/verify)
+// so that galaxy-api actually touches this server.
 const API_ENDPOINT = 'http://localhost:5000';
 const PERSONA_ENDPOINT = 'http://localhost:9001';
+
 const USER_COUNT = 100;
+const FAKE_GAMES = [
+    {
+        name: 'Mario Broskis',
+        app_url: 'http://mario.broskis'
+    }, 
+    {
+        name: 'Halo 718',
+        app_url: 'http://halo.com'
+    },
+    {
+        name: 'Left 5 Dead',
+        app_url: 'http://dead.left'
+    }
+];
+
+if (settings_local.FLUSH_DB_ON_PREFILL) {
+    // FIXME: this doesn't work when the script is called
+    // from outside the root directory for some reason
+    console.log('flushing db...');
+    var client = db.redis();
+    client.flushdb(function(){
+        client.end();
+        run();
+    });
+} else {
+    run();
+}
 
 function createUsers() {
     function createUser(email) {
@@ -124,6 +160,8 @@ function createFriends(users) {
             }
             if (!(friendRequest.user && friendRequest.recipient)) {
                 // silently ignore acceptable errors
+                // TODO: create a mechanism to avoid redundant friend requests
+                // (we randomly pick users to friend, so A can friend B, then B can friend A later)
                 done();
                 return;
             }
@@ -163,23 +201,9 @@ function createGames() {
         icons: '128',
         screenshots: 'yes'
     };
-    var fake_games = [
-        {
-            name: 'Mario Broskis',
-            app_url: 'http://mario.broskis'
-        }, 
-        {
-            name: 'Halo 718',
-            app_url: 'http://halo.com'
-        },
-        {
-            name: 'Left 5 Dead',
-            app_url: 'http://dead.left'
-        }
-    ];
 
     var promises = [];
-    _.each(fake_games, function(game) {
+    _.each(FAKE_GAMES, function(game) {
         promises.push(new Promise(function(resolve, reject) {
             request.post({
                 url: API_ENDPOINT + '/game/submit',
@@ -225,25 +249,27 @@ function purchaseGames(userSSAs, gameSlugs) {
     return Promise.all(promises);
 }
 
-utils.promiseMap({
-    users: createUsers(), 
-    games: createGames()
-}).then(function(result){
-    var gameSlugs = result.games.map(function(json) { return json.slug; });
-    var userSSAs = result.users.map(function(user) { return user.token; });
-    var purchasePromise = purchaseGames(userSSAs, gameSlugs);
+function run() {
+    utils.promiseMap({
+        users: createUsers(), 
+        games: createGames()
+    }).then(function(result){
+        var gameSlugs = result.games.map(function(json) { return json.slug; });
+        var userSSAs = result.users.map(function(user) { return user.token; });
 
-    var friendsPromise = createFriends(result.users).then(function(result){
-        console.log('done creating friends', result);
-        return result;
-    });
+        var purchasePromise = purchaseGames(userSSAs, gameSlugs);
+        var friendsPromise = createFriends(result.users);
 
-    return utils.promiseMap({
-        friends: friendsPromise,
-        purchases: purchasePromise
+        return utils.promiseMap({
+            friends: friendsPromise,
+            purchases: purchasePromise
+        });
+    }).then(function(result) {
+        console.log('created', USER_COUNT, 'users and', Object.keys(FAKE_GAMES).length, 'games');
+        // TODO: log some form of useful output
+        console.log('also generated purchases and friend requests');
+    }).catch(function(err) {
+        console.log('error:', err, 'stack trace:', err.stack);
+        process.exit(1);
     });
-}).then(function(result) {
-    console.log('done! result:', result);
-}).catch(function(err) {
-    console.log('error:', err, 'stack trace:', err.stack);
-});
+}
