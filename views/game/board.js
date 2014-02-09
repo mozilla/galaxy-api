@@ -1,8 +1,8 @@
 var _ = require('lodash');
 
 var auth = require('../../lib/auth');
-var leaderboard = require('../../lib/leaderboard');
 var db = require('../../db');
+var leaderboard = require('../../lib/leaderboard');
 var user = require('../../lib/user');
 
 
@@ -37,10 +37,25 @@ module.exports = function(server) {
                 return;
             }
 
-            // TODO: Consider returning the default output of the board
             boards = boards.map(JSON.parse);
-            res.json(boards);
-            done();
+
+            (function boardOutput(boards, output) {
+                if (boards.length == 0) {
+                    res.json(output)
+                    done();
+                    return;
+                }
+
+                var board = _.first(boards);
+                // Only get the top 10 results of the board
+                var params = leaderboard.boardParams(game, board.slug, true, 0, 10);
+                leaderboard.getLeaderboard(client, params, db.plsNoError(res, done, function(result) {
+                    board['data'] = result;
+                    output.push(board);
+                    boardOutput(_.rest(boards), output);
+                }));
+            })(boards, []);
+
         });
     }));
 
@@ -213,39 +228,17 @@ module.exports = function(server) {
             }
         }
 
-        function outputResult(result) {
-            if(!result || result.length == 0) {
-                res.json([]);
-                done();
-                return;
-            }
-
-            var realResult = {};
-            var userIds = [];
-            for (var i = 0; i < result.length; i += 2) {
-                userIds.push(result[i]);
-                realResult[result[i]] = result[i + 1];
-            }
-
-            user.getPublicUserObjList(client, userIds, function(objs) {
-                res.json(objs.map(function(obj) {
-                    return {user: obj, score: realResult[obj.id]};
-                }));
-                done();
-            });
-        }
-
         function boardCallback(err, result) {
-            db.plsNoError(res, done, function(result) {
-                outputResult(result);
+            db.plsNoError(res, done, function(jsonResult) {
+                res.json(jsonResult);
             })(err, result);
         }
 
-        var leaderboardParams = leaderboard.leaderboardParams(game, board, sortDesc, page, limit, email);
+        var params = leaderboard.boardParams(game, board, sortDesc, page, limit, email);
         if (friendsOnly) {
-            leaderboard.getFriendsLeaderboard(client, leaderboardParams, boardCallback);
+            leaderboard.getFriendsLeaderboard(client, params, boardCallback);
         } else {
-            leaderboard.getLeaderboard(client, leaderboardParams, boardCallback);
+            leaderboard.getLeaderboard(client, params, boardCallback);
         }
     }));
 }
