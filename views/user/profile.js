@@ -45,73 +45,23 @@ module.exports = function(server) {
             return;
         }
 
-        var recipient = DATA.recipient;
-
-        user.getUserFromEmail(client, email, function(err, userData) {
-            if (err || !userData) {
+        user.getUserIDFromEmail(client, email, function(err, userID) {
+            if (err || !userID) {
                 res.json(500, {error: err || 'db_error'});
                 done();
                 return;
             }
-            updateUserData(userData);
-        });
-        function updateUserData(data) {
-            var hasChanges = false;
-            var newEmail = DATA.email;
-            var newUsername = DATA.username;
 
-            updateEmail(data);
-
-            function updateEmail(userData) {
-                // Email validation is handled by node-restify-validation, so we can assume
-                // that if it exists, it is a well-formatted address.
-                // TODO: We should probably send an email when the address changes
-                if (newEmail && newEmail !== email) {
-                    client.hexists('usersByEmail', newEmail, function(err, resp) {
-                        if (err || resp) {
-                            res.json(400, 'email_in_use');
-                            done();
-                            return;
-                        }
-                        console.log('updating email from', email, 'to', newEmail, 'for user', userData.id);
-                        userData.email = newEmail;
-                        client.hdel('usersByEmail', email);
-                        client.hset('usersByEmail', newEmail, userData.id);
-                        hasChanges = true;
-
-                        updateUsername(userData);
-                    });
+            var dataToUpdate = _.pick(DATA, 'username', 'email');
+            user.updateUser(client, userID, dataToUpdate, function(err, newUserData) {
+                if (err) {
+                    res.json(500, {error: err});
                 } else {
-                    updateUsername(userData);
-                }
-            }
-            function updateUsername(userData) {
-                // TODO: Some username validation would be nice to have (ie. profanity check)
-                if (newUsername && newUsername !== userData.username) {
-                    console.log('updating username from', userData.username, 'to', newUsername, 'for user', userData.id);
-                    userData.username = newUsername;
-                    hasChanges = true;
-                }
-                updateClient(userData);
-            }
-            function updateClient(userData) {
-                function success() {
                     res.json(202, {success: true});
-                    done();
                 }
-                if (hasChanges) {
-                    client.hset('users', userData.id, JSON.stringify(userData), function(err, reply) {
-                        if (err) {
-                            res.json(400, {error: true});
-                            done();
-                        } else {
-                            success();
-                        }
-                    });
-                } else {
-                    success();
-                }
-            }
-        }
+                done();
+            });
+        });
+        
     }));
 };
