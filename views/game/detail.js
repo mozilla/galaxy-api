@@ -33,12 +33,4 @@ module.exports = function(server) {
             done();
         });
     }));
-
-    // TODO: Serve each manifest from a separate subdomain.
-    server.get({
-        url: '/manifest.html'
-    }, function(req, res) {
-        var app_url = req.url.split('?')[1];
-        res.send("<script>window.location = '" + app_url + "';</script>");
-    });
 };
