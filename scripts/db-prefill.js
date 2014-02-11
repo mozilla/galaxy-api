@@ -148,15 +148,14 @@ function purchaseGames(userSSAs, gameSlugs) {
 function createFriends(users) {
     function sendRequests(user) {
         var recipients = _.sample(users, Math.min(3, USER_COUNT));
-        var promises = [];
-        _.each(recipients, function(recipient){
-            promises.push(sendRequest(user, recipient));
+        var promises = recipients.map(function(recipient){
+            return sendRequest(user, recipient);
         });
         return Promise.all(promises);
     }
 
     function sendRequest(user, recipient) {
-        return new Promise(function(resolve, reject){
+        return new Promise(function(resolve, reject) {
             request.post({
                 url: API_ENDPOINT + '/user/friends/request',
                 form: {
@@ -174,10 +173,9 @@ function createFriends(users) {
                     if ((json_resp.error === 'already_friends')
                         || (json_resp.error === 'already_requested')) {
                         console.log('Friend request warning:', json_resp.error);
-                        resolve({});
-                    } else {
-                        reject(json_resp.error);
+                        return resolve({});
                     }
+                    reject(json_resp.error);
                     return;
                 }
                 
@@ -190,46 +188,37 @@ function createFriends(users) {
     }
 
     function acceptRequest(friendRequest) {
-        return new Promise(function(resolve,reject){
-            function done() {
+        function done() {
+            return new Promise(function(resolve, reject) {
                 resolve({
                     user: friendRequest.user,
                     recipient: friendRequest.recipient
                 });
-            }
-            if (!(friendRequest.user && friendRequest.recipient)) {
-                // silently ignore acceptable errors
-                // TODO: create a mechanism to avoid redundant friend requests
-                // (we randomly pick users to friend, so A can friend B, then B can friend A later)
-                done();
-                return;
-            }
-            request.post({
-                url: API_ENDPOINT + '/user/friends/accept',
-                form: {
-                    _user: friendRequest.recipient.token,
-                    acceptee: friendRequest.user.id
-                }
-            }, function(err, resp, body) {
-                if (err) {
-                    reject(err);
+            });
+        }
+        if (!friendRequest.user || !friendRequest.recipient) {
+            // silently ignore acceptable errors
+            // TODO: create a mechanism to avoid redundant friend requests
+            // (we randomly pick users to friend, so A can friend B, then B can friend A later)
+            return done();
+        }
+        return new Promise(function(resolve, reject) {
+            postPromise(API_ENDPOINT + '/user/friends/accept', {
+                _user: friendRequest.recipient.token,
+                acceptee: friendRequest.user.id
+            }).then(function(result) {
+                if (result.error) {
+                    reject('Friend accept failed: ' + result.error);
                     return;
                 }
-                
-                var json_resp = JSON.parse(body);
-                if (json_resp.error) {
-                    reject("Friend accept failed: " + json_resp.error)
-                    return;
-                }
-                done();
+                resolve(done());
             });
         });
     }
 
-    var promises = [];
     var promises = users.map(function(user) {
         return sendRequests(user).then(function(requests) {
-            return Promise.all(requests.map(acceptRequest))
+            return Promise.all(requests.map(acceptRequest));
         });
     });
     return Promise.all(promises).then(_.flatten);
@@ -255,7 +244,7 @@ function run() {
     utils.promiseMap({
         users: createUsers(), 
         games: createGames()
-    }).then(function(result){
+    }).then(function(result) {
         var gameSlugs = result.games.map(function(json) { return json.slug; });
         var userSSAs = result.users.map(function(user) { return user.token; });
 
@@ -268,7 +257,7 @@ function run() {
         });
     }).then(function(result) {
         // TODO: log some form of useful output
-        console.log('also generated purchases and friend requests');
+        console.log('finished generating users, games, purchases and friend requests');
     }).catch(function(err) {
         console.log('error:', err, 'stack trace:', err.stack);
         process.exit(1);
