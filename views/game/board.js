@@ -2,6 +2,7 @@ var _ = require('lodash');
 
 var auth = require('../../lib/auth');
 var db = require('../../db');
+var leaderboard = require('../../lib/leaderboard');
 var user = require('../../lib/user');
 
 
@@ -36,10 +37,25 @@ module.exports = function(server) {
                 return;
             }
 
-            // TODO: Consider returning the default output of the board
             boards = boards.map(JSON.parse);
-            res.json(boards);
-            done();
+
+            (function boardOutput(boards, output) {
+                if (boards.length == 0) {
+                    res.json(output)
+                    done();
+                    return;
+                }
+
+                var board = _.first(boards);
+                // Only get the top 10 results of the board
+                var params = leaderboard.boardParams(game, board.slug, true, 0, 10);
+                leaderboard.getLeaderboard(client, params, db.plsNoError(res, done, function(result) {
+                    board.data = result;
+                    output.push(board);
+                    boardOutput(_.rest(boards), output);
+                }));
+            })(boards, []);
+
         });
     }));
 
@@ -200,9 +216,6 @@ module.exports = function(server) {
         var page = DATA.page ? parseInt(DATA.page, 10) : 0;
         var limit = DATA.limit ? parseInt(DATA.limit, 10) : 10;
 
-        var start = page * limit;
-        var stop = start + limit - 1;
-
         if (friendsOnly) {
             if (!_user) {
                 res.json(403, {error: 'missing_user'});
@@ -215,57 +228,15 @@ module.exports = function(server) {
             }
         }
 
-        function outputResult(result) {
-            if(!result || result.length == 0) {
-                res.json([]);
-                done();
-                return;
-            }
-
-            var realResult = {};
-            var userIds = [];
-            for (var i = 0; i < result.length; i += 2) {
-                userIds.push(result[i]);
-                realResult[result[i]] = result[i + 1];
-            }
-
-            user.getPublicUserObjList(client, userIds, function(objs) {
-                res.json(objs.map(function(obj) {
-                    return {user: obj, score: realResult[obj.id]};
-                }));
-                done();
-            });
+        function boardCallback(err, result) {
+            db.plsNoError(res, done, res.json.bind(res))(err, result);
         }
 
-        var key = 'leaderboards:' + game + ':' + board;
-        var zRangeFunc = sortDesc ? 'zrevrange' : 'zrange';
-
+        var params = leaderboard.boardParams(game, board, sortDesc, page, limit, email);
         if (friendsOnly) {
-            user.getUserIDFromEmail(client, email, db.plsNoError(res, done, function(id) {
-                var randomValue = Math.floor(Math.random() * 10000);
-                var interstoreKey = key + ':' + id + ':' + randomValue;
-                var friendsKey = 'friends:' + id;
-
-                var multi = client.multi();
-                // Create a temporary zset, containing only the scores of the user's friends
-                multi.zinterstore(interstoreKey, 2, key, friendsKey, 'AGGREGATE', 'MAX');
-
-                // Retrieve the scores from the temp zset
-                multi[zRangeFunc](interstoreKey, start, stop, 'WITHSCORES');
-
-                // Remove the temp zset
-                multi.del(interstoreKey);
-
-                // Execute the above mult command in an atomic fashion
-                multi.exec(db.plsNoError(res, done, function(reply) {
-                    outputResult(reply[1]);
-                }));
-            }));
+            leaderboard.getFriendsLeaderboard(client, params, boardCallback);
         } else {
-            var arguments = [key, start, stop, 'WITHSCORES'];
-            client[zRangeFunc](arguments, db.plsNoError(res, done, function(scores) {
-                outputResult(scores);
-            }));
+            leaderboard.getLeaderboard(client, params, boardCallback);
         }
     }));
 }
