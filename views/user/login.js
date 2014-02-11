@@ -47,7 +47,7 @@ module.exports = function(server) {
                     if (resp) {
                         user.updateUser(client, resp.id, {
                             dateLastLogin: utils.now()
-                        }, function(err, newData){
+                        }, function(err, newData) {
                             done(err, newData);
                         });
                     } else {
