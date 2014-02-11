@@ -50,7 +50,7 @@ module.exports = function(server) {
                 // Only get the top 10 results of the board
                 var params = leaderboard.boardParams(game, board.slug, true, 0, 10);
                 leaderboard.getLeaderboard(client, params, db.plsNoError(res, done, function(result) {
-                    board['data'] = result;
+                    board.data = result;
                     output.push(board);
                     boardOutput(_.rest(boards), output);
                 }));
