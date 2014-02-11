@@ -17,6 +17,7 @@ var user = require('./lib/user');
     'user/friends',
     'user/login',
     'user/purchase',
+    'user/profile',
     'user/search'
 ].forEach(function(view) {
     require('./views/' + view)(serverHTTP);

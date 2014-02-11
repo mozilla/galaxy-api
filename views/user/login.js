@@ -42,21 +42,33 @@ module.exports = function(server) {
                         res.json(500, {error: err});
                         return;
                     } 
+
                     // update login date if user already exists
                     if (resp) {
-                        resp = user.updateUser(client, resp, {dateLastLogin: utils.now()});
+                        user.updateUser(client, resp.id, {
+                            dateLastLogin: utils.now()
+                        }, function(err, newData) {
+                            done(err, newData);
+                        });
                     } else {
-                        resp = user.newUser(client, email);
+                        done(undefined, user.newUser(client, email));
                     }
-                    resp.avatar = user.getGravatarURL(email);
-                    res.json({
-                        error: null,
-                        token: auth.createSSA(email),
-                        settings: resp,
-                        public: user.publicUserObj(resp),
-                        permissions: resp.permissions
-                    });
-                    client.end();
+
+                    function done(err, newData) {
+                        if (err) {
+                            res.json(500, {error: err});
+                        } else {
+                            newData.avatar = user.getGravatarURL(email);
+                            res.json({
+                                error: null,
+                                token: auth.createSSA(email),
+                                settings: newData,
+                                public: user.publicUserObj(newData),
+                                permissions: newData.permissions
+                            });
+                        }
+                        client.end();
+                    }
                 });
             }
         );

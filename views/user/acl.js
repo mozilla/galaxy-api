@@ -52,22 +52,21 @@ module.exports = function(server) {
                 return;
             }
 
-            var newData = user.updateUser(client, resp, {
+            user.updateUser(client, resp, {
                 permissions: {
                   developer: isDev,
                   reviewer: isRev,
                   admin: isAdmin
                 }
+            }, function(err, newData) {
+                if (err) {
+                    res.json(500, {error: err});
+                } else {
+                    res.json(200, {permissions: newData.permissions});
+                }
+                done();
             });
-
-            res.json(200, {
-                permissions: newData.permissions
-            });
-
-            done();
-
         });
-        
       })
     );
 };
