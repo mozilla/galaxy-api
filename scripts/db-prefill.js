@@ -37,7 +37,7 @@ if (settings_local.FLUSH_DB_ON_PREFILL) {
     // from outside the root directory for some reason
     console.log('flushing db...');
     var client = db.redis();
-    client.flushdb(function(){
+    client.flushdb(function() {
         client.end();
         run();
     });
@@ -47,60 +47,34 @@ if (settings_local.FLUSH_DB_ON_PREFILL) {
 
 function createUsers() {
     function createUser(email) {
-        return new Promise(function(resolve,reject) {
-            request.post({
-                url: PERSONA_ENDPOINT + '/generate',
-                form: {
-                    email: email
-                }
-            }, function(err, resp, body) {
-                if (err) {
-                    reject('Connection to assertion generator failed');
-                    return;
-                }
-                
-                var json_resp = JSON.parse(body);
-                resolve({email: email, assertion: json_resp.assertion});
-            });
+        return postPromise(PERSONA_ENDPOINT + '/generate', {
+            email: email
         });
     };
 
-    function login(emailAssertion){
-        return new Promise(function(resolve,reject){
-            var email = emailAssertion.email;
+    function login(emailAssertion) {
+        return new Promise(function(resolve, reject) {
             var assertion = emailAssertion.assertion;
-            request.post({
-                url: API_ENDPOINT + '/user/login',
-                form: {
-                    assertion: assertion,
-                    audience: API_ENDPOINT
-                }
-            }, function(err, resp, body) {
-                if (err) {
-                    reject('Galaxy login failed.');
-                    return;
-                }
-                
-                var json_resp = JSON.parse(body);
-                if (json_resp.error) {
-                    reject('Galaxy login failed: ' + json_resp.error);
-                    return;
+            postPromise(API_ENDPOINT + '/user/login', {
+                assertion: assertion,
+                audience: API_ENDPOINT
+            }).then(function(result) {
+                if (result.error) {
+                    return reject('Login failed: ' + result.error);
                 }
                 resolve({
-                    email: email,
-                    token: json_resp.token,
-                    username: json_resp.public.username,
-                    id: json_resp.public.id
+                    email: result.settings.email,
+                    token: result.token,
+                    username: result.public.username,
+                    id: result.public.id
                 });
             });
         });
     };
 
-    var promises = [];
-    for (var i = 0; i < USER_COUNT; i++){
-        promises.push(createUser('test' + i + '@test.com').then(login));
-    }
-    return Promise.all(promises);
+    return Promise.all(_.times(USER_COUNT, function(i) {
+        return createUser('test' + i + '@test.com').then(login);
+    }));
 }
 
 function createGames() {
@@ -109,36 +83,23 @@ function createGames() {
         screenshots: 'yes'
     };
 
-    var promises = FAKE_GAMES.map(function(game) {
+    return Promise.all(FAKE_GAMES.map(function(game) {
         return postPromise(API_ENDPOINT + '/game/submit',
             _.defaults(game, default_params));
-    });
-    return Promise.all(promises);
+    }));
 }
 
 function purchaseGames(userSSAs, gameSlugs) {
-    var promises = [];
-    _.each(userSSAs, function(user){
-        _.each(_.sample(gameSlugs, 2), function(game) {
-            promises.push(newPurchase(user, game));
+    var promises = _.flatten(userSSAs.map(function(user) {
+        return _.sample(gameSlugs, 2).map(function(game) {
+            return newPurchase(user, game);
         });
-    });
+    }));
 
     function newPurchase(user, game) {
-        return new Promise(function(resolve, reject) {
-            request.post({
-                url: API_ENDPOINT + '/user/purchase',
-                form: {
-                    _user: user,
-                    game: game
-                }
-            }, function(err, resp, body) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(body);
-            });
+        return postPromise(API_ENDPOINT + '/user/purchase', {
+            _user: user,
+            game: game
         });
     }
 
@@ -156,27 +117,16 @@ function createFriends(users) {
 
     function sendRequest(user, recipient) {
         return new Promise(function(resolve, reject) {
-            request.post({
-                url: API_ENDPOINT + '/user/friends/request',
-                form: {
-                    _user: user.token,
-                    recipient: recipient.id
-                }
-            }, function(err, resp, body) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                
-                var json_resp = JSON.parse(body);
-                if (json_resp.error) {
-                    if ((json_resp.error === 'already_friends')
-                        || (json_resp.error === 'already_requested')) {
-                        console.log('Friend request warning:', json_resp.error);
+            return postPromise(API_ENDPOINT + '/user/friends/request', {
+                _user: user.token,
+                recipient: recipient.id
+            }).then(function(result) {
+                if (result.error) {
+                    if (_.contains(['already_friends', 'already_requested'], result.error)) {
+                        console.log('Friend request warning:', result.error);
                         return resolve({});
                     }
-                    reject(json_resp.error);
-                    return;
+                    return reject(result.error);
                 }
                 
                 resolve({
