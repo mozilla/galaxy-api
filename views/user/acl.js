@@ -66,7 +66,7 @@ module.exports = function(server) {
 
             // make sure it is admin
             if (!authenticator.permissions.admin) {
-                res.json(403, {error: 'authenticator does not have admin permissions'});
+                res.json(403, {error: 'bad_permission'});
                 done();
                 return;
             } 
@@ -96,10 +96,5 @@ module.exports = function(server) {
 
             });
         });
-<<<<<<< HEAD
-    })
-    );
-=======
     }));
->>>>>>> small fix to acl
 };
