@@ -81,9 +81,9 @@ module.exports = function(server) {
 
                 user.updateUser(client, resp, {
                     permissions: {
-                      developer: isDev,
-                      reviewer: isRev,
-                      admin: isAdmin
+                        developer: isDev,
+                        reviewer: isRev,
+                        admin: isAdmin
                     }
                 }, function(err, newData) {
                     if (err) {
