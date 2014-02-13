@@ -2,9 +2,12 @@ var restify = require('restify');
 var restifySwagger = require('node-restify-swagger');
 var restifyValidation = require('node-restify-validation');
 
+var pkg = require('./package');
+
+
 var server = restify.createServer({
-    name: 'galaxy-api',
-    version: '0.0.1'
+    name: pkg.name,
+    version: pkg.version
 });
 
 server.use(restify.acceptParser(server.acceptable));
