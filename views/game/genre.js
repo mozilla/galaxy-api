@@ -1,29 +1,30 @@
+// TODO: Update prefill script to include genre
 var db = require('../../db');
 
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl 'http://localhost:5000/game/genre'
+    // % curl 'http://localhost:5000/genre'
     server.get({
-        url: '/game/genre',
+        url: '/genre',
         swagger: {
-            nickname: 'game-genre',
+            nickname: 'genre',
             notes: 'Get the list of genres',
             summary: 'List of game genres'
         }
     }, db.redisView(function(client, done, req, res, wrap) {
-        client.hvals('gameGenre', db.plsNoError(res, done, function(genres) {
+        client.hvals('genre', db.plsNoError(res, done, function(genres) {
             res.json(genres.map(JSON.parse));
             done();
         }));
     }));
 
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/game/genre' -d 'name=Action&slug=action'
+    // % curl -X POST 'http://localhost:5000/genre' -d 'name=Action&slug=action'
     server.post({
-        url: '/game/genre',
+        url: '/genre',
         swagger: {
-            nickname: 'add-game-genre',
+            nickname: 'add-genre',
             notes: 'Add a new game genre',
             summary: 'Add new game genre'
         },
@@ -40,17 +41,15 @@ module.exports = function(server) {
     }, db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
-        var name = DATA.name;
         var slug = DATA.slug;
-
         var data = {
-            name: name,
+            name: DATA.name,
             slug: slug
         };
 
         // TODO: Move this to a lib/genre.js when genre becomes more complicated
         (function genreSlugExists(slug, callback) {
-            client.hexists('gameGenre', slug, db.plsNoError(res, done, function(reply) {
+            client.hexists('genre', slug, db.plsNoError(res, done, function(reply) {
                 callback(null, reply);
             }));
         })(slug, function(err, exists) {
@@ -58,7 +57,7 @@ module.exports = function(server) {
                 res.json(400, {error: 'genre_slug_exists'});
                 done();
             } else {
-               client.hset('gameGenre', slug, JSON.stringify(data), db.plsNoError(res, done, function(reply) {
+               client.hset('genre', slug, JSON.stringify(data), db.plsNoError(res, done, function(reply) {
                     res.json({success: true});
                     done();
                 }));
@@ -67,9 +66,9 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl -X DELETE 'http://localhost:5000/game/genre' -d 'slug=action'
+    // % curl -X DELETE 'http://localhost:5000/genre' -d 'slug=action'
     server.del({
-        url: '/game/genre',
+        url: '/genre',
         swagger: {
             nickname: 'delete-genre',
             notes: 'Remove an existing game genre',
@@ -86,7 +85,7 @@ module.exports = function(server) {
 
         var slug = DATA.slug;
 
-        client.hdel('gameGenre', slug, db.plsNoError(res, done, function(reply) {
+        client.hdel('genre', slug, db.plsNoError(res, done, function(reply) {
             if (reply) {
                 res.json({success: true});
             } else {
