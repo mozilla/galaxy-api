@@ -87,7 +87,7 @@ module.exports = function(server) {
                     }
                 }, function(err, newData) {
                     if (err) {
-                        res.json(500, {error: err});
+                        res.json(500, {error: "db_error"});
                     } else {
                         res.json(200, {permissions: newData.permissions});
                     }
