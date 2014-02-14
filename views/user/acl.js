@@ -64,7 +64,7 @@ module.exports = function(server) {
                 return;
             }
 
-            // make sure it is admin
+            // make sure user is admin
             if (!authenticator.permissions.admin) {
                 res.json(403, {error: 'bad_permission'});
                 done();
@@ -87,7 +87,7 @@ module.exports = function(server) {
                     }
                 }, function(err, newData) {
                     if (err) {
-                        res.json(500, {error: "db_error"});
+                        res.json(500, {error: 'db_error'});
                     } else {
                         res.json(200, {permissions: newData.permissions});
                     }
