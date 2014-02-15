@@ -22,6 +22,10 @@ module.exports = function(server) {
                 description: 'User ID to search for',
                 isRequired: false
             },
+            devSlug: {
+                description: 'Company Slug to search for',
+                isRequired: false
+            },
             q: {
                 description: 'Email/user ID/username to search for',
                 isRequired: false
@@ -34,7 +38,8 @@ module.exports = function(server) {
         var lookup_email = DATA.email;
         var lookup_id = DATA.id;
         var lookup_q = DATA.q;
-        var lookup = lookup_email || lookup_id || lookup_q;
+        var lookup_dev = DATA.devSlug;
+        var lookup = lookup_email || lookup_id || lookup_q || lookup_dev;
 
         if (!lookup) {
             res.json(400, {error: 'Must provide either email or user ID'});
@@ -64,6 +69,16 @@ module.exports = function(server) {
                     done();
                     res.json(objs);
                 });
+            });
+        } else if (lookup_dev) {
+            user.getCompanyInfoFromDevSlug(client, lookup, function(err, obj) {
+                if (err || !obj) {
+                    res.json(400, {error: err || 'bad_dev_slug'});
+                    done();
+                    return;
+                }
+                res.json(obj);
+                done();
             });
         } else {
             // Return a single object.

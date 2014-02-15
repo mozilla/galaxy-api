@@ -29,18 +29,8 @@ nodemon app.js
 
 ### Game Submission
 
-    curl -X POST 'http://localhost:5000/game/submit' -d 'name=Mario Bros&app_url=http://mariobro.se&icons=128&screenshots=yes'
+    curl -X POST 'http://localhost:5000/game/submit' -d 'name=Mario Bros&app_url=http://mariobro.se&icons=128&screenshots=yes&videos=yes'
 
 ### Game Details
 
     curl 'http://localhost:5000/game/mario-bros/detail'
-
-### Webapp
-
-#### Manifest JSON (Firefox)
-
-    curl 'http://localhost:5000/game/mario-bros/manifest'
-
-#### Manifest Launcher
-
-    curl 'http://localhost:5000/launch.html?https://mariobro.se'
