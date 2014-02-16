@@ -46,19 +46,9 @@ client.on('ready', function() {
 });
 
 function startServers() {
-    var root_dir = path.dirname(__dirname);
     function startServer(serverPath, opts) {
-        var streams = _.object(['stdout', 'stderr'].map(function(sname) { 
-            var std_stream = new stream.Writable({decodeStrings: false});
-            std_stream._write = function(chunk, encoding, callback) {
-                process[sname].write(opts.name + ': ' + chunk);
-                callback();
-            };
-            return [sname, std_stream];
-        }));
-
         var proc = child_process.spawn('node', [serverPath], {
-            cwd: root_dir,
+            cwd: path.dirname(__dirname),
             env: _.extend({
                 DB_PREFILL: true,
                 PATH: process.env.PATH,
@@ -71,8 +61,14 @@ function startServers() {
             console.log(opts.name, 'process closed');
         });
 
-        Object.keys(streams).forEach(function(sname) {
-            proc[sname].pipe(streams[sname]);
+        // TODO: Should we even bother outputting stdout?
+        ['stdout', 'stderr'].forEach(function(sname) { 
+            var std_stream = new stream.Writable({decodeStrings: false});
+            std_stream._write = function(chunk, encoding, callback) {
+                process[sname].write(opts.name + ': ' + chunk);
+                callback();
+            };
+            proc[sname].pipe(std_stream);
         });
 
         console.log('running', opts.name, '(pid: ' + proc.pid + ') on port', opts.port);
