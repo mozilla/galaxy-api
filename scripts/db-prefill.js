@@ -45,55 +45,16 @@ client.on('ready', function() {
     }
 });
 
-function startServers(callback) {
-    function startServer(serverPath, opts) {
-        var proc = child_process.spawn('node', [serverPath], {
-            cwd: path.dirname(__dirname),
-            env: _.extend({
-                DB_PREFILL: true,
-                PATH: process.env.PATH,
-                PORT: opts.port
-            }, opts.env || {}),
-            stdio: ['ignore', 'pipe', 'pipe']
-        }).on('error', function(err) {
-            console.error('error running ' + opts.name + ':', err);
-        }).on('close', function(code, signal) {
-            console.log(opts.name, 'process closed');
-        });
-
-        // TODO: Should we even bother outputting stdout?
-        ['stdout', 'stderr'].forEach(function(sname) { 
-            var std_stream = new stream.Writable({decodeStrings: false});
-            std_stream._write = function(chunk, encoding, callback) {
-                process[sname].write(opts.name + ': ' + chunk);
-                callback();
-            };
-            proc[sname].pipe(std_stream);
-        });
-
-        console.log('running', opts.name, '(pid: ' + proc.pid + ') on port', opts.port);
-        return proc;
-    }
-
-    callback(startServer(PERSONA_PATH, {
-        name: 'persona-faker', 
-        port: PERSONA_PORT
-    }));
-    callback(startServer('app.js', {
-        name: 'galaxy-api',
-        port: API_PORT,
-        env: {
-            PERSONA_VERIFICATION_URL: PERSONA_ENDPOINT + '/verify'
-        }
-    }));
-}
-
 function run() {
-    (function listenForServerStart() {
+    var ready_promise = new Promise(function(resolve, reject) {
         const prefill_namespace = 'galaxy-db-prefill';
         const signal_names = ['api', 'persona-faker'];
 
         var remaining_signals = _.object(signal_names.map(function(x) { return [x, true]; } ));
+
+        var timeout = setTimeout(function() {
+            reject('Server(s) [' + Object.keys(remaining_signals) + '] did not call back in time!');
+        }, 5000);
         client.on('pmessage', function(pattern, channel, message) {
             var channel_info = channel.split(':');
             var namespace = channel_info[0];
@@ -106,13 +67,19 @@ function run() {
                 console.log(source, 'is ready');
                 delete remaining_signals[source];
                 if (!Object.keys(remaining_signals).length) {
-                    console.log('starting prefill...');
-                    startRequests();
+                    clearTimeout(timeout);
+                    resolve();
                 }
             }
         }).psubscribe(prefill_namespace + ':*');
         console.log('waiting for servers to finish launching...');
-    })();
+    }).then(function(result) {
+        console.log('starting prefill...');
+        startRequests();
+    }).catch(function(err) {
+        console.error(err);
+        process.exit(1);
+    });
 
     var child_procs = [];
     process.on('exit', function(){
@@ -129,6 +96,49 @@ function run() {
     startServers(function(proc) {
         child_procs.push(proc);
     });
+
+    function startServers(callback) {
+        function startServer(serverPath, opts) {
+            var proc = child_process.spawn('node', [serverPath], {
+                cwd: path.dirname(__dirname),
+                env: _.extend({
+                    DB_PREFILL: true,
+                    PATH: process.env.PATH,
+                    PORT: opts.port
+                }, opts.env || {}),
+                stdio: ['ignore', 'pipe', 'pipe']
+            }).on('error', function(err) {
+                console.error('error running ' + opts.name + ':', err);
+            }).on('close', function(code, signal) {
+                console.log(opts.name, 'process closed');
+            });
+
+            // TODO: Should we even bother outputting stdout?
+            ['stdout', 'stderr'].forEach(function(sname) { 
+                var std_stream = new stream.Writable({decodeStrings: false});
+                std_stream._write = function(chunk, encoding, callback) {
+                    process[sname].write(opts.name + ': ' + chunk);
+                    callback();
+                };
+                proc[sname].pipe(std_stream);
+            });
+
+            console.log('running', opts.name, '(pid: ' + proc.pid + ') on port', opts.port);
+            return proc;
+        }
+
+        callback(startServer(PERSONA_PATH, {
+            name: 'persona-faker', 
+            port: PERSONA_PORT
+        }));
+        callback(startServer('app.js', {
+            name: 'galaxy-api',
+            port: API_PORT,
+            env: {
+                PERSONA_VERIFICATION_URL: PERSONA_ENDPOINT + '/verify'
+            }
+        }));
+    }
 
     function startRequests() {
         utils.promiseMap({
