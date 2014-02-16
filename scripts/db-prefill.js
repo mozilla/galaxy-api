@@ -1,8 +1,9 @@
 var _ = require('lodash');
-var request = require('request');
-var Promise = require('es6-promise').Promise;
 var child_process = require('child_process');
+var request = require('request');
 var path = require('path');
+var Promise = require('es6-promise').Promise;
+var stream = require('stream');
 
 var db = require('../db');
 var settings = require('../settings');
@@ -47,19 +48,33 @@ client.on('ready', function() {
 function startServers() {
     var root_dir = path.dirname(__dirname);
     function startServer(serverPath, opts) {
-        var proc = child_process.fork(serverPath, [], {
+        var streams = _.object(['stdout', 'stderr'].map(function(sname) { 
+            var std_stream = new stream.Writable({decodeStrings: false});
+            std_stream._write = function(chunk, encoding, callback) {
+                process[sname].write(opts.name + ': ' + chunk);
+                callback();
+            };
+            return [sname, std_stream];
+        }));
+
+        var proc = child_process.spawn('node', [serverPath], {
             cwd: root_dir,
             env: _.extend({
                 DB_PREFILL: true,
                 PATH: process.env.PATH,
                 PORT: opts.port
             }, opts.env || {}),
-            stdio: 'inherit'
+            stdio: ['ignore', 'pipe', 'pipe']
         }).on('error', function(err) {
             console.error('error running ' + opts.name + ':', err);
         }).on('close', function(code, signal) {
-            console.log(opts.name + ' process closed');
+            console.log(opts.name, 'process closed');
         });
+
+        Object.keys(streams).forEach(function(sname) {
+            proc[sname].pipe(streams[sname]);
+        });
+
         console.log('running', opts.name, '(pid: ' + proc.pid + ') on port', opts.port);
         return proc;
     }
