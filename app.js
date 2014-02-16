@@ -27,6 +27,12 @@ var serverName = serverHTTP.name;
 
 serverHTTP.listen(process.env.PORT || 5000, function() {
     console.log('%s HTTP server listening at %s', serverName, serverHTTP.url);
+    if (process.env.DB_PREFILL) {
+        var client = db.redis();
+        client.publish('galaxy-db-prefill:api', 'ready', function() {
+            client.end();
+        });
+    }
 });
 
 serverWS.listen(function(url) {
