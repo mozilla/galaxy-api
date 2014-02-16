@@ -45,7 +45,7 @@ client.on('ready', function() {
     }
 });
 
-function startServers() {
+function startServers(callback) {
     function startServer(serverPath, opts) {
         var proc = child_process.spawn('node', [serverPath], {
             cwd: path.dirname(__dirname),
@@ -75,19 +75,17 @@ function startServers() {
         return proc;
     }
 
-    var persona_faker = startServer(PERSONA_PATH, {
+    callback(startServer(PERSONA_PATH, {
         name: 'persona-faker', 
         port: PERSONA_PORT
-    });
-    var api_server = startServer('app.js', {
+    }));
+    callback(startServer('app.js', {
         name: 'galaxy-api',
         port: API_PORT,
         env: {
             PERSONA_VERIFICATION_URL: PERSONA_ENDPOINT + '/verify'
         }
-    });
-    
-    return [persona_faker, api_server];
+    }));
 }
 
 function run() {
@@ -116,8 +114,7 @@ function run() {
         console.log('waiting for servers to finish launching...');
     })();
 
-    var child_procs = startServers();
-
+    var child_procs = [];
     process.on('exit', function(){
         console.log('killing child servers...');
         child_procs.forEach(function(child) {
@@ -125,6 +122,12 @@ function run() {
             // so long as its HTTP server is still running
             child.kill('SIGINT');
         });
+    });
+
+    // Use a callback so that if we crash for some reason after setting up one server but
+    // before finishing the next, we can still kill the processes that we had started
+    startServers(function(proc) {
+        child_procs.push(proc);
     });
 
     function startRequests() {
