@@ -4,7 +4,7 @@ var db = require('../../db');
 var gamelib = require('../../lib/game');
 var user = require('../../lib/user');
 
-var DEFAULT_COUNT = 15;
+const DEFAULT_COUNT = 15;
 
 module.exports = function(server) {
     // Sample usage:
@@ -19,7 +19,7 @@ module.exports = function(server) {
         validation: {
             _user: {
                 description: 'User (ID or username slug)',
-                isRequired: false // Only required for restricted filters
+                isRequired: false  // Only required for restricted filters
             },
             count: {
                 description: 'Maximum number of games to return',
