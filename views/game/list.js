@@ -36,51 +36,51 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res, wrap) {
         var GET = req.params;
-        var count = (GET.count && parseInt(GET.count, 10)) || DEFAULT_COUNT;
+        var count = 'count' in GET ? parseInt(GET.count, 10)) : DEFAULT_COUNT;
         var filters = GET.filters;
 
         if (!filters.status) {
             fetchGames();
             return;
-        } else {
-            var _user = GET._user;
-            if (!_user) {
-                notAuthorized();
-                return;
-            }
-
-            var email;
-            if (!(email = auth.verifySSA(_user))) {
-                res.json(403, {error: 'bad_user'});
-                done();
-                return;
-            }
-
-            user.getUserFromEmail(client, email, function(err, userData) {
-                if (err) {
-                    res.json(500, {error: err || 'db_error'});
-                    done();
-                    return;
-                }
-
-                var permissions = userData.permissions;
-                for (var p in Object.keys(permissions)) {
-                    // 'status' should only be accessible to reviewers and admins
-                    if (permissions[p] && _.contains(['reviewer', 'admin'], p)) {
-                        fetchGames();
-                        break;
-                    }
-                }
-            });
-
-            function notAuthorized() {
-                res.json(401, {
-                    error: 'not_permitted', 
-                    detail: 'provided filters require additional permissions'
-                });
-                done();
-            };
         }
+
+        var _user = GET._user;
+        if (!_user) {
+            notAuthorized();
+            return;
+        }
+
+        var email;
+        if (!(email = auth.verifySSA(_user))) {
+            res.json(403, {error: 'bad_user'});
+            done();
+            return;
+        }
+
+        user.getUserFromEmail(client, email, function(err, userData) {
+            if (err) {
+                res.json(500, {error: err || 'db_error'});
+                done();
+                return;
+            }
+
+            var permissions = userData.permissions;
+            for (var p in Object.keys(permissions)) {
+                // 'status' should only be accessible to reviewers and admins
+                if (permissions[p] && (p === 'reviewer' || p === 'admin')) {
+                    fetchGames();
+                    break;
+                }
+            }
+        });
+
+        function notAuthorized() {
+            res.json(401, {
+                error: 'not_permitted', 
+                detail: 'provided filters require additional permissions'
+            });
+            done();
+        };
 
         function fetchGames() {
             // TODO: Filter only 'count' games without having to fetch them all first
@@ -90,8 +90,8 @@ module.exports = function(server) {
                 var filteredGames = games;
                 if (filters.status) {
                     // Filter for games matching the provided status
-                    filteredGames = games.filter(function(g) {
-                        return g.status === filters.status;
+                    filteredGames = games.filter(function(game) {
+                        return game.status === filters.status;
                     });
                 }
                 // Pick the first 'count' games
