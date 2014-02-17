@@ -31,15 +31,15 @@ module.exports = function(server) {
             status: {
                 description: 'Filter by current status of the game',
                 isRequired: false,
-                isIn: ['approved', 'pending', 'rejected'],
+                isIn: ['approved', 'pending', 'rejected']
             }
         }
     }, db.redisView(function(client, done, req, res, wrap) {
         var GET = req.params;
-        var count = 'count' in GET ? parseInt(GET.count, 10)) : DEFAULT_COUNT;
-        var filters = GET.filters;
+        var count = 'count' in GET ? parseInt(GET.count, 10) : DEFAULT_COUNT;
+        var statusFilter = GET.status;
 
-        if (!filters.status) {
+        if (!statusFilter) {
             fetchGames();
             return;
         }
@@ -88,10 +88,10 @@ module.exports = function(server) {
             // properly, and we use UUIDs for game keys that have no logical order in the db)
             gamelib.getPublicGameObjList(client, null, function(games) {
                 var filteredGames = games;
-                if (filters.status) {
+                if (statusFilter) {
                     // Filter for games matching the provided status
                     filteredGames = games.filter(function(game) {
-                        return game.status === filters.status;
+                        return game.status === statusFilter;
                     });
                 }
                 // Pick the first 'count' games
