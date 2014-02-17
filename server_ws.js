@@ -4,6 +4,7 @@ var WebSocket = require('ws');
 var WebSocketServer = WebSocket.Server;
 
 var db = require('./db');
+var auth = require('./lib/auth');
 var user = require('./lib/user');
 
 module.exports.listen = function(cb) {

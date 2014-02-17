@@ -1,6 +1,7 @@
 var auth = require('../../lib/auth');
 var db = require('../../db');
 var user = require('../../lib/user');
+var utils = require('../../lib/utils');
 
 
 module.exports = function(server) {
@@ -40,18 +41,34 @@ module.exports = function(server) {
                     if (err) {
                         res.json(500, {error: err});
                         return;
-                    } else if (!resp) {
-                        resp = user.newUser(client, email);
+                    } 
+
+                    // update login date if user already exists
+                    if (resp) {
+                        user.updateUser(client, resp.id, {
+                            dateLastLogin: utils.now()
+                        }, function(err, newData) {
+                            done(err, newData);
+                        });
+                    } else {
+                        done(undefined, user.newUser(client, email));
                     }
-                    resp.avatar = user.getGravatarURL(email);
-                    res.json({
-                        error: null,
-                        token: auth.createSSA(email),
-                        settings: resp,
-                        public: user.publicUserObj(resp),
-                        permissions: {}
-                    });
-                    client.end();
+
+                    function done(err, newData) {
+                        if (err) {
+                            res.json(500, {error: err});
+                        } else {
+                            newData.avatar = user.getGravatarURL(email);
+                            res.json({
+                                error: null,
+                                token: auth.createSSA(email),
+                                settings: newData,
+                                public: user.publicUserObj(newData),
+                                permissions: newData.permissions
+                            });
+                        }
+                        client.end();
+                    }
                 });
             }
         );
