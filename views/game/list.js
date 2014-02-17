@@ -11,7 +11,7 @@ module.exports = function(server) {
         });
     };
 
-    const accepted_filters = {
+    const ACCEPTED_FILTERS = {
         status: {
             description: 'Filter by current status of the game',
             isRequired: false,
@@ -19,9 +19,9 @@ module.exports = function(server) {
             requiredPermissions: matchesAny(['reviewer', 'admin'])
         }
     };
-    const restricted_filters = _.pick(accepted_filters, (function() {
-        return Object.keys(accepted_filters).filter(function(f) {
-            return !!accepted_filters[f].requiredPermissions;
+    const RESTRICTED_FILTERS = _.pick(ACCEPTED_FILTERS, (function() {
+        return Object.keys(ACCEPTED_FILTERS).filter(function(f) {
+            return !!ACCEPTED_FILTERS[f].requiredPermissions;
         });
     })());
     var DEFAULT_COUNT = 15;
@@ -47,10 +47,10 @@ module.exports = function(server) {
                 min: 1,
                 max: 100
             }
-        }, accepted_filters)
+        }, ACCEPTED_FILTERS)
     }, db.redisView(function(client, done, req, res, wrap) {
         var GET = req.params;
-        var filters = _.pick(GET, Object.keys(accepted_filters));
+        var filters = _.pick(GET, Object.keys(ACCEPTED_FILTERS));
         var count = (GET.count && parseInt(GET.count)) || DEFAULT_COUNT;
 
         ensureAuthorized(function() {
@@ -64,7 +64,7 @@ module.exports = function(server) {
         });
 
         function ensureAuthorized(callback) {
-            var filtersToAuthorize = _.pick(restricted_filters, Object.keys(filters));
+            var filtersToAuthorize = _.pick(RESTRICTED_FILTERS, Object.keys(filters));
             var authKeys = Object.keys(filtersToAuthorize);
             if (!authKeys.length) {
                 return callback();
@@ -95,11 +95,7 @@ module.exports = function(server) {
                 var hasPermissions = _.every(authKeys, function(key) {
                     return filtersToAuthorize[key](permissions);
                 });
-                if (!hasPermissions) {
-                    notAuthorized();
-                } else {
-                    callback();
-                }
+                return (hasPermissions ? callback() : notAuthorized());
             });
 
             function notAuthorized() {
