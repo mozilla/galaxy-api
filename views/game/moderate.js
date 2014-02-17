@@ -39,17 +39,16 @@ module.exports = function(server) {
             gamelib.getGameFromSlug(client, slug, function(err, game) {
                 if(err) {
                     res.json({error: err});
-                    done();
                 }
                 else if (!game) {
                     res.json(400, {error: 'bad_game'});
-                    done();
                 }
                 else {
-                    game.status = STATUSES[statusVerb];
-                    gamelib.updateGame(client, game);
-                    res.json(game);
+                    gamelib.updateGame(client, game, {status: STATUSES[statusVerb]});
+                    res.json({success: 'true'});
                 }
+
+                done();
             });
 
         }));
