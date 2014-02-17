@@ -17,6 +17,9 @@ const PERSONA_PATH = 'node_modules/persona-faker/app.js';
 const API_PORT = '5009';
 const API_ENDPOINT = 'http://localhost:' + API_PORT;
 
+const PREFILL_NAMESPACE = 'galaxy-db-prefill';
+const SIGNAL_NAMES = ['api', 'persona-faker'];
+
 const USER_COUNT = 100;
 const FAKE_GAMES = [
     {
@@ -33,6 +36,21 @@ const FAKE_GAMES = [
     }
 ];
 
+// A stream.Writable subclass that forwards to another stream after
+// prefixing each chunk with the provided name
+function NamedWritable(name, forwardingStream) {
+    stream.Writable.call(this, {decodeStrings: false});
+    this.forwardingStream = forwardingStream;
+    this.name = name;
+}
+NamedWritable.prototype = new stream.Writable;
+NamedWritable.prototype._write = function(chunk, encoding, callback) {
+    if (this.forwardingStream) {
+        this.forwardingStream.write(this.name + ': ' + chunk);
+    }
+    callback();
+};
+
 var client = db.redis();
 client.on('ready', function() {
     if (settings_local.FLUSH_DB_ON_PREFILL) {
@@ -47,10 +65,9 @@ client.on('ready', function() {
 
 function run() {
     var ready_promise = new Promise(function(resolve, reject) {
-        const prefill_namespace = 'galaxy-db-prefill';
-        const signal_names = ['api', 'persona-faker'];
-
-        var remaining_signals = _.object(signal_names.map(function(x) { return [x, true]; } ));
+        // Transform signal names into an object with those keys
+        // so that we can cleanly lookup and delete them
+        var remaining_signals = _.object(SIGNAL_NAMES.map(function(x) { return [x, true]; } ));
 
         var timeout = setTimeout(function() {
             reject('Server(s) [' + Object.keys(remaining_signals) + '] did not call back in time!');
@@ -58,7 +75,7 @@ function run() {
         client.on('pmessage', function(pattern, channel, message) {
             var channel_info = channel.split(':');
             var namespace = channel_info[0];
-            if (namespace !== prefill_namespace) {
+            if (namespace !== PREFILL_NAMESPACE) {
                 return;
             }
 
@@ -71,7 +88,7 @@ function run() {
                     resolve();
                 }
             }
-        }).psubscribe(prefill_namespace + ':*');
+        }).psubscribe(PREFILL_NAMESPACE + ':*');
         console.log('waiting for servers to finish launching...');
     }).then(function(result) {
         console.log('starting prefill...');
@@ -82,8 +99,7 @@ function run() {
     });
 
     var child_procs = [];
-    process.on('exit', function(){
-        console.log('killing child servers...');
+    process.on('exit', function() {
         child_procs.forEach(function(child) {
             // Need to use SIGINT because SIGTERM won't actually terminate a node process
             // so long as its HTTP server is still running
@@ -114,12 +130,8 @@ function run() {
             });
 
             // TODO: Should we even bother outputting stdout?
-            ['stdout', 'stderr'].forEach(function(sname) { 
-                var std_stream = new stream.Writable({decodeStrings: false});
-                std_stream._write = function(chunk, encoding, callback) {
-                    process[sname].write(opts.name + ': ' + chunk);
-                    callback();
-                };
+            ['stdout', 'stderr'].forEach(function(sname) {
+                var std_stream = new NamedWritable(opts.name, process[sname]);
                 proc[sname].pipe(std_stream);
             });
 
@@ -157,10 +169,10 @@ function run() {
             });
         }).then(function(result) {
             // TODO: log some form of useful output
-            console.log('finished generating users, games, purchases and friend requests');
+            console.log('Finished generating users, games, purchases and friend requests.');
             process.exit(0);
         }).catch(function(err) {
-            console.log('error:', err, 'stack trace:', err.stack);
+            console.error(err);
             process.exit(1);
         });
     };
