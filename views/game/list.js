@@ -4,28 +4,9 @@ var db = require('../../db');
 var gamelib = require('../../lib/game');
 var user = require('../../lib/user');
 
+var DEFAULT_COUNT = 15;
+
 module.exports = function(server) {
-    function matchesAny(list) {
-        return (function(x) {
-            return _.contains(list, x);
-        });
-    };
-
-    const ACCEPTED_FILTERS = {
-        status: {
-            description: 'Filter by current status of the game',
-            isRequired: false,
-            isIn: ['approved', 'pending', 'rejected'],
-            requiredPermissions: matchesAny(['reviewer', 'admin'])
-        }
-    };
-    const RESTRICTED_FILTERS = _.pick(ACCEPTED_FILTERS, (function() {
-        return Object.keys(ACCEPTED_FILTERS).filter(function(f) {
-            return !!ACCEPTED_FILTERS[f].requiredPermissions;
-        });
-    })());
-    var DEFAULT_COUNT = 15;
-
     // Sample usage:
     // % curl 'http://localhost:5000/game/list'
     server.get({
@@ -35,7 +16,7 @@ module.exports = function(server) {
             notes: 'List of games matching provided filter',
             summary: 'Game List'
         },
-        validation: _.extend({
+        validation: {
             _user: {
                 description: 'User (ID or username slug)',
                 isRequired: false // Only required for restricted filters
@@ -46,33 +27,26 @@ module.exports = function(server) {
                 isInt: true,
                 min: 1,
                 max: 100
+            },
+            status: {
+                description: 'Filter by current status of the game',
+                isRequired: false,
+                isIn: ['approved', 'pending', 'rejected'],
             }
-        }, ACCEPTED_FILTERS)
+        }
     }, db.redisView(function(client, done, req, res, wrap) {
         var GET = req.params;
-        var filters = _.pick(GET, Object.keys(ACCEPTED_FILTERS));
-        var count = (GET.count && parseInt(GET.count)) || DEFAULT_COUNT;
+        var count = (GET.count && parseInt(GET.count, 10)) || DEFAULT_COUNT;
+        var filters = GET.filters;
 
-        ensureAuthorized(function() {
-            // TODO: Filter only 'count' games without having to fetch them all first
-            // (will be somewhat tricky since we need to ensure order to do pagination
-            // properly, and we use UUIDs for game keys that have no logical order in the db)
-            gamelib.getPublicGameObjList(client, null, filters, function(games) {
-                res.json(_.first(games, count));
-                done();
-            });
-        });
-
-        function ensureAuthorized(callback) {
-            var filtersToAuthorize = _.pick(RESTRICTED_FILTERS, Object.keys(filters));
-            var authKeys = Object.keys(filtersToAuthorize);
-            if (!authKeys.length) {
-                return callback();
-            }
-
+        if (!filters.status) {
+            fetchGames();
+            return;
+        } else {
             var _user = GET._user;
             if (!_user) {
-                return notAuthorized();
+                notAuthorized();
+                return;
             }
 
             var email;
@@ -89,13 +63,14 @@ module.exports = function(server) {
                     return;
                 }
 
-                var permissions = Object.keys(_.map(userData.permissions, function(hasPerm, p) {
-                    return !!hasPerm;
-                }));
-                var hasPermissions = _.every(authKeys, function(key) {
-                    return filtersToAuthorize[key](permissions);
-                });
-                return (hasPermissions ? callback() : notAuthorized());
+                var permissions = userData.permissions;
+                for (var p in Object.keys(permissions)) {
+                    // 'status' should only be accessible to reviewers and admins
+                    if (permissions[p] && _.contains(['reviewer', 'admin'], p)) {
+                        fetchGames();
+                        break;
+                    }
+                }
             });
 
             function notAuthorized() {
@@ -105,6 +80,25 @@ module.exports = function(server) {
                 });
                 done();
             };
+        }
+
+        function fetchGames() {
+            // TODO: Filter only 'count' games without having to fetch them all first
+            // (will be somewhat tricky since we need to ensure order to do pagination
+            // properly, and we use UUIDs for game keys that have no logical order in the db)
+            gamelib.getPublicGameObjList(client, null, function(games) {
+                var filteredGames = games;
+                if (filters.status) {
+                    // Filter for games matching the provided status
+                    filteredGames = games.filter(function(g) {
+                        return g.status === filters.status;
+                    });
+                }
+                // Pick the first 'count' games
+                var gamesUpToCount = _.first(filteredGames, count);
+                res.json(gamesUpToCount);
+                done();
+            });
         }
     }));
 };
