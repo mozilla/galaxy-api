@@ -1,9 +1,10 @@
-var _ = require('lodash');
 var child_process = require('child_process');
-var request = require('request');
 var path = require('path');
-var Promise = require('es6-promise').Promise;
 var stream = require('stream');
+
+var _ = require('lodash');
+var request = require('request');
+var Promise = require('es6-promise').Promise;
 
 var db = require('../db');
 var settings = require('../settings');
