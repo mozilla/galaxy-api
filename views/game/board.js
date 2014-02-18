@@ -208,8 +208,7 @@ module.exports = function(server) {
         var sortDesc = DATA.sort !== 'asc';
 
         var friendsOnly = DATA.friendsOnly;
-        var _user = DATA._user;
-        var email;
+        var email = DATA._email;
 
         // TODO: Verify the default limits
         // https://github.com/cvan/galaxy-api/issues/67
@@ -217,12 +216,8 @@ module.exports = function(server) {
         var limit = DATA.limit ? parseInt(DATA.limit, 10) : 10;
 
         if (friendsOnly) {
-            if (!_user) {
+            if (!email) {
                 res.json(403, {error: 'missing_user'});
-                done();
-                return;
-            } else if (!(email = auth.verifySSA(_user))) {
-                res.json(403, {error: 'bad_user'});
                 done();
                 return;
             }

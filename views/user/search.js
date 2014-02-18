@@ -47,13 +47,7 @@ module.exports = function(server) {
             return;
         }
 
-        var _user = DATA._user;
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            done();
-            return;
-        }
+        var email = DATA._email;
 
         // TODO: Allow searching by username.
         // (i.e., if no results for email, look by username, etc.)

@@ -25,13 +25,7 @@ module.exports = function(server) {
         }
     }, function(req, res) {
         var POST = req.params;
-
-        var _user = POST._user;
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            return;
-        }
+        var email = POST._email;
 
         // TODO: Accept ID *or* slug.
         var game = POST.game;
