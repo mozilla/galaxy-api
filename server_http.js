@@ -2,8 +2,8 @@ var restify = require('restify');
 var restifySwagger = require('node-restify-swagger');
 var restifyValidation = require('node-restify-validation');
 
-var pkg = require('./package');
 var auth = require('./lib/auth');
+var pkg = require('./package');
 
 var server = restify.createServer({
     name: pkg.name,
