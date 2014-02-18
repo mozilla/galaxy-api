@@ -215,12 +215,10 @@ module.exports = function(server) {
         var page = DATA.page ? parseInt(DATA.page, 10) : 0;
         var limit = DATA.limit ? parseInt(DATA.limit, 10) : 10;
 
-        if (friendsOnly) {
-            if (!email) {
-                res.json(403, {error: 'missing_user'});
-                done();
-                return;
-            }
+        if (friendsOnly && !email) {
+            res.json(403, {error: 'missing_user'});
+            done();
+            return;
         }
 
         function boardCallback(err, result) {
