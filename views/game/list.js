@@ -1,5 +1,6 @@
 var _ = require('lodash');
 
+var auth = require('../../lib/auth');
 var db = require('../../db');
 var gamelib = require('../../lib/game');
 var user = require('../../lib/user');
@@ -68,10 +69,10 @@ module.exports = function(server) {
             for (var p in Object.keys(permissions)) {
                 // 'status' should only be accessible to reviewers and admins
                 if (permissions[p] && (p === 'reviewer' || p === 'admin')) {
-                    fetchGames();
-                    break;
+                    return fetchGames();
                 }
             }
+            return notAuthorized();
         });
 
         function notAuthorized() {
