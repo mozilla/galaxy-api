@@ -66,15 +66,13 @@ module.exports = function(server) {
             }
 
             var permissions = userData.permissions;
-            var authorized = false;
             for (var p in Object.keys(permissions)) {
                 // 'status' should only be accessible to reviewers and admins
                 if (permissions[p] && (p === 'reviewer' || p === 'admin')) {
-                    authorized = true;
-                    break;
+                    return fetchGames();
                 }
             }
-            authorized ? fetchGames() : notAuthorized();
+            return notAuthorized();
         });
 
         function notAuthorized() {
