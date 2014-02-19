@@ -45,7 +45,7 @@ module.exports = function(server) {
             return;
         }
 
-        var email = GET._email;
+        var email = req._email;
         if (!email) {
             notAuthorized();
             return;

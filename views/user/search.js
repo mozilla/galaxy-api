@@ -47,7 +47,7 @@ module.exports = function(server) {
             return;
         }
 
-        var email = DATA._email;
+        var email = req._email;
 
         // TODO: Allow searching by username.
         // (i.e., if no results for email, look by username, etc.)

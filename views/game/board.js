@@ -208,7 +208,7 @@ module.exports = function(server) {
         var sortDesc = DATA.sort !== 'asc';
 
         var friendsOnly = DATA.friendsOnly;
-        var email = DATA._email;
+        var email = req._email;
 
         // TODO: Verify the default limits
         // https://github.com/cvan/galaxy-api/issues/67

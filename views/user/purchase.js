@@ -25,7 +25,7 @@ module.exports = function(server) {
         }
     }, function(req, res) {
         var POST = req.params;
-        var email = POST._email;
+        var email = req._email;
 
         // TODO: Accept ID *or* slug.
         var game = POST.game;
