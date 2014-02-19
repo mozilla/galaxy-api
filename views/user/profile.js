@@ -34,7 +34,7 @@ module.exports = function(server) {
                 isRequired: false,
             }
         }
-    }, user.userIDView(function(client, done, req, res, id) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var DATA = req.params;
         var dataToUpdate = _.pick(DATA, 'username', 'email');
         user.updateUser(client, id, dataToUpdate, function(err, newUserData) {

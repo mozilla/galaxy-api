@@ -23,7 +23,7 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, user.userIDView(function(client, done, req, res, id) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var POST = req.params;
 
         // TODO: Accept ID *or* slug.
@@ -41,5 +41,5 @@ module.exports = function(server) {
             }
             res.json({success: true});
         });
-    });
+    }));
 };

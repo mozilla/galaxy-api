@@ -39,7 +39,7 @@ module.exports = function(server) {
             notes: 'Update User Permissions',
             summary: 'ACL'
         }
-    }, user.userDataView(function(client, done, req, res, authenticator) {
+    }, user.userDataView(function(authenticator, client, done, req, res) {
         // make sure user is admin
         if (!authenticator.permissions.admin) {
             res.json(403, {error: 'bad_permission'});

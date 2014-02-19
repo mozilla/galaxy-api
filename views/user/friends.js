@@ -21,7 +21,7 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, user.userIDView(function(client, done, req, res, id) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var GET = req.params;
         
         (function(cb) {
@@ -69,7 +69,7 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, user.userIDView(function(client, done, req, res, id) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var POST = req.params;
         var recipient = POST.recipient;
 
@@ -137,7 +137,7 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, user.userIDView(function(client, done, req, res, id) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var GET = req.params;
         client.sdiff(
             'friendRequests:' + id,
@@ -173,7 +173,7 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, user.userIDView(function(client, done, req, res, id) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var POST = req.params;
         var acceptee = POST.acceptee;
 
@@ -227,7 +227,7 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, user.userIDView(function(client, done, req, res, id) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var POST = req.params;
         var rejectee = POST.rejectee;
 
@@ -260,7 +260,7 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, user.userIDView(function(client, done, req, res, id) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var POST = req.params;
         var exfriend = POST.exfriend;
 
