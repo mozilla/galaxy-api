@@ -47,7 +47,7 @@ module.exports = function(server) {
         var isDev = !!+POST.dev;
         var isRev = !!+POST.reviewer;
         var isAdmin = !!+POST.admin;
-        var email = POST._email;
+        var email = req._email;
 
         // Get user who is sending request and make sure it is an admin
         user.getUserFromEmail(client, email, function(err, authenticator) {

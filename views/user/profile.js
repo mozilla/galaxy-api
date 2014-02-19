@@ -36,7 +36,7 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res) {
         var DATA = req.params;
-        var email = DATA._email;
+        var email = req._email;
 
         user.getUserIDFromEmail(client, email, function(err, userID) {
             if (err || !userID) {
