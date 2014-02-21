@@ -48,7 +48,7 @@ module.exports = function(server) {
             slug: slug
         };
 
-        genre.genreExists(client, slug, db.plsNoError(res, done, function(exists) {
+        genre.hasGenre(client, slug, db.plsNoError(res, done, function(exists) {
             if (exists) {
                 res.json(400, {error: 'genre_slug_exists'});
                 done();

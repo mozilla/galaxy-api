@@ -11,6 +11,7 @@ var user = require('./lib/user');
 [
     'game/board',
     'game/detail',
+    'game/featured',
     'game/genre',
     'game/list',
     'game/moderate',
