@@ -2,7 +2,7 @@
 var _ = require('lodash');
 var auth = require('../../lib/auth');
 var db = require('../../db');
-var genre = require('../../lib/genre');
+var libgenre = require('../../lib/genre');
 var user = require('../../lib/user');
 
 
@@ -15,9 +15,36 @@ module.exports = function(server) {
             nickname: 'featured',
             notes: 'Get the list of featured games',
             summary: 'List of featured games'
+        },
+        genre: {
+            description: 'Genre',
+            isRequired: false
         }
     }, db.redisView(function(client, done, req, res, wrap) {
+        var DATA = req.params;
 
+        var genre = DATA.genre;
+
+        if (!genre) {
+            client.hkeys('featured', db.plsNoError(res, done, function(games) {
+                res.json(games);
+                done();
+                return;
+            }));
+        } else {
+            libgenre.hasGenre(client, genre, db.plsNoError(res, done, function(exists) {
+                if (!exists) {
+                    res.json(400, {error: 'invalid_genre'});
+                    done();
+                    return;
+                }
+                client.smembers('featured:' + genre, db.plsNoError(res, done, function(games) {
+                    res.json(games);
+                    done();
+                    return;
+                }));
+            }));
+        }
     }));
 
     // Sample usage:
@@ -95,8 +122,7 @@ module.exports = function(server) {
         }
 
         user.getUserFromEmail(client, email, db.plsNoError(res, done, function(authenticator) {
-            if (false) {
-            //if (!authenticator.permissions || (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
+            if (!authenticator.permissions || (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
                 res.json(403, {error: 'bad_permission'});
                 done();
                 return;
@@ -109,7 +135,7 @@ module.exports = function(server) {
                     return;
                 }
 
-                genre.hasGenres(client, genres, db.plsNoError(res, done, function(exists) {
+                libgenre.hasGenres(client, genres, db.plsNoError(res, done, function(exists) {
                     if (!exists) {
                         res.json(400, {error: 'invalid_genres'});
                         done();
@@ -202,8 +228,7 @@ module.exports = function(server) {
         }
 
         user.getUserFromEmail(client, email, db.plsNoError(res, done, function(authenticator) {
-            if (false) {
-            //if (!authenticator.permissions || (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
+            if (!authenticator.permissions || (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
                 res.json(403, {error: 'bad_permission'});
                 done();
                 return;
@@ -215,7 +240,7 @@ module.exports = function(server) {
                     done();
                     return;
                 }
-                genre.hasGenres(client, new_genres, function(error, exists) {
+                libgenre.hasGenres(client, new_genres, function(error, exists) {
                     if (!exists) {
                         res.json(400, {error: 'invalid_genres'});
                         done();
@@ -283,8 +308,7 @@ module.exports = function(server) {
         }
 
         user.getUserFromEmail(client, email, db.plsNoError(res, done, function(authenticator) {
-            if (false) {
-            //if (!authenticator.permissions || (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
+            if (!authenticator.permissions || (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
                 res.json(403, {error: 'bad_permission'});
                 done();
                 return;
