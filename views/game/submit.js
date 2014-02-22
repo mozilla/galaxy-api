@@ -26,7 +26,7 @@ module.exports = function(server) {
             },
             icons: {
                 description: 'Icons',
-                isRequired: true,
+                isRequired: false,
             },
             name: {
                 description: 'Name',
@@ -35,7 +35,7 @@ module.exports = function(server) {
             },
             screenshots: {
                 description: 'Screenshots',
-                isRequired: true
+                isRequired: false
             }
         }
     }, db.redisView(function(client, done, req, res, wrap) {
