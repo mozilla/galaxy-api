@@ -64,6 +64,7 @@ module.exports = function(server) {
             orientation: POST.orientation,
             privacy_policy_url: POST.privacy_policy_url,
             screenshots: POST.screenshots,
+            status: 'pending',
             slug: slug,
             videos: POST.videos
         };
