@@ -38,7 +38,7 @@ module.exports = function(server) {
 
             gamelib.getGameFromSlug(client, slug, function(err, game) {
                 if (err) {
-                    res.json({error: err});
+                    res.json(500, {error: err});
                 } else if (!game) {
                     res.json(400, {error: 'bad_game'});
                 } else {
