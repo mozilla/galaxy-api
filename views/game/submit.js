@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var db = require('../../db');
 var gamelib = require('../../lib/game');
 var utils = require('../../lib/utils');
@@ -70,5 +71,46 @@ module.exports = function(server) {
 
         gamelib.newGame(client, data);
         res.json(data);
+    }));
+
+    // Sample usage:
+    // % curl -X PUT 'http://localhost:5000/game/mario-bros/edit'
+    server.put({
+        url: '/game/edit',
+        swagger: {
+            nickname: 'edit',
+            notes: 'Edit game',
+            summary: 'Edit game details'
+        },
+        validation: {
+            app_url: {
+                description: 'App URL',
+                isRequired: true,
+                isUrl: true
+            },
+            homepage_url: {
+                description: 'Homepage URL',
+                isRequired: false,
+                isUrl: true
+            },
+            name: {
+                description: 'Name',
+                isRequired: true,
+                max: 128
+            }
+        }
+    }, db.redisView(function(client, done, req, res, wrap) {
+        var PUT = req.params;
+        var slug = PUT.slug;
+        if (!slug) {
+            res.json(400, {error: 'bad_game'});
+            done();
+            return;
+        }
+        // TODO: Add icon, screenshots and videos to dataToUpdate
+        var dataToUpdate = _.pick(PUT, 'name', 'slug', 'app_url', 'description', 'privacy_policy_url', 'genre');
+
+        gamelib.updateGame(client, PUT, dataToUpdate);
+        res.json(dataToUpdate);
     }));
 };
