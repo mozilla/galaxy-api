@@ -63,10 +63,10 @@ module.exports = function(server) {
             name: POST.name,
             orientation: POST.orientation,
             privacy_policy_url: POST.privacy_policy_url,
-            screenshots: POST.screenshots,
+            screenshots: JSON.parse(POST.screenshots),
             status: 'pending',
             slug: slug,
-            videos: POST.videos
+            videos: JSON.parse(POST.videos)
         };
 
         gamelib.newGame(client, data);
