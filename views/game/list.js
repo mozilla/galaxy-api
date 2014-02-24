@@ -45,16 +45,9 @@ module.exports = function(server) {
             return;
         }
 
-        var _user = GET._user;
-        if (!_user) {
+        var email = req._email;
+        if (!email) {
             notAuthorized();
-            return;
-        }
-
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            done();
             return;
         }
 

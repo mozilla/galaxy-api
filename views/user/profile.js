@@ -36,14 +36,7 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res) {
         var DATA = req.params;
-
-        var _user = DATA._user;
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            done();
-            return;
-        }
+        var email = req._email;
 
         user.getUserIDFromEmail(client, email, function(err, userID) {
             if (err || !userID) {
