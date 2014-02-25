@@ -1,8 +1,9 @@
-// TODO: Update prefill script to include featured
+// TODO: Update prefill script to include featured (#103)
 var _ = require('lodash');
+
 var auth = require('../../lib/auth');
 var db = require('../../db');
-var libgenre = require('../../lib/genre');
+var genrelib = require('../../lib/genre');
 var user = require('../../lib/user');
 
 
@@ -25,23 +26,24 @@ module.exports = function(server) {
 
         var genre = DATA.genre;
 
+        // If the caller did not specify a genre, we return the list of all
+        // the featured games.
         if (!genre) {
             client.hkeys('featured', db.plsNoError(res, done, function(games) {
                 res.json(games);
-                done();
-                return;
+                return done();
             }));
         } else {
-            libgenre.hasGenre(client, genre, db.plsNoError(res, done, function(exists) {
+            // Verify that the genre specified is valid, before returning
+            // the list of featured games associated with the genre.
+            genrelib.hasGenre(client, genre, db.plsNoError(res, done, function(exists) {
                 if (!exists) {
                     res.json(400, {error: 'invalid_genre'});
-                    done();
-                    return;
+                    return done();
                 }
                 client.smembers('featured:' + genre, db.plsNoError(res, done, function(games) {
                     res.json(games);
-                    done();
-                    return;
+                    return done();
                 }));
             }));
         }
@@ -78,17 +80,14 @@ module.exports = function(server) {
         var email = auth.verifySSA(_user);
         if (!email) {
             res.json(403, {error: 'bad_user'});
-            done();
-            return;
+            return done();
         }
 
-        // TODO: Check for valid game.
-        // https://github.com/cvan/galaxy-api/issues/57
+        // TODO: Check for valid game. (issue #57)
         var game = DATA.game;
         if (!game) {
             res.json(400, {error: 'bad_game'});
-            done();
-            return;
+            return done();
         }
 
         var genres = DATA.genres;
@@ -98,12 +97,11 @@ module.exports = function(server) {
             try {
                 genres = JSON.parse(genres);
                 if (!(genres instanceof Array)) {
-                    throw "bad_genres";
+                    throw 'bad_genres';
                 }
             } catch (e) {
                 res.json(400, {error: 'bad_genres'});
-                done();
-                return;
+                return done();
             }
         }
 
@@ -111,7 +109,7 @@ module.exports = function(server) {
             var multi = client.multi();
             multi.hset('featured', game, JSON.stringify(genres));
 
-            _.each(genres, function(genre) {
+            genres.forEach(function(genre) {
                 multi.sadd('featured:' + genre, game);
             });
 
@@ -122,24 +120,22 @@ module.exports = function(server) {
         }
 
         user.getUserFromEmail(client, email, db.plsNoError(res, done, function(authenticator) {
-            if (!authenticator.permissions || (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
+            if (!authenticator.permissions || 
+                (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
                 res.json(403, {error: 'bad_permission'});
-                done();
-                return;
+                return done();
             } 
 
             client.hexists('featured', game, db.plsNoError(res, done, function(reply) {
-                if (reply === 1) {
+                if (reply) {
                     res.json(400, {error: 'already_featured'});
-                    done();
-                    return;
+                    return done();
                 }
 
-                libgenre.hasGenres(client, genres, db.plsNoError(res, done, function(exists) {
+                genrelib.hasGenres(client, genres, db.plsNoError(res, done, function(exists) {
                     if (!exists) {
                         res.json(400, {error: 'invalid_genres'});
-                        done();
-                        return;
+                        return done();
                     }
                     addFeatured(client, game, genres);
                 }));
@@ -178,17 +174,14 @@ module.exports = function(server) {
         var email = auth.verifySSA(_user);
         if (!email) {
             res.json(403, {error: 'bad_user'});
-            done();
-            return;
+            return done();
         }
 
-        // TODO: Check for valid game.
-        // https://github.com/cvan/galaxy-api/issues/57
+        // TODO: Check for valid game. (issue #57)
         var game = DATA.game;
         if (!game) {
             res.json(400, {error: 'bad_game'});
-            done();
-            return;
+            return done();
         }
 
         var new_genres = DATA.genres;
@@ -198,12 +191,11 @@ module.exports = function(server) {
             try {
                 new_genres = JSON.parse(new_genres);
                 if (!(new_genres instanceof Array)) {
-                    throw "bad_genres";
+                    throw 'bad_genres';
                 }
             } catch (e) {
                 res.json(400, {error: 'bad_genres'});
-                done();
-                return;
+                return done();
             }
         }
 
@@ -214,10 +206,11 @@ module.exports = function(server) {
             var multi = client.multi();
             multi.hset('featured', game, JSON.stringify(new_genres));
 
-            _.each(remove_genres, function(genre) {
+            remove_genres.forEach(function(genre) {
                 multi.srem('featured:' + genre, game);
             });
-            _.each(add_genres, function(genre) {
+
+            add_genres.forEach(function(genre) {
                 multi.sadd('featured:' + genre, game);
             });
 
@@ -228,23 +221,21 @@ module.exports = function(server) {
         }
 
         user.getUserFromEmail(client, email, db.plsNoError(res, done, function(authenticator) {
-            if (!authenticator.permissions || (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
+            if (!authenticator.permissions || 
+                (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
                 res.json(403, {error: 'bad_permission'});
-                done();
-                return;
+                return done();
             } 
 
             client.hget('featured', game, db.plsNoError(res, done, function(genres) {
                 if (!genres) {
                     res.json(400, {error: 'game_not_featured'});
-                    done();
-                    return;
+                    return done();
                 }
-                libgenre.hasGenres(client, new_genres, function(error, exists) {
+                genrelib.hasGenres(client, new_genres, function(error, exists) {
                     if (!exists) {
                         res.json(400, {error: 'invalid_genres'});
-                        done();
-                        return;
+                        return done();
                     }
                     editFeatured(client, game, JSON.parse(genres), new_genres);
                 });
@@ -280,24 +271,21 @@ module.exports = function(server) {
         var email = auth.verifySSA(_user);
         if (!email) {
             res.json(403, {error: 'bad_user'});
-            done();
-            return;
+            return done();
         }
 
-        // TODO: Check for valid game.
-        // https://github.com/cvan/galaxy-api/issues/57
+        // TODO: Check for valid game. (issue #57)
         var game = DATA.game;
         if (!game) {
             res.json(400, {error: 'bad_game'});
-            done();
-            return;
+            return done();
         }
 
         function removeFeatured(client, game, genres) {
             var multi = client.multi();
             multi.hdel('featured', game);
 
-            _.each(genres, function(genre) {
+            genres.forEach(function(genre) {
                 multi.srem('featured:' + genre, game);
             });
 
@@ -308,17 +296,16 @@ module.exports = function(server) {
         }
 
         user.getUserFromEmail(client, email, db.plsNoError(res, done, function(authenticator) {
-            if (!authenticator.permissions || (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
+            if (!authenticator.permissions || 
+                (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
                 res.json(403, {error: 'bad_permission'});
-                done();
-                return;
+                return done();
             } 
 
             client.hget('featured', game, db.plsNoError(res, done, function(genres) {
                 if (!genres) {
                     res.json(400, {error: 'game_not_featured'});
-                    done();
-                    return;
+                    return done();
                 }
                 removeFeatured(client, game, JSON.parse(genres));
             }));
