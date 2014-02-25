@@ -1,3 +1,7 @@
+var child_process = require('child_process');
+var path = require('path');
+var stream = require('stream');
+
 var _ = require('lodash');
 var request = require('request');
 var Promise = require('es6-promise').Promise;
@@ -7,14 +11,15 @@ var settings = require('../settings');
 var settings_local = require('../settings_local');
 var utils = require('../lib/utils');
 
-// NOTE: In order to generate users with this script, you should first start up
-// persona-faker (npm run-script persona-faker) so that we can generate fake
-// Persona assertions (instead of flooding the production Persona server with fake users).
-// You should also update PERSONA_VERIFICATION_URL in settings_local.js to point to
-// this endpoint (ie. http://localhost:9001/verify) so that galaxy-api actually 
-// touches this server.
-const API_ENDPOINT = 'http://localhost:5000';
-const PERSONA_ENDPOINT = 'http://localhost:9001';
+const PERSONA_PORT = '9009';
+const PERSONA_ENDPOINT = 'http://localhost:' + PERSONA_PORT;
+const PERSONA_PATH = 'node_modules/persona-faker/app.js';
+
+const API_PORT = '5009';
+const API_ENDPOINT = 'http://localhost:' + API_PORT;
+
+const PREFILL_NAMESPACE = 'galaxy-db-prefill';
+const SIGNAL_NAMES = ['api', 'persona-faker'];
 
 const USER_COUNT = 100;
 const FAKE_GAMES = [
@@ -32,18 +37,149 @@ const FAKE_GAMES = [
     }
 ];
 
-if (settings_local.FLUSH_DB_ON_PREFILL) {
-    // FIXME: this doesn't work when the script is called
-    // from outside the root directory for some reason
-    console.log('flushing db...');
-    var client = db.redis();
-    client.flushdb(function() {
-        client.end();
-        run();
-    });
-} else {
-    run();
+// A stream.Writable subclass that forwards to another stream after
+// prefixing each chunk with the provided name
+function NamedWritable(name, forwardingStream) {
+    stream.Writable.call(this, {decodeStrings: false});
+    this.forwardingStream = forwardingStream;
+    this.name = name;
 }
+NamedWritable.prototype = new stream.Writable;
+NamedWritable.prototype._write = function(chunk, encoding, callback) {
+    if (this.forwardingStream) {
+        this.forwardingStream.write(this.name + ': ' + chunk);
+    }
+    callback();
+};
+
+var client = db.redis();
+client.on('ready', function() {
+    if (settings_local.FLUSH_DB_ON_PREFILL) {
+        // FIXME: this doesn't work when the script is called
+        // from outside the root directory for some reason
+        console.log('flushing db...');
+        client.flushdb(run);
+    } else {
+        run();
+    }
+});
+
+function run() {
+    var ready_promise = new Promise(function(resolve, reject) {
+        // Transform signal names into an object with those keys
+        // so that we can cleanly lookup and delete them
+        var remaining_signals = _.object(SIGNAL_NAMES.map(function(x) { return [x, true]; } ));
+
+        var timeout = setTimeout(function() {
+            reject('Server(s) [' + Object.keys(remaining_signals) + '] did not call back in time!');
+        }, 5000);
+        client.on('pmessage', function(pattern, channel, message) {
+            var channel_info = channel.split(':');
+            var namespace = channel_info[0];
+            if (namespace !== PREFILL_NAMESPACE) {
+                return;
+            }
+
+            var source = channel_info[1];
+            if (remaining_signals[source]) {
+                console.log(source, 'is ready');
+                delete remaining_signals[source];
+                if (!Object.keys(remaining_signals).length) {
+                    clearTimeout(timeout);
+                    resolve();
+                }
+            }
+        }).psubscribe(PREFILL_NAMESPACE + ':*');
+        console.log('waiting for servers to finish launching...');
+    }).then(function(result) {
+        console.log('starting prefill...');
+        startRequests();
+    }).catch(function(err) {
+        console.error(err);
+        process.exit(1);
+    });
+
+    var child_procs = [];
+    process.on('exit', function() {
+        child_procs.forEach(function(child) {
+            // Need to use SIGINT because SIGTERM won't actually terminate a node process
+            // so long as its HTTP server is still running
+            child.kill('SIGINT');
+        });
+    });
+
+    // Use a callback so that if we crash for some reason after setting up one server but
+    // before finishing the next, we can still kill the processes that we had started
+    startServers(function(proc) {
+        child_procs.push(proc);
+    });
+
+    function startServers(callback) {
+        function startServer(serverPath, opts) {
+            var proc = child_process.spawn('node', [serverPath], {
+                cwd: path.dirname(__dirname),
+                env: _.extend({
+                    DB_PREFILL: true,
+                    PATH: process.env.PATH,
+                    PORT: opts.port
+                }, opts.env || {}),
+                stdio: ['ignore', 'pipe', 'pipe']
+            }).on('error', function(err) {
+                console.error('error running ' + opts.name + ':', err);
+            }).on('close', function(code, signal) {
+                console.log(opts.name, 'process closed');
+            });
+
+            // TODO: Should we even bother outputting stdout?
+            ['stdout', 'stderr'].forEach(function(sname) {
+                var std_stream = new NamedWritable(opts.name, process[sname]);
+                proc[sname].pipe(std_stream);
+            });
+
+            console.log('running', opts.name, '(pid: ' + proc.pid + ') on port', opts.port);
+            return proc;
+        }
+
+        callback(startServer(PERSONA_PATH, {
+            name: 'persona-faker', 
+            port: PERSONA_PORT
+        }));
+        callback(startServer('app.js', {
+            name: 'galaxy-api',
+            port: API_PORT,
+            env: {
+                PERSONA_VERIFICATION_URL: PERSONA_ENDPOINT + '/verify'
+            }
+        }));
+    }
+
+    function startRequests() {
+        utils.promiseMap({
+            users: createUsers(), 
+            games: createGames()
+        }).then(function(result) {
+            var gameSlugs = result.games.map(function(json) { return json.slug; });
+            var userSSAs = result.users.map(function(user) { return user.token; });
+
+            var purchasePromise = purchaseGames(userSSAs, gameSlugs);
+            var friendsPromise = createFriends(result.users);
+
+            return utils.promiseMap({
+                friends: friendsPromise,
+                purchases: purchasePromise
+            });
+        }).then(function(result) {
+            // TODO: log some form of useful output
+            console.log('Finished generating users, games, purchases and friend requests.');
+            process.exit(0);
+        }).catch(function(err) {
+            console.error(err);
+            process.exit(1);
+        });
+    };
+}
+
+/*** Prefill Logic ***/
 
 function createUsers() {
     function createUser(email) {
@@ -187,29 +323,5 @@ function postPromise(url, form) {
             }
             resolve(JSON.parse(body));
         });
-    });
-}
-
-function run() {
-    utils.promiseMap({
-        users: createUsers(), 
-        games: createGames()
-    }).then(function(result) {
-        var gameSlugs = result.games.map(function(json) { return json.slug; });
-        var userSSAs = result.users.map(function(user) { return user.token; });
-
-        var purchasePromise = purchaseGames(userSSAs, gameSlugs);
-        var friendsPromise = createFriends(result.users);
-
-        return utils.promiseMap({
-            friends: friendsPromise,
-            purchases: purchasePromise
-        });
-    }).then(function(result) {
-        // TODO: log some form of useful output
-        console.log('finished generating users, games, purchases and friend requests');
-    }).catch(function(err) {
-        console.log('error:', err, 'stack trace:', err.stack);
-        process.exit(1);
     });
 }
