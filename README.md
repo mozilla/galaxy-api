@@ -58,3 +58,19 @@ To access the shell on stackato:
 ### Game Details
 
     curl 'http://localhost:5000/game/nutty-ninjas/detail'
+
+### Grant a user admin privileges
+
+    ./scripts/addusertogroup.js cvan@mozilla.com admin
+
+### Grant a user admin+reviewer privileges
+
+    ./scripts/addusertogroup.js cvan@mozilla.com admin reviewer
+
+### Revoke a user's admin privileges
+
+    ./scripts/removeuserfromgroup.js cvan@mozilla.com admin
+
+### Revoke a user's admin+reviewer privileges
+
+    ./scripts/removeuserfromgroup.js cvan@mozilla.com admin reviewer
