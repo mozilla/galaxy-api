@@ -1,0 +1,18 @@
+{
+	"games": [
+            {
+                "name": "Mario Broskis",
+                "app_url": "http://mario.broskis"
+            }, 
+            {
+                "name": "Halo 718",
+                "app_url": "http://halo.com"
+            },
+            {
+                "name": "Left 5 Dead",
+                "app_url": "http://dead.left"
+            }
+        ],
+    "numUsers": 50,
+    "numFriends": 2
+}

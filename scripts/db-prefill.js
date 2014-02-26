@@ -10,6 +10,7 @@ var db = require('../db');
 var settings = require('../settings');
 var settings_local = require('../settings_local');
 var utils = require('../lib/utils');
+var params = require('./prefillParameters');
 
 const PERSONA_PORT = '9009';
 const PERSONA_ENDPOINT = 'http://localhost:' + PERSONA_PORT;
@@ -20,22 +21,6 @@ const API_ENDPOINT = 'http://localhost:' + API_PORT;
 
 const PREFILL_NAMESPACE = 'galaxy-db-prefill';
 const SIGNAL_NAMES = ['api', 'persona-faker'];
-
-const USER_COUNT = 100;
-const FAKE_GAMES = [
-    {
-        name: 'Mario Broskis',
-        app_url: 'http://mario.broskis'
-    }, 
-    {
-        name: 'Halo 718',
-        app_url: 'http://halo.com'
-    },
-    {
-        name: 'Left 5 Dead',
-        app_url: 'http://dead.left'
-    }
-];
 
 // A stream.Writable subclass that forwards to another stream after
 // prefixing each chunk with the provided name
@@ -208,7 +193,7 @@ function createUsers() {
         });
     };
 
-    return Promise.all(_.times(USER_COUNT, function(i) {
+    return Promise.all(_.times(params.numUsers, function(i) {
         return createUser('test' + i + '@test.com').then(login);
     }));
 }
@@ -219,7 +204,7 @@ function createGames() {
         screenshots: 'yes'
     };
 
-    return Promise.all(FAKE_GAMES.map(function(game) {
+    return Promise.all(params.games.map(function(game) {
         return postPromise(API_ENDPOINT + '/game/submit',
             _.defaults(game, default_params));
     }));
@@ -244,7 +229,7 @@ function purchaseGames(userSSAs, gameSlugs) {
 
 function createFriends(users) {
     function sendRequests(user) {
-        var recipients = _.sample(users, Math.min(3, USER_COUNT));
+        var recipients = _.sample(users, Math.min(params.numFriends, params.numUsers));
         var promises = recipients.map(function(recipient){
             return sendRequest(user, recipient);
         });
