@@ -1,5 +1,6 @@
 // TODO: Update prefill script to include genre
 var db = require('../../db');
+var genre = require('../../lib/genre');
 
 
 module.exports = function(server) {
@@ -47,22 +48,17 @@ module.exports = function(server) {
             slug: slug
         };
 
-        // TODO: Move this to a lib/genre.js when genre becomes more complicated
-        (function genreSlugExists(slug, callback) {
-            client.hexists('genre', slug, db.plsNoError(res, done, function(reply) {
-                callback(null, reply);
-            }));
-        })(slug, function(err, exists) {
+        genre.hasGenre(client, slug, db.plsNoError(res, done, function(exists) {
             if (exists) {
                 res.json(400, {error: 'genre_slug_exists'});
                 done();
             } else {
-               client.hset('genre', slug, JSON.stringify(data), db.plsNoError(res, done, function(reply) {
+                client.hset('genre', slug, JSON.stringify(data), db.plsNoError(res, done, function(reply) {
                     res.json({success: true});
                     done();
-                }));
+                })); 
             }
-        });
+        }));
     }));
 
     // Sample usage:
