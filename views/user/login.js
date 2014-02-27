@@ -37,7 +37,7 @@ module.exports = function(server) {
                 var client = db.redis();
                 var email = body.email;
                 user.getUserFromEmail(client, email, function(err, resp) {
-                    if (err) {
+                    if (err && err !== 'no_such_user') {
                         res.json(500, {error: err});
                         return;
                     } 

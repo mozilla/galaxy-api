@@ -59,7 +59,7 @@ module.exports = function(server) {
             }
 
             var permissions = userData.permissions;
-            for (var p in Object.keys(permissions)) {
+            for (var p in permissions) {
                 // 'status' should only be accessible to reviewers and admins
                 if (permissions[p] && (p === 'reviewer' || p === 'admin')) {
                     return fetchGames();
@@ -80,7 +80,7 @@ module.exports = function(server) {
             // TODO: Filter only 'count' games without having to fetch them all first
             // (will be somewhat tricky since we need to ensure order to do pagination
             // properly, and we use UUIDs for game keys that have no logical order in the db)
-            gamelib.getPublicGameObjList(client, null, function(games) {
+            gamelib.getGameList(client, null, function(games) {
                 var filteredGames = games;
                 if (statusFilter) {
                     // Filter for games matching the provided status
@@ -89,7 +89,7 @@ module.exports = function(server) {
                     });
                 }
                 // Pick the first 'count' games
-                var gamesUpToCount = _.first(filteredGames, count);
+                var gamesUpToCount = _.first(filteredGames, count).map(gamelib.publicGameObj);
                 res.json(gamesUpToCount);
                 done();
             });
