@@ -89,9 +89,7 @@ module.exports = function(server) {
                     });
                 }
                 // Pick the first 'count' games
-                var gamesUpToCount = _.first(filteredGames, count).map(function(game) {
-                    return gamelib.publicGameObj(game);
-                });
+                var gamesUpToCount = _.first(filteredGames, count).map(gamelib.publicGameObj);
                 res.json(gamesUpToCount);
                 done();
             });
