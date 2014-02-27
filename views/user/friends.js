@@ -24,20 +24,20 @@ module.exports = function(server) {
     }, user.userIDView(function(id, client, done, req, res) {
         var GET = req.params;
         
-        (function(cb) {
-            var friends = 'friends:' + id;
-            if (GET.only === 'online') {
-                return client.sinter(friends, 'authenticated', cb);
-            } else if (GET.only === 'played' && GET.game) {
-                return client.sinter(friends, 'gamePlayed:' + GET.game, cb);
-            } else if (GET.only === 'playedOnline' && GET.game) {
-                return client.sinter(friends, 'authenticated', 'gamePlayed:' + GET.game, cb);
-            } else if (GET.only === 'playing' && GET.game) {
-                return client.sinter(friends, 'gamePlaying:' + GET.game, cb);
-            } else {
-                return client.smembers(friends, cb);
-            }
-        })(function(err, friends) {
+        var friends = 'friends:' + id;
+        if (GET.only === 'online') {
+            return client.sinter(friends, 'authenticated', callback);
+        } else if (GET.only === 'played' && GET.game) {
+            return client.sinter(friends, 'gamePlayed:' + GET.game, callback);
+        } else if (GET.only === 'playedOnline' && GET.game) {
+            return client.sinter(friends, 'authenticated', 'gamePlayed:' + GET.game, callback);
+        } else if (GET.only === 'playing' && GET.game) {
+            return client.sinter(friends, 'gamePlaying:' + GET.game, callback);
+        } else {
+            return client.smembers(friends, callback);
+        }
+
+        function callback(err, friends) {
             if (err || !friends) {
                 res.json(400, {error: 'no_friends'});
                 done();
@@ -47,7 +47,7 @@ module.exports = function(server) {
                 done();
                 res.json(objs);
             });
-        });
+        };
     }));
 
     // Sample usage:
@@ -183,10 +183,7 @@ module.exports = function(server) {
                 done();
                 return;
             }
-            addFriends(id);
-        });
 
-        function addFriends(id) {
             client.sadd('friends:' + acceptee, id);
             client.sadd('friends:' + id, acceptee);
             client.srem('friendRequests:' + acceptee, id);
@@ -207,7 +204,7 @@ module.exports = function(server) {
                 }));
                 done();
             });
-        }
+        });
     }));
 
     server.post({
@@ -270,14 +267,11 @@ module.exports = function(server) {
                 done();
                 return;
             }
-            unfriendFriend(id);
-        });
-
-        function unfriendFriend(id) {
+            
             client.srem('friends:' + exfriend, id);
             client.srem('friends:' + id, exfriend);
             res.json(202, {success: true});
             done();
-        }
+        });
     }));
 };

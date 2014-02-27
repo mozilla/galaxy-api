@@ -36,7 +36,10 @@ module.exports = function(server) {
         }
     }, user.userIDView(function(id, client, done, req, res) {
         var DATA = req.params;
-        var dataToUpdate = _.pick(DATA, 'username', 'email');
+        var dataToUpdate = {
+            username: DATA.username,
+            email: DATA.email
+        };
         user.updateUser(client, id, dataToUpdate, function(err, newUserData) {
             if (err) {
                 res.json(500, {error: err});
