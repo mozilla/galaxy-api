@@ -79,9 +79,7 @@ module.exports = function(server) {
                 done();
                 return;
             }
-            checkNotFriends(id);
-        });
-        function checkNotFriends(id) {
+
             client.sismember('friends:' + id, recipient, function(err, resp) {
                 if (err || resp) {
                     res.json(400, {error: 'already_friends'});
@@ -90,7 +88,7 @@ module.exports = function(server) {
                 }
                 checkNotFriendRequested(id);
             });
-        }
+        });
         function checkNotFriendRequested(id) {
             client.sismember('friendRequests:' + id, recipient, function(err, resp) {
                 if (err || resp) {
@@ -267,7 +265,7 @@ module.exports = function(server) {
                 done();
                 return;
             }
-            
+
             client.srem('friends:' + exfriend, id);
             client.srem('friends:' + id, exfriend);
             res.json(202, {success: true});
