@@ -3,42 +3,8 @@ var gamelib = require('../../lib/game');
 var utils = require('../../lib/utils');
 
 
-module.exports = function(server) {
-    // Sample usage:
-    // % curl -X POST 'http://localhost:5000/game/submit' -d 'name=Mario Bros&app_url=http://mariobro.se&icons=128&screenshots=yes'
-    server.post({
-        url: '/game/submit',
-        swagger: {
-            nickname: 'submit',
-            notes: 'Submit game',
-            summary: 'Submission'
-        },
-        validation: {
-            app_url: {
-                description: 'App URL',
-                isRequired: true,
-                isUrl: true
-            },
-            homepage_url: {
-                description: 'Homepage URL',
-                isRequired: false,
-                isUrl: true
-            },
-            icons: {
-                description: 'Icons',
-                isRequired: true,
-            },
-            name: {
-                description: 'Name',
-                isRequired: true,
-                max: 128
-            },
-            screenshots: {
-                description: 'Screenshots',
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.postSubmitGame =
+    db.redisView(function(client, done, req, res, wrap) {
         var POST = req.params;
         slug = utils.slugify(POST.slug || POST.name);
         var data = {
@@ -71,5 +37,4 @@ module.exports = function(server) {
 
         gamelib.newGame(client, data);
         res.json(data);
-    }));
-};
+    });

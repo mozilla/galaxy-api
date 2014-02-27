@@ -5,23 +5,8 @@ var db = require('../../db');
 var user = require('../../lib/user');
 
 
-module.exports = function(server) {
-    // Sample usage:
-    // % curl 'http://localhost:5000/user/friends?_user=ssatoken'
-    /*
-    Optional params:
-    ?only={online|played|playedOnline|playing}
-    &game=<game>
-    */
-    server.get({
-        url: '/user/friends',
-        validation: {
-            _user: {
-                description: "A user's SSA token",
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res) {
+module.exports.getNonfriendsFromEmail =
+    db.redisView(function(client, done, req, res) {
         var GET = req.params;
         var email = req._email;
 
@@ -57,28 +42,10 @@ module.exports = function(server) {
                 });
             });
         });
-    }));
+    });
 
-    // Sample usage:
-    // % curl -X POST 'http://localhost:5000/user/friends' -d '_user=ssatoken&recipient=uid'
-    server.post({
-        url: '/user/friends/request',
-        swagger: {
-            nickname: 'request-friend',
-            notes: 'Requests two users become friends',
-            summary: 'Send friend request'
-        },
-        validation: {
-            _user: {
-                description: 'A user\'s SSA token.',
-                isRequired: true
-            },
-            recipient: {
-                description: 'The user ID of the friend request recipient',
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res) {
+module.exports.postFriendRequest =
+    db.redisView(function(client, done, req, res) {
         var POST = req.params;
         var email = req._email;
         var recipient = POST.recipient;
@@ -143,22 +110,10 @@ module.exports = function(server) {
                 }
             });
         }
-    }));
+    });
 
-    server.get({
-        url: '/user/friends/requests',
-        swagger: {
-            nickname: 'friend-requests',
-            notes: 'Returns a list of friend requests for the user.',
-            summary: 'List of friend requests'
-        },
-        validation: {
-            _user: {
-                description: 'A user\'s SSA token',
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res) {
+module.exports.getFriendRequests =
+    db.redisView(function(client, done, req, res) {
         var GET = req.params;
         var email = req._email;
 
@@ -184,26 +139,10 @@ module.exports = function(server) {
                 }
             );
         });
-    }));
+    });
 
-    server.post({
-        url: '/user/friends/accept',
-        swagger: {
-            nickname: 'accept-friend',
-            notes: 'Accepts a friend request',
-            summary: 'Accept friend request'
-        },
-        validation: {
-            _user: {
-                description: 'A user\'s SSA token.',
-                isRequired: true
-            },
-            acceptee: {
-                description: 'The user ID of someone who sent a friend request to the user',
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res) {
+module.exports.postAcceptFriendRequest =
+    db.redisView(function(client, done, req, res) {
         var POST = req.params;
         var email = req._email;
         var acceptee = POST.acceptee;
@@ -250,26 +189,10 @@ module.exports = function(server) {
                 done();
             });
         }
-    }));
+    });
 
-    server.post({
-        url: '/user/friends/ignore',
-        swagger: {
-            nickname: 'ignore-friend',
-            notes: 'Ignored an incoming friend request',
-            summary: 'Ignore friend request'
-        },
-        validation: {
-            _user: {
-                description: 'A user\'s SSA token.',
-                isRequired: true
-            },
-            acceptee: {
-                description: 'The user ID of someone who sent a friend request to the user',
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res) {
+module.exports.postIgnoreRequest =
+    db.redisView(function(client, done, req, res) {
         var POST = req.params;
         var email = req._email;
         var rejectee = POST.rejectee;
@@ -291,26 +214,10 @@ module.exports = function(server) {
                 done();
             });
         });
-    }));
+    });
 
-    server.post({
-        url: '/user/friends/unfriend',
-        swagger: {
-            nickname: 'unfriend-friend',
-            notes: 'Unfriends a friend',
-            summary: 'Unfriend friend'
-        },
-        validation: {
-            _user: {
-                description: 'A user\'s SSA token.',
-                isRequired: true
-            },
-            exfriend: {
-                description: 'The user ID of someone whom to the user wants to unfriend',
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res) {
+module.exports.postUnfriend =
+    db.redisView(function(client, done, req, res) {
         var POST = req.params;
         var email = req._email;
         var exfriend = POST.exfriend;
@@ -341,5 +248,4 @@ module.exports = function(server) {
             res.json(202, {success: true});
             done();
         }
-    }));
-};
+    });

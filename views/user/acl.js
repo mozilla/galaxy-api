@@ -3,43 +3,8 @@ var db = require('../../db');
 var user = require('../../lib/user');
 
 
-module.exports = function(server) {
-    // Sample usage:
-    // % curl -X POST 'http://localhost:5000/user/acl' -d 'id=1&dev=1&reviewer=1&admin=1'
-    // TODO: Make sure only admins can do this
-    server.post({
-        url: '/user/acl',
-        validation: {
-            _user: {
-                description: "A user's SSA token",
-                isRequired: true
-            },
-            id: {
-                description: 'User ID to change permissions for',
-                isRequired: true
-            },
-            dev: {
-                description: 'Whether or not user should have developer permissions',
-                isRequired: true,
-                isIn: ['0', '1']
-            },
-            reviewer: {
-                description: 'Whether or not user should have reviewer permissions',
-                isRequired: true,
-                isIn: ['0', '1']
-            },
-            admin: {
-                description: 'Whether or not user should have admin permissions',
-                isRequired: false,
-                isIn: ['0', '1']
-            }
-        },
-        swagger: {
-            nickname: 'acl',
-            notes: 'Update User Permissions',
-            summary: 'ACL'
-        }
-    }, db.redisView(function(client, done, req, res) {
+module.exports.postAcl =
+    db.redisView(function(client, done, req, res) {
         var POST = req.params;
 
         var userID = POST.id;
@@ -89,5 +54,4 @@ module.exports = function(server) {
 
             });
         });
-    }));
-};
+    });

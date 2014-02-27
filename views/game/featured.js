@@ -7,21 +7,8 @@ var genrelib = require('../../lib/genre');
 var user = require('../../lib/user');
 
 
-module.exports = function(server) {
-    // Sample usage:
-    // % curl 'http://localhost:5000/featured'
-    server.get({
-        url: '/featured',
-        swagger: {
-            nickname: 'featured',
-            notes: 'Get the list of featured games',
-            summary: 'List of featured games'
-        },
-        genre: {
-            description: 'Genre',
-            isRequired: false
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.getFeaturedList =
+    db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
         var genre = DATA.genre;
@@ -47,32 +34,10 @@ module.exports = function(server) {
                 }));
             }));
         }
-    }));
+    });
 
-    // Sample usage:
-    // % curl -X POST 'http://localhost:5000/featured' -d '_user=ssa_token&game=game_slug&genres=["action"]'
-    server.post({
-        url: '/featured',
-        swagger: {
-            nickname: 'add-featured',
-            notes: 'Add a new featured game',
-            summary: 'Add a new featured game'
-        },
-        validation: {
-            _user: {
-                description: 'User',
-                isRequired: true
-            },
-            game: {
-                description: 'Game slug',
-                isRequired: true
-            },
-            genres: {
-                description: 'List of genres',
-                isRequired: false
-            }
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.postAddFeatured =
+    db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
         // TODO: Use @aricha's plugin once it is merged to master
@@ -141,32 +106,10 @@ module.exports = function(server) {
                 }));
             }));
         }));
-    }));
+    });
 
-    // Sample usage:
-    // % curl -X PUT 'http://localhost:5000/featured' -d '_user=ssa_token&game=game_slug&genres=["simulation"]'
-    server.put({
-        url: '/featured',
-        swagger: {
-            nickname: 'put-featured',
-            notes: 'Edit an existing featured game',
-            summary: 'Edit a featured game'
-        },
-        validation: {
-            _user: {
-                description: 'User',
-                isRequired: true
-            },
-            game: {
-                description: 'Game slug',
-                isRequired: true
-            },
-            genres: {
-                description: 'List of genres',
-                isRequired: false
-            }
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.putEditFeatured =
+    db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
         // TODO: Use @aricha's plugin once it is merged to master
@@ -241,28 +184,10 @@ module.exports = function(server) {
                 });
             }));
         }));
-    }));
+    });
 
-    // Sample usage:
-    // % curl -X DELETE 'http://localhost:5000/featured' -d '_user=ssa_token&game=game_slug'
-    server.del({
-        url: '/featured',
-        swagger: {
-            nickname: 'del-featured',
-            notes: 'Delete an existing featured game',
-            summary: 'Delete a featured game'
-        },
-        validation: {
-            _user: {
-                description: 'User',
-                isRequired: true
-            },
-            game: {
-                description: 'Game slug',
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.delFeatured =
+    db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
         // Check if the user have permission to add a featured game
@@ -310,5 +235,4 @@ module.exports = function(server) {
                 removeFeatured(client, game, JSON.parse(genres));
             }));
         }));
-    }));
-}
+    });

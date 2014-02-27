@@ -6,18 +6,8 @@ var leaderboard = require('../../lib/leaderboard');
 var user = require('../../lib/user');
 
 
-module.exports = function(server) {
-    // Sample usage:
-    // % curl 'http://localhost:5000/game/mario-bros/board'
-    server.get({
-        url: '/game/:game/board',
-        swagger: {
-            nickname: 'get-board',
-            notes: 'Returns a list of the leaderboards boards that are ' +
-                   'available for a particular game.',
-            summary: 'List of Leaderboards for a Game'
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.getBoardList =
+    db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
         // TODO: Check for valid game.
@@ -57,28 +47,10 @@ module.exports = function(server) {
             })(boards, []);
 
         });
-    }));
+    });
 
-    // Sample usage:
-    // % curl -X POST 'http://localhost:5000/game/mario-bros/board' -d 'name=Warios Smashed&slug=warios-smashed'
-    server.post({
-        url: '/game/:game/board',
-        swagger: {
-            nickname: 'create-board',
-            notes: 'Creates a leaderboard board for a particular game.',
-            summary: 'Create a Game Leaderboard'
-        },
-        validation: {
-            name: {
-                description: 'Board name',
-                isRequired: true
-            },
-            slug: {
-                description: 'Board slug',
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.postCreateLeaderboard =
+    db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
         var name = DATA.name;
@@ -107,24 +79,10 @@ module.exports = function(server) {
             }
             done();
         });
-    }));
+    });
 
-    // Sample usage:
-    // % curl -X DELETE 'http://localhost:5000/game/mario-bros/board' -d 'slug=warios-smashed'
-    server.del({
-        url: '/game/:game/board',
-        swagger: {
-            nickname: 'delete-board',
-            notes: 'Removes a leaderboard from a particular game.',
-            summary: 'Delete a Game Leaderboard'
-        },
-        validation: {
-            slug: {
-                description: 'Board slug',
-                isRequired: true
-            }
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.delLeaderboard =
+    db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
         var slug = DATA.slug;
@@ -147,44 +105,10 @@ module.exports = function(server) {
             }
             done();
         });
-    }));
+    });
 
-    // Sample usage:
-    // % curl 'http://localhost:5000/game/mario-bros/board/warios-smashed'
-    // % curl 'http://localhost:5000/game/mario-bros/board/warios-smashed?sort=asc&friendsOnly=true&_user=ssa_token'
-    server.get({
-        url: '/game/:game/board/:board',
-        swagger: {
-            nickname: 'get-scores',
-            notes: 'Returns the list of scores of a particular leaderboard',
-            summary: 'List of Scores for LeaderBoard'
-        },
-        validation: {
-            sort: {
-                description: 'Sort order',
-                isAlpha: true,
-                isRequired: false
-            },
-            friendsOnly: {
-                description: 'Only show score of friends',
-                isRequired: false
-            },
-            _user: {
-                description: 'User (ID or username slug)',
-                isRequired: false
-            },
-            page: {
-                description: 'Page number',
-                isInt: true,
-                isRequired: false
-            },
-            limit: {
-                description: 'Number of results per page',
-                isInt: true,
-                isRequired: false
-            }
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.getScoresFromLeaderboard =
+    db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
         // TODO: Check for valid game. 
@@ -231,5 +155,4 @@ module.exports = function(server) {
         } else {
             leaderboard.getLeaderboard(client, params, boardCallback);
         }
-    }));
-}
+    });
