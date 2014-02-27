@@ -50,6 +50,12 @@ client.on('ready', function() {
 });
 
 function run() {
+    _.defaults(params, {
+        games: [],
+        numUsers: 0,
+        numFriends: 0
+    });
+
     var ready_promise = new Promise(function(resolve, reject) {
         // Transform signal names into an object with those keys
         // so that we can cleanly lookup and delete them
