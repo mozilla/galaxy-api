@@ -18,7 +18,7 @@ module.exports = function(server) {
     // % curl http://localhost:5000/game/mario-bros/reject'
 
     Object.keys(STATUSES).forEach(function (statusVerb) {
-        server.get({
+        server.post({
             url: '/game/:slug/' + statusVerb,
             swagger: {
                 nickname: statusVerb,
