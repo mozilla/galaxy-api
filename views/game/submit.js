@@ -2,6 +2,7 @@ var _ = require('lodash');
 var db = require('../../db');
 var gamelib = require('../../lib/game');
 var utils = require('../../lib/utils');
+var user = require('../../lib/user');
 
 
 module.exports = function(server) {
@@ -75,7 +76,7 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl -X PATCH 'http://localhost:5000/game/mario-bros/edit'
+    // % curl -X PUT 'http://localhost:5000/game/mario-bros/edit'
     server.put({
         url: '/game/edit',
         swagger: {
@@ -106,22 +107,59 @@ module.exports = function(server) {
     }, db.redisView(function(client, done, req, res, wrap) {
         var PUT = req.params;
         var slug = PUT.slug;
-
-        // TODO: Check if user has the correct ACL permissions to update
-        // TODO: Check if slug is valid
+        var email = req._email;
 
         if (!slug) {
             res.json(400, {error: 'bad_game'});
             done();
             return;
         }
-        // TODO: Add icon, screenshots and videos to dataToUpdate
-        var dataToUpdate = _.pick(PUT, 'name', 'slug', 'app_url', 'description', 'privacy_policy_url', 'genre');
 
-        // TODO: instead of PUT use {id: gameID} and look 
-        // that up in redis. or restructure updateGame to accept 
-        // a slug when doing the lookups to update.
-        gamelib.updateGame(client, PUT, dataToUpdate);
-        res.json(dataToUpdate);
+        if (!email) {
+            notAuthorized();
+            return;
+        }
+
+        user.getUserFromEmail(client, email, function(err, userData) {
+            if (err) {
+                res.json(500, {error: err || 'db_error'});
+                done();
+                return;
+            }
+
+            var permissions = userData.permissions;
+            for (var p in permissions) {
+                // Editing games should only be accessible to developers
+                if (permissions[p] && (p === 'developer')) {
+                    return updateGame();
+                }
+            }
+            return notAuthorized();
+        });
+
+        function notAuthorized() {
+            res.json(401, {
+                error: 'not_permitted', 
+                detail: 'provided filters require additional permissions'
+            });
+            done();
+        };
+
+        function updateGame() {
+            // TODO: Add icon, screenshots and videos to dataToUpdate
+            var dataToUpdate = _.pick(PUT, 'name', 'slug', 'app_url', 'description', 'privacy_policy_url', 'genre');
+            
+            gamelib.getGameFromSlug(client, slug, function(err, game) {
+                if (err) {
+                    res.json(500, {error: err});
+                } else if (!game) {
+                    res.json(400, {error: 'bad_game'});
+                } else {
+                    gamelib.updateGame(client, game, dataToUpdate);
+                    res.json(dataToUpdate);
+                }
+                done();
+            });
+        }
     }));
 };
