@@ -1,27 +1,55 @@
-var db = require('../../db');
-var utils = require('../../lib/utils');
+var _ = require('lodash');
 
+var db = require('../../db');
+var gamelib = require('../../lib/game');
+
+// verb: status
+const STATUSES = {
+    approve: 'approved',
+    pending: 'pending',
+    reject: 'rejected',
+    disable: 'disabled',
+    delete: 'deleted'
+};
 
 module.exports = function(server) {
     // Sample usage:
     // % curl http://localhost:5000/game/mario-bros/approve'
+    // % curl http://localhost:5000/game/mario-bros/reject'
 
-    server.get({
-        url: '/game/:slug/:type(approve|pending|reject|disabled|delete)/',
-        swagger: {
-            nickname: 'approve',
-            notes: 'Approve game',
-            summary: 'Approve a game for submission'
-        },
-        validation: { }
-    }, function(req, res) {
-        var GET = req.params;
-        var slug = GET.slug
+    Object.keys(STATUSES).forEach(function (statusVerb) {
+        server.get({
+            url: '/game/:slug/' + statusVerb,
+            swagger: {
+                nickname: statusVerb,
+                notes: statusVerb.substr(0, 1).toUpperCase() + statusVerb.substr(1) + ' game',
+                summary: 'Change the status of a game to ' + STATUSES[statusVerb]
+            }
+        }, db.redisView(function(client, done, req, res, wrap) {
 
-        var status = req.url.replace(/^\/game\/[a-zA-Z0-9\s-]+\//, "");
+            var GET = req.params;
+            var slug = GET.slug;
 
-        // TODO: save the new status to the db.
+            if (!slug) {
+                res.json(400, {error: 'bad_game'});
+                done();
+                return;
+            }
 
-        res.json({slug: GET.slug, status: status})
+            gamelib.getGameFromSlug(client, slug, function(err, game) {
+                if (err) {
+                    res.json(500, {error: err});
+                } else if (!game) {
+                    res.json(400, {error: 'bad_game'});
+                } else {
+                    gamelib.updateGame(client, game, {status: STATUSES[statusVerb]});
+                    res.json({success: 'true'});
+                }
+
+                done();
+            });
+
+        }));
     });
+   
 };

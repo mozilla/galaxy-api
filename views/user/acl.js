@@ -47,14 +47,7 @@ module.exports = function(server) {
         var isDev = !!+POST.dev;
         var isRev = !!+POST.reviewer;
         var isAdmin = !!+POST.admin;
-        var _user = POST._user;
-
-        var email = auth.verifySSA(_user);
-        if (!email) {
-            res.json(403, {error: 'bad_user'});
-            done();
-            return;
-        }
+        var email = req._email;
 
         // Get user who is sending request and make sure it is an admin
         user.getUserFromEmail(client, email, function(err, authenticator) {
