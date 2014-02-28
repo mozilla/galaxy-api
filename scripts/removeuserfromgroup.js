@@ -43,7 +43,7 @@ lookupMethod(client, userID, function (err, user) {
         }
     });
 
-    userlib.updateUser(client, user, {
+    userlib.updateUser(client, user.id, {
         modified: new Date(),
         permissions: permissions
     }, function(err, newData) {
