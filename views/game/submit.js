@@ -74,7 +74,7 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl -X PUT 'http://localhost:5000/game/mario-bros/edit'
+    // % curl -X PATCH 'http://localhost:5000/game/mario-bros/edit'
     server.put({
         url: '/game/edit',
         swagger: {
@@ -88,6 +88,10 @@ module.exports = function(server) {
                 isRequired: true,
                 isUrl: true
             },
+            slug: {
+                description: 'Genre slug',
+                isRequired: true
+            },
             homepage_url: {
                 description: 'Homepage URL',
                 isRequired: false,
@@ -96,12 +100,15 @@ module.exports = function(server) {
             name: {
                 description: 'Name',
                 isRequired: true,
-                max: 128
             }
         }
     }, db.redisView(function(client, done, req, res, wrap) {
         var PUT = req.params;
         var slug = PUT.slug;
+
+        // TODO: Check if user has the correct ACL permissions to update
+        // TODO: Check if slug is valid
+
         if (!slug) {
             res.json(400, {error: 'bad_game'});
             done();
@@ -110,6 +117,9 @@ module.exports = function(server) {
         // TODO: Add icon, screenshots and videos to dataToUpdate
         var dataToUpdate = _.pick(PUT, 'name', 'slug', 'app_url', 'description', 'privacy_policy_url', 'genre');
 
+        // TODO: instead of PUT use {id: gameID} and look 
+        // that up in redis. or restructure updateGame to accept 
+        // a slug when doing the lookups to update.
         gamelib.updateGame(client, PUT, dataToUpdate);
         res.json(dataToUpdate);
     }));
