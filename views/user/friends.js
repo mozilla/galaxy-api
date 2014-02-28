@@ -23,14 +23,7 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res) {
         var GET = req.params;
-
-        var _user = GET._user;
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            done();
-            return;
-        }
+        var email = req._email;
 
         user.getUserIDFromEmail(client, email, function(err, id) {
             if (err || !id) {
@@ -87,15 +80,7 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res) {
         var POST = req.params;
-
-        var _user = POST._user;
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            done();
-            return;
-        }
-
+        var email = req._email;
         var recipient = POST.recipient;
 
         user.getUserIDFromEmail(client, email, function(err, id) {
@@ -175,14 +160,7 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res) {
         var GET = req.params;
-
-        var _user = GET._user;
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            done();
-            return;
-        }
+        var email = req._email;
 
         user.getUserIDFromEmail(client, email, function(err, id) {
             if (err || !id) {
@@ -227,15 +205,7 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res) {
         var POST = req.params;
-
-        var _user = POST._user;
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            done();
-            return;
-        }
-
+        var email = req._email;
         var acceptee = POST.acceptee;
 
         user.getUserIDFromEmail(client, email, function(err, id) {
@@ -301,15 +271,7 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res) {
         var POST = req.params;
-
-        var _user = POST._user;
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            done();
-            return;
-        }
-
+        var email = req._email;
         var rejectee = POST.rejectee;
 
         user.getUserIDFromEmail(client, email, function(err, id) {
@@ -350,15 +312,7 @@ module.exports = function(server) {
         }
     }, db.redisView(function(client, done, req, res) {
         var POST = req.params;
-
-        var _user = POST._user;
-        var email;
-        if (!(email = auth.verifySSA(_user))) {
-            res.json(403, {error: 'bad_user'});
-            done();
-            return;
-        }
-
+        var email = req._email;
         var exfriend = POST.exfriend;
 
         user.getUserIDFromEmail(client, email, function(err, id) {
