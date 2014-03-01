@@ -5,37 +5,11 @@ var db = require('../../db');
 var gamelib = require('../../lib/game');
 var user = require('../../lib/user');
 
+
 const DEFAULT_COUNT = 15;
 
-module.exports = function(server) {
-    // Sample usage:
-    // % curl 'http://localhost:5000/game/list'
-    server.get({
-        url: '/game/list',
-        swagger: {
-            nickname: 'list',
-            notes: 'List of games matching provided filter',
-            summary: 'Game List'
-        },
-        validation: {
-            _user: {
-                description: 'User (ID or username slug)',
-                isRequired: false  // Only required for restricted filters
-            },
-            count: {
-                description: 'Maximum number of games to return',
-                isRequired: false,
-                isInt: true,
-                min: 1,
-                max: 100
-            },
-            status: {
-                description: 'Filter by current status of the game',
-                isRequired: false,
-                isIn: ['approved', 'pending', 'rejected']
-            }
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.getGameList =
+    db.redisView(function(client, done, req, res, wrap) {
         var GET = req.params;
         var count = 'count' in GET ? parseInt(GET.count, 10) : DEFAULT_COUNT;
         var statusFilter = GET.status;
@@ -94,5 +68,4 @@ module.exports = function(server) {
                 done();
             });
         }
-    }));
-};
+    });

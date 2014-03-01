@@ -3,27 +3,8 @@ var db = require('../../db');
 var user = require('../../lib/user');
 
 
-module.exports = function(server) {
-    // Sample usage:
-    // % curl -X POST 'http://localhost:5000/user/purchase' -d '_user=ssatoken&game=9'
-    server.post({
-        url: '/user/purchase',
-        swagger: {
-            nickname: 'purchase',
-            notes: 'Record that a user has purchased this game',
-            summary: 'Purchase game'
-        },
-        validation: {
-            _user: {
-                description: 'User (ID or username slug)',
-                isRequired: true
-            },
-            game: {
-                description: 'Game (ID or slug)',
-                isRequired: true
-            }
-        }
-    }, function(req, res) {
+module.exports.postPurchaseGame =
+    function(req, res) {
         var POST = req.params;
         var email = req._email;
 
@@ -50,5 +31,4 @@ module.exports = function(server) {
                 res.json({success: true});
             });
         });
-    });
-};
+    };

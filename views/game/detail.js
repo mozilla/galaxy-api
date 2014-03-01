@@ -4,17 +4,8 @@ var db = require('../../db');
 var gamelib = require('../../lib/game');
 
 
-module.exports = function(server) {
-    // Sample usage:
-    // % curl 'http://localhost:5000/game/mario-bros/detail'
-    server.get({
-        url: '/game/:slug/detail',
-        swagger: {
-            nickname: 'detail',
-            notes: 'Specific details and metadata about a game',
-            summary: 'Game Details'
-        }
-    }, db.redisView(function(client, done, req, res, wrap) {
+module.exports.getGameDetail =
+    db.redisView(function(client, done, req, res, wrap) {
         var GET = req.params;
         var slug = GET.slug;
 
@@ -32,5 +23,4 @@ module.exports = function(server) {
             }
             done();
         });
-    }));
-};
+    });
