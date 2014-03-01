@@ -41,6 +41,7 @@ module.exports = function(server) {
     }, db.redisView(function(client, done, req, res, wrap) {
         var POST = req.params;
         slug = utils.slugify(POST.slug || POST.name);
+
         var data = {
             app_url: POST.app_url,
             appcache_path: POST.appcache_path,
@@ -63,10 +64,10 @@ module.exports = function(server) {
             name: POST.name,
             orientation: POST.orientation,
             privacy_policy_url: POST.privacy_policy_url,
-            screenshots: JSON.parse(POST.screenshots),
+            screenshots: JSON.parse(decodeURIComponent(POST.screenshots)),
             status: 'pending',
             slug: slug,
-            videos: JSON.parse(POST.videos)
+            videos: JSON.parse(decodeURIComponent(POST.videos))
         };
 
         gamelib.newGame(client, data);
