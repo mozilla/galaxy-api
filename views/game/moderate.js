@@ -14,11 +14,11 @@ const STATUSES = {
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl http://localhost:5000/game/mario-bros/approve'
-    // % curl http://localhost:5000/game/mario-bros/reject'
+    // % curl -X POST 'http://localhost:5000/game/mario-bros/approve'
+    // % curl -X POST 'http://localhost:5000/game/mario-bros/reject'
 
     Object.keys(STATUSES).forEach(function (statusVerb) {
-        server.get({
+        server.post({
             url: '/game/:slug/' + statusVerb,
             swagger: {
                 nickname: statusVerb,
