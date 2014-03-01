@@ -23,9 +23,8 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, function(req, res) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var POST = req.params;
-        var email = req._email;
 
         // TODO: Accept ID *or* slug.
         var game = POST.game;
@@ -34,21 +33,13 @@ module.exports = function(server) {
             return;
         }
 
-        var redisClient = db.redis();
-        user.getUserIDFromEmail(redisClient, email, function(err, id) {
-            if (err || !id) {
-                redisClient.end();
-                res.json(400, {error: err || 'no_user_found'});
+        client.sadd('gamesPurchased:' + id, game, function(err) {
+            done();
+            if (err) {
+                res.json(500, {error: 'internal_db_error'});
                 return;
             }
-            redisClient.sadd('gamesPurchased:' + id, game, function(err) {
-                redisClient.end();
-                if (err) {
-                    res.json(500, {error: 'internal_db_error'});
-                    return;
-                }
-                res.json({success: true});
-            });
+            res.json({success: true});
         });
-    });
+    }));
 };
