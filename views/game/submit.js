@@ -24,8 +24,8 @@ module.exports = function(server) {
                 isRequired: false,
                 isUrl: true
             },
-            icons: {
-                description: 'Icons',
+            icon: {
+                description: 'Icon',
                 isRequired: true,
             },
             name: {
@@ -58,7 +58,7 @@ module.exports = function(server) {
             fullscreen: POST.fullscreen,
             genre: POST.genre,
             homepage_url: POST.homepage_url,
-            icons: POST.icons,
+            icon: POST.icon,
             license: POST.license,
             locales: POST.locales,
             name: POST.name,
