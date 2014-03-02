@@ -42,6 +42,18 @@ module.exports = function(server) {
         var POST = req.params;
         slug = utils.slugify(POST.slug || POST.name);
 
+        var screenshots;
+        var videos;
+
+        try {
+            screenshots = JSON.parse(decodeURIComponent(POST.screenshots));
+            videos = JSON.parse(decodeURIComponent(POST.videos));
+        } catch(e) {
+            res.json(400, {error: 'Could not parse screenshots or videos'});
+            done();
+            return;
+        }
+
         var data = {
             app_url: POST.app_url,
             appcache_path: POST.appcache_path,
@@ -64,10 +76,10 @@ module.exports = function(server) {
             name: POST.name,
             orientation: POST.orientation,
             privacy_policy_url: POST.privacy_policy_url,
-            screenshots: JSON.parse(decodeURIComponent(POST.screenshots)),
+            screenshots: screenshots,
             status: 'pending',
             slug: slug,
-            videos: JSON.parse(decodeURIComponent(POST.videos))
+            videos: videos
         };
 
         gamelib.newGame(client, data);
