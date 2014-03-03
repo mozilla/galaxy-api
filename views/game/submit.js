@@ -1,5 +1,6 @@
 var db = require('../../db');
 var gamelib = require('../../lib/game');
+var userlib = require('../../lib/user');
 var utils = require('../../lib/utils');
 
 
@@ -84,5 +85,95 @@ module.exports = function(server) {
 
         gamelib.newGame(client, data);
         res.json(data);
+    }));
+
+    // Sample usage:
+    // % curl -X PUT 'http://localhost:5000/game/mario-bros/edit'
+    server.put({
+        url: '/game/:slug/edit',
+        swagger: {
+            nickname: 'edit',
+            notes: 'Edit game',
+            summary: 'Edit game details'
+        },
+        validation: {
+            data: {
+                description: 'Game data',
+                isRequired: true
+            }
+        }
+    }, userlib.userDataView(function(user, client, done, req, res) {
+        console.log(user);
+        var PUT = req.params;
+        var slug = PUT.slug;
+        var email = req._email;
+
+        var data;
+        try {
+            data = JSON.parse(PUT.data);
+        } catch (e) {
+            res.json(400, {error: 'bad_game_data'});
+            return done();
+        }
+
+        if (!slug) {
+            res.json(400, {error: 'bad_game'});
+            done();
+            return;
+        }
+
+        updateGame();
+        // if (!email) {
+        //     notAuthorized();
+        //     return;
+        // }
+
+        // user.getUserFromEmail(client, email, function(err, userData) {
+        //     if (err) {
+        //         res.json(500
+        //         }
+        //     }, {error: err || 'db_error'});
+        //         done();
+        //         return;
+        //     }
+
+        //     var permissions = userData.permissions;
+        //     for (var p in permissions) {
+        //         // Editing games should only be accessible to developers
+        //         if (permissions[p] && (p === 'developer')) {
+        //             return updateGame();
+        //     return notAuthorized();
+        // });
+
+        // function notAuthorized() {
+        //     res.json(401, {
+        //         error: 'not_permitted', 
+        //         detail: 'provided filters require additional permissions'
+        //     });
+        //     done();
+        // };
+
+        function updateGame() {
+            gamelib.getGameFromSlug(client, slug, function(err, game) {
+                if (err) {
+                    res.json(500, {error: err});
+                    return done();
+                } else if (!game) {
+                    res.json(400, {error: 'bad_game'});
+                    return done();
+                } else {
+                    gamelib.updateGame(client, slug, data, function(err, resp) {
+                        if (err) {
+                            res.json(500, {error: err});
+                        } else if (!game) {
+                            res.json(400, {error: 'bad_game'});
+                        } else {
+                            res.json(resp);
+                        }
+                        return done();
+                    });
+                }
+            });
+        }
     }));
 };
