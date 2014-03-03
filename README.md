@@ -1,5 +1,7 @@
 # galaxy-api
 
+[![Stories in Ready](https://badge.waffle.io/cvan/galaxy-api.png?label=ready&title=Ready)](https://waffle.io/cvan/galaxy-api)
+
 Here lives the API that is consumed by the front-end interface for
 [cvan/galaxy](cvan/galaxy).
 
