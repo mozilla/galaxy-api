@@ -102,8 +102,7 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, userlib.userDataView(function(user, client, done, req, res) {
-        console.log(user);
+    }, db.redisView(function(client, done, req, res, wrap) {
         var PUT = req.params;
         var slug = PUT.slug;
         var email = req._email;
