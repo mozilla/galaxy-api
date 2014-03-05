@@ -70,7 +70,7 @@ module.exports = function(server) {
 
         function notAuthorized() {
             res.json(403, {
-                error: 'not_permitted', 
+                error: 'bad_permission', 
                 detail: 'provided filters require additional permissions'
             });
             done();
