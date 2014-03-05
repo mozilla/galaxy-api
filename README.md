@@ -30,9 +30,8 @@ nodemon app.js
 ## Sample Usage
 
 ### Game Submission
-
-    curl -X POST 'http://localhost:5000/game/submit' -d 'name=Mario Bros&app_url=http://mariobro.se&icons=128&screenshots=yes&videos=yes'
+    curl -X POST 'http://localhost:5000/game/submit?_user=ssa_token' -H 'Content-Type:application/json' -H 'Accept: application/json' -d '{"app_url":"http://nuttyninjas.com/","artwork":{"background":"background.jpg"},"description":"Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!","developer":{"name":"Yang Shun","url":"http://yangshun.im/"},"genre":"action","homepage_url":"http://www.nuttyninjas.com","icons":"http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png","name":"Nutty Ninjas","privacy_policy_url":"http://una-org.github.io/demos.html","screenshots":["http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg","http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg","http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg","http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg","http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg","http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg","http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg","http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg","http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg"],"slug":"nutty-ninjas","videos":["http://www.youtube.com/embed/4kvT0dywaF8","http://www.youtube.com/embed/1Sow2O8D9Ok"]}'
 
 ### Game Details
 
-    curl 'http://localhost:5000/game/mario-bros/detail'
+    curl 'http://localhost:5000/game/nutty-ninjas/detail'
