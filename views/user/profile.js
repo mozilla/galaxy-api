@@ -33,11 +33,11 @@ module.exports = function(server) {
                 description: 'New username',
                 isRequired: false
             },
-            teamname: {
+            companyName: {
                 description: 'New team name',
                 isRequired: false
             },
-            teamurl: {
+            homepage: {
                 description: 'New team URL',
                 isRequired: false
             }
@@ -47,8 +47,8 @@ module.exports = function(server) {
         var dataToUpdate = {
             username: DATA.username,
             email: DATA.email,
-            companyName: DATA.teamname,
-            homepage: DATA.teamurl
+            companyName: DATA.companyName,
+            homepage: DATA.homepage
         };
         user.updateUser(client, id, dataToUpdate, function(err, newUserData) {
             if (err) {
