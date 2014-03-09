@@ -27,18 +27,28 @@ module.exports = function(server) {
             email: {
                 description: 'New user email',
                 isEmail: true,
-                isRequired: false,
+                isRequired: false
             },
             username: {
                 description: 'New username',
-                isRequired: false,
+                isRequired: false
+            },
+            companyName: {
+                description: 'New team name',
+                isRequired: false
+            },
+            homepage: {
+                description: 'New team URL',
+                isRequired: false
             }
         }
     }, user.userIDView(function(id, client, done, req, res) {
         var DATA = req.params;
         var dataToUpdate = {
             username: DATA.username,
-            email: DATA.email
+            email: DATA.email,
+            companyName: DATA.companyName,
+            homepage: DATA.homepage
         };
         user.updateUser(client, id, dataToUpdate, function(err, newUserData) {
             if (err) {
