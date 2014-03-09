@@ -34,27 +34,19 @@ module.exports = function(server) {
                 isRequired: false,
             }
         }
-    }, db.redisView(function(client, done, req, res) {
+    }, user.userIDView(function(id, client, done, req, res) {
         var DATA = req.params;
-        var email = req._email;
-
-        user.getUserIDFromEmail(client, email, function(err, userID) {
-            if (err || !userID) {
-                res.json(500, {error: err || 'db_error'});
-                done();
-                return;
+        var dataToUpdate = {
+            username: DATA.username,
+            email: DATA.email
+        };
+        user.updateUser(client, id, dataToUpdate, function(err, newUserData) {
+            if (err) {
+                res.json(500, {error: err});
+            } else {
+                res.json(202, {success: true});
             }
-
-            var dataToUpdate = _.pick(DATA, 'username', 'email');
-            user.updateUser(client, userID, dataToUpdate, function(err, newUserData) {
-                if (err) {
-                    res.json(500, {error: err});
-                } else {
-                    res.json(202, {success: true});
-                }
-                done();
-            });
+            done();
         });
-        
     }));
 };

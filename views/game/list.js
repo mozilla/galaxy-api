@@ -69,8 +69,8 @@ module.exports = function(server) {
         });
 
         function notAuthorized() {
-            res.json(401, {
-                error: 'not_permitted', 
+            res.json(403, {
+                error: 'bad_permission', 
                 detail: 'provided filters require additional permissions'
             });
             done();

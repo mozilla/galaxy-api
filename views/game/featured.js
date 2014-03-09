@@ -4,7 +4,7 @@ var _ = require('lodash');
 var auth = require('../../lib/auth');
 var db = require('../../db');
 var genrelib = require('../../lib/genre');
-var user = require('../../lib/user');
+var userlib = require('../../lib/user');
 
 
 module.exports = function(server) {
@@ -72,16 +72,8 @@ module.exports = function(server) {
                 isRequired: false
             }
         }
-    }, db.redisView(function(client, done, req, res, wrap) {
+    }, userlib.userDataView(function(user, client, done, req, res, wrap) {
         var DATA = req.params;
-
-        // TODO: Use @aricha's plugin once it is merged to master
-        var _user = DATA._user;
-        var email = auth.verifySSA(_user);
-        if (!email) {
-            res.json(403, {error: 'bad_user'});
-            return done();
-        }
 
         // TODO: Check for valid game. (issue #57)
         var game = DATA.game;
@@ -119,26 +111,23 @@ module.exports = function(server) {
             }));
         }
 
-        user.getUserFromEmail(client, email, db.plsNoError(res, done, function(authenticator) {
-            if (!authenticator.permissions || 
-                (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
-                res.json(403, {error: 'bad_permission'});
-                return done();
-            } 
+        if (!user.permissions || (!user.permissions.admin && !user.permissions.reviewer)) {
+            res.json(403, {error: 'bad_permission'});
+            return done();
+        } 
 
-            client.hexists('featured', game, db.plsNoError(res, done, function(reply) {
-                if (reply) {
-                    res.json(400, {error: 'already_featured'});
+        client.hexists('featured', game, db.plsNoError(res, done, function(reply) {
+            if (reply) {
+                res.json(400, {error: 'already_featured'});
+                return done();
+            }
+
+            genrelib.hasGenres(client, genres, db.plsNoError(res, done, function(exists) {
+                if (!exists) {
+                    res.json(400, {error: 'invalid_genres'});
                     return done();
                 }
-
-                genrelib.hasGenres(client, genres, db.plsNoError(res, done, function(exists) {
-                    if (!exists) {
-                        res.json(400, {error: 'invalid_genres'});
-                        return done();
-                    }
-                    addFeatured(client, game, genres);
-                }));
+                addFeatured(client, game, genres);
             }));
         }));
     }));
@@ -166,16 +155,8 @@ module.exports = function(server) {
                 isRequired: false
             }
         }
-    }, db.redisView(function(client, done, req, res, wrap) {
+    }, userlib.userDataView(function(user, client, done, req, res, wrap) {
         var DATA = req.params;
-
-        // TODO: Use @aricha's plugin once it is merged to master
-        var _user = DATA._user;
-        var email = auth.verifySSA(_user);
-        if (!email) {
-            res.json(403, {error: 'bad_user'});
-            return done();
-        }
 
         // TODO: Check for valid game. (issue #57)
         var game = DATA.game;
@@ -220,26 +201,23 @@ module.exports = function(server) {
             }));
         }
 
-        user.getUserFromEmail(client, email, db.plsNoError(res, done, function(authenticator) {
-            if (!authenticator.permissions || 
-                (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
-                res.json(403, {error: 'bad_permission'});
-                return done();
-            } 
+        if (!user.permissions || (!user.permissions.admin && !user.permissions.reviewer)) {
+            res.json(403, {error: 'bad_permission'});
+            return done();
+        } 
 
-            client.hget('featured', game, db.plsNoError(res, done, function(genres) {
-                if (!genres) {
-                    res.json(400, {error: 'game_not_featured'});
+        client.hget('featured', game, db.plsNoError(res, done, function(genres) {
+            if (!genres) {
+                res.json(400, {error: 'game_not_featured'});
+                return done();
+            }
+            genrelib.hasGenres(client, new_genres, function(error, exists) {
+                if (!exists) {
+                    res.json(400, {error: 'invalid_genres'});
                     return done();
                 }
-                genrelib.hasGenres(client, new_genres, function(error, exists) {
-                    if (!exists) {
-                        res.json(400, {error: 'invalid_genres'});
-                        return done();
-                    }
-                    editFeatured(client, game, JSON.parse(genres), new_genres);
-                });
-            }));
+                editFeatured(client, game, JSON.parse(genres), new_genres);
+            });
         }));
     }));
 
@@ -262,17 +240,8 @@ module.exports = function(server) {
                 isRequired: true
             }
         }
-    }, db.redisView(function(client, done, req, res, wrap) {
+    }, userlib.userDataView(function(user, client, done, req, res, wrap) {
         var DATA = req.params;
-
-        // Check if the user have permission to add a featured game
-        // TODO: Use @aricha's plugin once it is merged to master
-        var _user = DATA._user;
-        var email = auth.verifySSA(_user);
-        if (!email) {
-            res.json(403, {error: 'bad_user'});
-            return done();
-        }
 
         // TODO: Check for valid game. (issue #57)
         var game = DATA.game;
@@ -295,20 +264,17 @@ module.exports = function(server) {
             }));
         }
 
-        user.getUserFromEmail(client, email, db.plsNoError(res, done, function(authenticator) {
-            if (!authenticator.permissions || 
-                (!authenticator.permissions.admin && !authenticator.permissions.reviewer)) {
-                res.json(403, {error: 'bad_permission'});
-                return done();
-            } 
+        if (!user.permissions || (!user.permissions.admin && !user.permissions.reviewer)) {
+            res.json(403, {error: 'bad_permission'});
+            return done();
+        } 
 
-            client.hget('featured', game, db.plsNoError(res, done, function(genres) {
-                if (!genres) {
-                    res.json(400, {error: 'game_not_featured'});
-                    return done();
-                }
-                removeFeatured(client, game, JSON.parse(genres));
-            }));
+        client.hget('featured', game, db.plsNoError(res, done, function(genres) {
+            if (!genres) {
+                res.json(400, {error: 'game_not_featured'});
+                return done();
+            }
+            removeFeatured(client, game, JSON.parse(genres));
         }));
     }));
 }
