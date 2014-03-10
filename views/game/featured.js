@@ -5,6 +5,7 @@ var auth = require('../../lib/auth');
 var db = require('../../db');
 var genrelib = require('../../lib/genre');
 var userlib = require('../../lib/user');
+var gamelib = require('../../lib/game');
 
 
 module.exports = function(server) {
@@ -30,8 +31,14 @@ module.exports = function(server) {
         // the featured games.
         if (!genre) {
             client.hkeys('featured', db.plsNoError(res, done, function(games) {
-                res.json(games);
-                return done();
+                // Get Game Objects
+                gamelib.getGameList(client, null, function(objList) {
+                    //Filter by featured
+                    res.json(_.filter(objList, function(gameObj) {
+                      return games.indexOf(gameObj.slug) !== -1;  
+                    }));
+                    return done();
+                });
             }));
         } else {
             // Verify that the genre specified is valid, before returning
