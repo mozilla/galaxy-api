@@ -3,6 +3,7 @@ var _ = require('lodash');
 
 var auth = require('../../lib/auth');
 var db = require('../../db');
+var gamelib = require('../../lib/game');
 var genrelib = require('../../lib/genre');
 var userlib = require('../../lib/user');
 
@@ -26,12 +27,23 @@ module.exports = function(server) {
 
         var genre = DATA.genre;
 
+        function outputGamesWithIds(ids) {
+            if (!ids || ids.length === 0) {
+                res.json([]);
+                return done;
+            }
+
+            gamelib.getPublicGameObjList(client, ids, db.plsNoError(res, done, function(gamesObj) {
+                res.json(gamesObj);
+                return done();
+            }));
+        }
+
         // If the caller did not specify a genre, we return the list of all
         // the featured games.
         if (!genre) {
-            client.hkeys('featured', db.plsNoError(res, done, function(games) {
-                res.json(games);
-                return done();
+            client.hkeys('featured', db.plsNoError(res, done, function(ids) {
+                outputGamesWithIds(ids);
             }));
         } else {
             // Verify that the genre specified is valid, before returning
@@ -41,9 +53,8 @@ module.exports = function(server) {
                     res.json(400, {error: 'invalid_genre'});
                     return done();
                 }
-                client.smembers('featured:' + genre, db.plsNoError(res, done, function(games) {
-                    res.json(games);
-                    return done();
+                client.smembers('featured:' + genre, db.plsNoError(res, done, function(ids) {
+                    outputGamesWithIds(ids);
                 }));
             }));
         }
@@ -97,12 +108,12 @@ module.exports = function(server) {
             }
         }
 
-        function addFeatured(client, game, genres) {
+        function addFeatured(client, id, genres) {
             var multi = client.multi();
-            multi.hset('featured', game, JSON.stringify(genres));
+            multi.hset('featured', id, JSON.stringify(genres));
 
             genres.forEach(function(genre) {
-                multi.sadd('featured:' + genre, game);
+                multi.sadd('featured:' + genre, id);
             });
 
             multi.exec(db.plsNoError(res, done, function() {
@@ -116,18 +127,20 @@ module.exports = function(server) {
             return done();
         } 
 
-        client.hexists('featured', game, db.plsNoError(res, done, function(reply) {
-            if (reply) {
-                res.json(400, {error: 'already_featured'});
-                return done();
-            }
-
-            genrelib.hasGenres(client, genres, db.plsNoError(res, done, function(exists) {
-                if (!exists) {
-                    res.json(400, {error: 'invalid_genres'});
+        gamelib.getGameIDFromSlug(client, game, db.plsNoError(res, done, function(id) {
+            client.hexists('featured', id, db.plsNoError(res, done, function(reply) {
+                if (reply) {
+                    res.json(400, {error: 'already_featured'});
                     return done();
                 }
-                addFeatured(client, game, genres);
+
+                genrelib.hasGenres(client, genres, db.plsNoError(res, done, function(exists) {
+                    if (!exists) {
+                        res.json(400, {error: 'invalid_genres'});
+                        return done();
+                    }
+                    addFeatured(client, id, genres);
+                }));
             }));
         }));
     }));
@@ -180,19 +193,19 @@ module.exports = function(server) {
             }
         }
 
-        function editFeatured(client, game, old_genres, new_genres) {
+        function editFeatured(client, id, old_genres, new_genres) {
             var remove_genres = _.difference(old_genres, new_genres);
             var add_genres = _.difference(new_genres, old_genres);
 
             var multi = client.multi();
-            multi.hset('featured', game, JSON.stringify(new_genres));
+            multi.hset('featured', id, JSON.stringify(new_genres));
 
             remove_genres.forEach(function(genre) {
-                multi.srem('featured:' + genre, game);
+                multi.srem('featured:' + genre, id);
             });
 
             add_genres.forEach(function(genre) {
-                multi.sadd('featured:' + genre, game);
+                multi.sadd('featured:' + genre, id);
             });
 
             multi.exec(db.plsNoError(res, done, function() {
@@ -206,18 +219,20 @@ module.exports = function(server) {
             return done();
         } 
 
-        client.hget('featured', game, db.plsNoError(res, done, function(genres) {
-            if (!genres) {
-                res.json(400, {error: 'game_not_featured'});
-                return done();
-            }
-            genrelib.hasGenres(client, new_genres, function(error, exists) {
-                if (!exists) {
-                    res.json(400, {error: 'invalid_genres'});
+        gamelib.getGameIDFromSlug(client, game, db.plsNoError(res, done, function(id) {
+            client.hget('featured', id, db.plsNoError(res, done, function(genres) {
+                if (!genres) {
+                    res.json(400, {error: 'game_not_featured'});
                     return done();
                 }
-                editFeatured(client, game, JSON.parse(genres), new_genres);
-            });
+                genrelib.hasGenres(client, new_genres, function(error, exists) {
+                    if (!exists) {
+                        res.json(400, {error: 'invalid_genres'});
+                        return done();
+                    }
+                    editFeatured(client, id, JSON.parse(genres), new_genres);
+                });
+            }));
         }));
     }));
 
@@ -250,12 +265,12 @@ module.exports = function(server) {
             return done();
         }
 
-        function removeFeatured(client, game, genres) {
+        function removeFeatured(client, id, genres) {
             var multi = client.multi();
-            multi.hdel('featured', game);
+            multi.hdel('featured', id);
 
             genres.forEach(function(genre) {
-                multi.srem('featured:' + genre, game);
+                multi.srem('featured:' + genre, id);
             });
 
             multi.exec(db.plsNoError(res, done, function() {
@@ -269,12 +284,14 @@ module.exports = function(server) {
             return done();
         } 
 
-        client.hget('featured', game, db.plsNoError(res, done, function(genres) {
-            if (!genres) {
-                res.json(400, {error: 'game_not_featured'});
-                return done();
-            }
-            removeFeatured(client, game, JSON.parse(genres));
+        gamelib.getGameIDFromSlug(client, game, db.plsNoError(res, done, function(id) {
+            client.hget('featured', id, db.plsNoError(res, done, function(genres) {
+                if (!genres) {
+                    res.json(400, {error: 'game_not_featured'});
+                    return done();
+                }
+                removeFeatured(client, id, JSON.parse(genres));
+            }));
         }));
     }));
 }
