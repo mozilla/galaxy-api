@@ -33,9 +33,9 @@ module.exports = function(server) {
             client.hkeys('featured', db.plsNoError(res, done, function(games) {
                 // Get Game Objects
                 gamelib.getGameList(client, null, function(objList) {
-                    //Filter by featured
+                    // Filter by featured
                     res.json(_.filter(objList, function(gameObj) {
-                      return games.indexOf(gameObj.slug) !== -1;  
+                        return games.indexOf(gameObj.slug) !== -1;  
                     }));
                     return done();
                 });
