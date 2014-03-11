@@ -26,6 +26,19 @@ server.get(/\/data\/?.*/, restify.serveStatic({
     directory: './data'
 }));
 
+// This overrides restify's default uncaught exception handler, so we
+// need to send the default response ourselves.
+var InternalError = restify.errors.InternalError;
+server.on('uncaughtException', function (req, res, route, e) {
+    // TODO: Restrict error message to something less specific?
+    res.send(new InternalError(e, e.message || 'unexpected error'));
+
+    var routeDesc = '[' + req.method + '] ' + req.url;
+    console.error('Uncaught exception in ' + routeDesc + ':\n' + e.stack);
+
+    return true;
+});
+
 restifySwagger.configure(server);
 restifySwagger.loadRestifyRoutes();
 
