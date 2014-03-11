@@ -34,8 +34,8 @@ module.exports = function(server) {
             notes: 'Update User Permissions',
             summary: 'ACL'
         }
-    }, user.userDataView(function(authenticator, client, done, req, res) {
-        // make sure user is admin
+    }, userlib.userDataView(function(authenticator, client, done, req, res) {
+        // Make sure user is admin
         if (!authenticator.permissions.admin) {
             res.json(403, {error: 'bad_permission'});
             done();
@@ -44,72 +44,28 @@ module.exports = function(server) {
 
         var POST = req.params;
         var userID = POST.id;
-        // Convert from string to bool
-        var isDev = !!+POST.dev;
-        var isRev = !!+POST.reviewer;
-        var isAdmin = !!+POST.admin;
 
-        // Get user who is sending request.
-        userlib.getUserFromEmail(client, email, function(err, user) {
-            if (err) {
-                console.error(err);
-                res.json(500, {error: 'db_error'});
-                return done();
-            } else if (!user) {
-                console.error('Failed looking up user');
-                res.json(500, {error: 'bad_user'});
+        // Update permissions of target user.
+        userlib.getUserFromID(client, userID, function(err, resp) {
+           if (err || !resp) {
+                res.json(500, {error: err || 'db_error'});
                 return done();
             }
 
-            // Update permissions of target user.
-            user.updateUser(client, resp, {
+            userlib.updateUser(client, userID, {
                 permissions: {
-                    developer: isDev,
-                    reviewer: isRev,
-                    admin: isAdmin
+                    developer: !!+POST.dev,
+                    reviewer: !!+POST.reviewer,
+                    admin: !!+POST.admin
                 }
             }, function(err, newData) {
                 if (err) {
-                    res.json(500, {error: 'db_error'});
+                    console.error(err);
+                    res.json(500, {error: err});
                 } else {
                     res.json({permissions: newData.permissions});
                 }
                 done();
-
-                // Make sure user is admin.
-                if (!user.permissions.admin) {
-                    res.json(403, {error: 'bad_permission'});
-                    return done();
-                }
-
-                var POST = req.params;
-                var userID = POST.id;
-
-                console.log('Attempting permission update');
-
-                // Update permissions of target user.
-                userlib.getUserFromID(client, userID, function(err, resp) {
-                   if (err || !resp) {
-                        res.json(500, {error: err || 'db_error'});
-                        return done();
-                    }
-
-                    userlib.updateUser(client, user, {
-                        permissions: {
-                            developer: !!+POST.dev,
-                            reviewer: !!+POST.reviewer,
-                            admin: !!+POST.admin
-                        }
-                    }, function(err, newData) {
-                        if (err) {
-                            console.error(err);
-                            res.json(500, {error: err});
-                        } else {
-                            res.json({permissions: newData.permissions});
-                        }
-                        done();
-                    });
-                });
             });
         });
     }));
