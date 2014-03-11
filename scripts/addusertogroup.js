@@ -14,20 +14,25 @@ var userlib = require('../lib/user');
 var db = require('../db');
 
 
+if (process.argv.length < 4) {
+    console.log('Usage:', process.argv[1], '<userID | email> <permissions>');
+    process.exit(1);
+}
+
 var client = db.redis();
 
-var userID = process.argv[2];
+var idOrEmail = process.argv[2];
 var groups = process.argv.slice(3);
 var lookupMethod = userlib.getUserFromID;
 
-if (userID.indexOf('@') !== -1) {
+if (idOrEmail.indexOf('@') !== -1) {
     lookupMethod = userlib.getUserFromEmail;
 }
 
-console.log('Attempting to add user <' + userID +
+console.log('Attempting to add user <' + idOrEmail +
             '> to groups <' + groups.join(', ') + '>');
 
-lookupMethod(client, userID, function (err, user) {
+lookupMethod(client, idOrEmail, function (err, user) {
     if (err) {
         return console.error(err);
     }
