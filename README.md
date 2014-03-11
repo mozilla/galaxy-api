@@ -27,6 +27,29 @@ nodemon app.js
 ```
 
 
+## Deployment
+
+We use stackato:
+
+    stackato push --no-prompt
+
+To start the instance on stackato:
+
+    stackato start
+
+To read the logs on stackato:
+
+    stackato logs
+
+To run shell commands on stackato:
+
+    stackato run cat ../logs/stdout.log
+
+To access the shell on stackato:
+
+    stackato ssh
+
+
 ## Sample Usage
 
 ### Game Submission
