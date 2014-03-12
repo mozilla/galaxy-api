@@ -80,7 +80,11 @@ module.exports = function(server) {
             // TODO: Filter only 'count' games without having to fetch them all first
             // (will be somewhat tricky since we need to ensure order to do pagination
             // properly, and we use UUIDs for game keys that have no logical order in the db)
-            gamelib.getGameList(client, null, function(games) {
+            gamelib.getGameList(client, null, function(err, games) {
+                if (err || !games) {
+                    res.json(500, {error: err || 'db_error'});
+                    return done();
+                }
                 var filteredGames = games;
                 if (statusFilter) {
                     // Filter for games matching the provided status
