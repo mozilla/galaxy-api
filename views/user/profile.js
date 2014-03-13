@@ -37,6 +37,10 @@ module.exports = function(server) {
                 description: 'New team name',
                 isRequired: false
             },
+            teamSlug: {
+                description: 'New team slug',
+                isRequired: false
+            },
             homepage: {
                 description: 'New team URL',
                 isRequired: false
@@ -48,6 +52,7 @@ module.exports = function(server) {
             username: DATA.username,
             email: DATA.email,
             teamName: DATA.teamName,
+            teamSlug: DATA.teamSlug,
             homepage: DATA.homepage
         };
         user.updateUser(client, id, dataToUpdate, function(err, newUserData) {
