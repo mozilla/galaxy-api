@@ -5,6 +5,35 @@ var user = require('../../lib/user');
 
 module.exports = function(server) {
     // Sample usage:
+    // % curl 'http://localhost:5000/user/purchase?id=0'
+    server.get({
+        url: '/user/purchase',
+        swagger: {
+            nickname: 'get-purchase',
+            notes: 'Get the list of user purchases',
+            summary: 'Purchase history'
+        },
+        validation: {
+            id: {
+                description: 'user id',
+                isRequired: true
+            }
+        }
+    }, db.redisView(function(client, done, req, res, wrap){
+        var GET = req.params;
+        var id = GET.id;
+
+        client.smembers('gamesPurchased:' + id, function(err, resp) {
+            done();
+            if (err) {
+                res.json(500, {error: 'internal_db_error'});
+                return;
+            }
+            res.json(resp);
+        });
+    }));
+
+    // Sample usage:
     // % curl -X POST 'http://localhost:5000/user/purchase' -d '_user=ssatoken&game=9'
     server.post({
         url: '/user/purchase',
@@ -15,7 +44,7 @@ module.exports = function(server) {
         },
         validation: {
             _user: {
-                description: 'User (ID or username slug)',
+                description: "A user's SSA token",
                 isRequired: true
             },
             game: {
