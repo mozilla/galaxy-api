@@ -32,13 +32,18 @@ module.exports = function(server) {
             username: {
                 description: 'New username',
                 isRequired: false,
+            },
+            stripeAccessToken: {
+                description: 'New Stripe Access Token for Developer',
+                isRequired: false
             }
         }
     }, user.userIDView(function(id, client, done, req, res) {
         var DATA = req.params;
         var dataToUpdate = {
             username: DATA.username,
-            email: DATA.email
+            email: DATA.email,
+            stripeAccessToken: DATA.stripeAccessToken
         };
         user.updateUser(client, id, dataToUpdate, function(err, newUserData) {
             if (err) {
@@ -47,6 +52,7 @@ module.exports = function(server) {
                 res.json(202, {success: true});
             }
             done();
+
         });
     }));
 };
