@@ -42,24 +42,25 @@ module.exports = function(server) {
             return done();
         }
 
+        // TODO: use potato-captcha to verify real feedback
+        var requiredKeys = ['page_url', 'message'];
+        fbData = validateFeedback(fbData, requiredKeys);
+        if (!fbData) {
+            res.json(400, {error: 'bad_feedback_data'});
+            return done();
+        }
+
         // TODO: wrap
         var email = req._email;
         userlib.getUserFromEmail(client, email, function(err, result) {
-            // TODO: use potato-captcha to verify real feedback
-            var requiredKeys = ['page_url', 'message'];
-            fbData = validateFeedback(fbData, requiredKeys);
-            if (!fbData) {
-                res.json(400, {error: 'bad_feedback_data'});
-                return done();
-            }
-
             // include username in feedback iff logged in successfully
-            if (!err && result) {
+            if (!err && result && result.username) {
                 fbData.user = result.username;
             }
-            
+
             fblib.newFeedback(client, fbData);
             res.json(fbData);
+            return done();
         });
     }));
 };
