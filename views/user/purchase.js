@@ -24,7 +24,6 @@ module.exports = function(server) {
         var id = GET.id;
 
         client.smembers('gamesPurchased:' + id, function(err, resp) {
-            done();
             if (err) {
                 res.json(500, {error: 'internal_db_error'});
             } else {
