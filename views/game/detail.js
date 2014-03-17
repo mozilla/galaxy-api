@@ -36,25 +36,25 @@ module.exports = function(server) {
             if (!game) {
                 res.json(500, {error: 'db_error'});
             } else {
-                game['purchased'] = true;
+                game.purchased = true;
                 if (email) {
                     user.getUserIDFromEmail(client, email, function(err, id) {
                         if (err) {
                             res.json(game);
-                            done();
+                            return done();
                         }
                         client.sismember('gamesPurchased:' + id, slug, function(err, resp) {
                             if (!err && !resp) {
                                 // game has not been purchased
-                                game['purchased'] = false;
+                                game.purchased = false;
                             }
                             res.json(game);
-                            done();
+                            return done();
                         });
                     });
                 } else {
                     res.json(game);
-                    done();
+                    return done();
                 }
             }
         });

@@ -27,9 +27,10 @@ module.exports = function(server) {
             done();
             if (err) {
                 res.json(500, {error: 'internal_db_error'});
-                return;
+            } else {
+                res.json(resp);
             }
-            res.json(resp);
+            return done();
         });
     }));
 
