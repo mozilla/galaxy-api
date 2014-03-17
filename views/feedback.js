@@ -35,9 +35,6 @@ module.exports = function(server) {
             summary: 'Submit feedback for a site page'
         },
     }, db.redisView(function(client, done, req, res, wrap) {
-        // TODO: remove
-        console.log('fb req.body: ' + req.body);
-        console.log('fbData type: ' + typeof req.body);
         var fbData = req.body;
         if (typeof fbData !== 'object') {
             res.json(400, {error: 'bad_json_request'});

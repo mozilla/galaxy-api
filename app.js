@@ -18,7 +18,6 @@ var user = require('./lib/user');
     'game/moderate',
     'game/submit',
     'user/acl',
-    'user/feedback',
     'user/friends',
     'user/login',
     'user/purchase',
