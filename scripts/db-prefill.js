@@ -210,7 +210,7 @@ function createTestDeveloper() {
             // we'll cheat and access the user lib directly.
             userlib.updateUser(client, user.id, {
                 permissions: {
-                    dev: true
+                    developer: true
                 }
             }, function(err, newUserData) {
                 if (err) {

@@ -42,7 +42,7 @@ lookupMethod(client, idOrEmail, function (err, user) {
     }
 
     var permissions = {};
-    ['dev', 'reviewer', 'admin'].forEach(function (group) {
+    ['developer', 'reviewer', 'admin'].forEach(function (group) {
         if (groups.indexOf(group) !== -1) {
             permissions[group] = false;
         }

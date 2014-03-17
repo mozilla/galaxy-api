@@ -16,7 +16,7 @@ module.exports = function(server) {
                 description: 'User ID to change permissions for',
                 isRequired: true
             },
-            dev: {
+            developer: {
                 description: 'Whether or not user should have developer permissions',
                 isRequired: false
             },
@@ -54,7 +54,7 @@ module.exports = function(server) {
 
             userlib.updateUser(client, userID, {
                 permissions: {
-                    developer: !!+POST.dev,
+                    developer: !!+POST.developer,
                     reviewer: !!+POST.reviewer,
                     admin: !!+POST.admin
                 }
