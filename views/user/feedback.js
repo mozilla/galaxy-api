@@ -1,30 +1,10 @@
 var _ = require('lodash');
 
 var db = require('../../db');
+var fblib = require('../../lib/feedback');
 var gamelib = require('../../lib/game');
 var userlib = require('../../lib/user');
 var utils = require('../../lib/utils');
-
-// TODO: remove this if/after moving the next two functions to lib
-var uuid = require('node-uuid');
-
-// TODO: move these next two functions to ../../lib?
-function publicFeedbackObj(full) {
-    return _.pick(full, [
-        'user',
-        'page_url',
-        'message'
-    ]);
-}
-
-function newFeedback(client, data) {
-    data.id = uuid.v4();
-    data.send_date = new Date();
-
-    client.hset('feedback', data.id, JSON.stringify(data));
-
-    return data;
-}
 
 function validateFeedback(fbData, requiredKeys) {
     var requiredKeysExists = true;
@@ -41,8 +21,9 @@ function validateFeedback(fbData, requiredKeys) {
     // TODO: Validate page_url
 
     // We only allow the publicly accessible fields to be POST/PUT.
-    return publicFeedbackObj(fbData);
+    return fblib.publicFeedbackObj(fbData);
 }
+
 
 module.exports = function(server) {
     // Sample usage:
@@ -54,23 +35,31 @@ module.exports = function(server) {
             notes: 'Submit feedback',
             summary: 'Submit feedback for a site page'
         },
-    }, userlib.userDataView(function(user, client, done, req, res) {
-        // TODO: being logged in should be optional
+    }, db.redisView(function(client, done, req, res, wrap) {
         var fbData = req.body;
         if (typeof fbData != 'object') {
             res.json(400, {error: 'bad_json_request'});
             return done();
         }
 
-        // TODO: use potato-captcha to verify real feedback
-        var requiredKeys = ['page_url', 'message'];
-        fbData = validateFeedback(fbData, requiredKeys);
-        if (!fbData) {
-            res.json(400, {error: 'bad_feedback_data'});
-            return done();
-        }
+        // TODO: wrap
+        var email = req._email;
+        userlib.getUserFromEmail(client, email, function(err, result) {
+            // TODO: use potato-captcha to verify real feedback
+            var requiredKeys = ['page_url', 'message'];
+            fbData = validateFeedback(fbData, requiredKeys);
+            if (!fbData) {
+                res.json(400, {error: 'bad_feedback_data'});
+                return done();
+            }
 
-        newFeedback(client, fbData);
-        res.json(fbData);
+            // include username in feedback iff logged in successfully
+            if (!err && result) {
+                fbData.user = result.username;
+            }
+            
+            fblib.newFeedback(client, fbData);
+            res.json(fbData);
+        });
     }));
 };
