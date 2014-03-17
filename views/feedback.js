@@ -1,10 +1,10 @@
 var _ = require('lodash');
 
-var db = require('../../db');
-var fblib = require('../../lib/feedback');
-var gamelib = require('../../lib/game');
-var userlib = require('../../lib/user');
-var utils = require('../../lib/utils');
+var db = require('../db');
+var fblib = require('../lib/feedback');
+var gamelib = require('../lib/game');
+var userlib = require('../lib/user');
+var utils = require('../lib/utils');
 
 function validateFeedback(fbData, requiredKeys) {
     var requiredKeysExists = true;
@@ -28,9 +28,9 @@ function validateFeedback(fbData, requiredKeys) {
 module.exports = function(server) {
     // Sample usage:
     // if the optional parameter '_user' is included, the token must be valid:
-    // % curl -X POST 'http://localhost:5000/user/feedback?_user=ssa_token' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"page_url":"http://galaxy.mozilla.com/badpage","message":"This page is terrible"}'
+    // % curl -X POST 'http://localhost:5000/feedback?_user=ssa_token' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"page_url":"http://galaxy.mozilla.com/badpage","message":"This page is terrible"}'
     server.post({
-        url: '/user/feedback',
+        url: '/feedback',
         swagger: {
             nickname: 'feedback',
             notes: 'Submit feedback',
