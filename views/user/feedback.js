@@ -27,6 +27,7 @@ function validateFeedback(fbData, requiredKeys) {
 
 module.exports = function(server) {
     // Sample usage:
+    // if the optional parameter '_user' is included, the token must be valid:
     // % curl -X POST 'http://localhost:5000/user/feedback?_user=ssa_token' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"page_url":"http://galaxy.mozilla.com/badpage","message":"This page is terrible"}'
     server.post({
         url: '/user/feedback',
