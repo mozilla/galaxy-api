@@ -24,9 +24,11 @@ var client = db.redis();
 var idOrEmail = process.argv[2];
 var groups = process.argv.slice(3);
 var lookupMethod = userlib.getUserFromID;
+var isEmail = false;
 
 if (idOrEmail.indexOf('@') !== -1) {
     lookupMethod = userlib.getUserFromEmail;
+    isEmail = true;
 }
 
 console.log('Attempting to add user <' + idOrEmail +
@@ -34,7 +36,12 @@ console.log('Attempting to add user <' + idOrEmail +
 
 lookupMethod(client, idOrEmail, function (err, user) {
     if (err) {
-        return console.error(err);
+        if (err === 'no_such_user' && !user && isEmail) {
+            console.log('User <' + idOrEmail + '> does not exist, creating now');
+            user = userlib.newUser(client, idOrEmail);
+        } else {
+            return console.error(err);
+        }
     }
 
     if (!user) {
@@ -42,7 +49,7 @@ lookupMethod(client, idOrEmail, function (err, user) {
     }
 
     var permissions = {};
-    ['developer', 'reviewer', 'admin'].forEach(function (group) {
+    ['dev', 'reviewer', 'admin'].forEach(function (group) {
         if (groups.indexOf(group) !== -1) {
             permissions[group] = true;
         }
