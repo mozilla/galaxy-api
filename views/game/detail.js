@@ -44,10 +44,6 @@ module.exports = function(server) {
                             done();
                         }
                         client.sismember('gamesPurchased:' + id, slug, function(err, resp) {
-                            console.log(slug);
-                            console.log(id);
-                            console.log(err);
-                            console.log(resp);
                             if (!err && !resp) {
                                 // game has not been purchased
                                 game['purchased'] = false;
