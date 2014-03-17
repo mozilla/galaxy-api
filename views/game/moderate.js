@@ -42,11 +42,16 @@ module.exports = function(server) {
                 } else if (!game) {
                     res.json(400, {error: 'bad_game'});
                 } else {
-                    gamelib.updateGame(client, game, {status: STATUSES[statusVerb]});
-                    res.json({success: 'true'});
+                    game.status = STATUSES[statusVerb];
+                    gamelib.updateGame(client, slug, game, function(err, newGame) {
+                        if (err) {
+                            res.json(500, {error: err || 'db_error'});
+                        } else {
+                            res.json({success: true});
+                        }
+                        done();
+                    });
                 }
-
-                done();
             });
 
         }));
