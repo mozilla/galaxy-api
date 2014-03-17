@@ -66,7 +66,7 @@ module.exports = function(server) {
             summary: 'Edit game details'
         }
     }, userlib.userDataView(function(user, client, done, req, res) {
-        if (!user.permissions || (!user.permissions.admin && !user.permissions.dev)) {
+        if (!user.permissions || (!user.permissions.admin && !user.permissions.developer)) {
             res.json(403, {error: 'bad_permission'});
             return done();
         }
