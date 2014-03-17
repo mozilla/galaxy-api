@@ -28,7 +28,7 @@ function validateFeedback(fbData, requiredKeys) {
 module.exports = function(server) {
     // Sample usage:
     // if the optional parameter '_user' is included, the token must be valid:
-    // % curl -X POST 'http://localhost:5000/feedback?_user=ssa_token' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"page_url":"http://galaxy.mozilla.com/badpage","message":"This page is terrible"}'
+    // % curl -X POST 'http://localhost:5000/feedback?_user=ssa_token' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"page_url":"http://galaxy.mozilla.com/badpage","feedback":"This page is terrible"}'
     server.post({
         url: '/feedback',
         swagger: {
@@ -37,6 +37,8 @@ module.exports = function(server) {
             summary: 'Submit feedback for a site page'
         },
     }, db.redisView(function(client, done, req, res, wrap) {
+        console.log('fb req.body: ' + req.body);
+        console.log('fbData type: ' + typeof req.body);
         var fbData = req.body;
         if (typeof fbData != 'object') {
             res.json(400, {error: 'bad_json_request'});
