@@ -4,6 +4,7 @@ var restifyValidation = require('node-restify-validation');
 
 var auth = require('./lib/auth');
 var pkg = require('./package');
+var settings = require('./settings_local');
 
 var server = restify.createServer({
     name: pkg.name,
@@ -30,8 +31,9 @@ server.get(/\/data\/?.*/, restify.serveStatic({
 // need to send the default response ourselves.
 var InternalError = restify.errors.InternalError;
 server.on('uncaughtException', function (req, res, route, e) {
-    // TODO: Restrict error message to something less specific?
-    res.send(new InternalError(e, e.message || 'unexpected error'));
+    // Send the actual error in debug mode only
+    var msg = (settings.DEBUG ? e.message : null) || 'unexpected error';
+    res.send(new InternalError(e, msg));
 
     var routeDesc = '[' + req.method + '] ' + req.url;
     console.error('Uncaught exception in ' + routeDesc + ':\n' + e.stack);
