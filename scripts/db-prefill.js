@@ -9,6 +9,7 @@ var Promise = require('es6-promise').Promise;
 var db = require('../db');
 var settings = require('../settings');
 var settings_local = require('../settings_local');
+var userlib = require('../lib/user');
 var utils = require('../lib/utils');
 var params = require('./prefillParameters');
 
@@ -77,6 +78,7 @@ function run() {
                 delete remaining_signals[source];
                 if (!Object.keys(remaining_signals).length) {
                     clearTimeout(timeout);
+                    client.punsubscribe();
                     resolve();
                 }
             }
@@ -164,7 +166,7 @@ function run() {
             console.log('Finished generating users, games, purchases and friend requests.');
             process.exit(0);
         }).catch(function(err) {
-            console.error(err);
+            console.error('Error running prefill:', err);
             process.exit(1);
         });
     };
@@ -172,48 +174,71 @@ function run() {
 
 /*** Prefill Logic ***/
 
-function createUsers() {
-    function createUser(email) {
-        return postPromise(PERSONA_ENDPOINT + '/generate', {
-            email: email
-        });
-    };
+function createUser(email) {
+    return postPromise(PERSONA_ENDPOINT + '/generate', {
+        email: email
+    }).then(login);
 
     function login(emailAssertion) {
-        return new Promise(function(resolve, reject) {
-            var assertion = emailAssertion.assertion;
-            postPromise(API_ENDPOINT + '/user/login', {
-                assertion: assertion,
-                audience: API_ENDPOINT
-            }).then(function(result) {
-                if (result.error) {
-                    return reject('Login failed: ' + result.error);
-                }
-                resolve({
-                    email: result.settings.email,
-                    token: result.token,
-                    username: result.public.username,
-                    id: result.public.id
-                });
-            });
+        var assertion = emailAssertion.assertion;
+        return postPromise(API_ENDPOINT + '/user/login', {
+            assertion: assertion,
+            audience: API_ENDPOINT
+        }).then(function(result) {
+            return {
+                email: result.settings.email,
+                token: result.token,
+                username: result.public.username,
+                id: result.public.id
+            };
         });
     };
+};
 
+function createUsers() {
     return Promise.all(_.times(params.numUsers, function(i) {
-        return createUser('test' + i + '@test.com').then(login);
+        return createUser('test' + i + '@test.com');
     }));
+}
+
+function createTestDeveloper() {
+    var email = 'test_developer' + Math.round(Math.random() * 1000) + '@test.com';
+    return createUser(email).then(function(user) {
+        return new Promise(function(resolve, reject) {
+            // The one thing we can't simulate through real API calls is updating
+            // permissions, since we require an existing admin to do that. So here
+            // we'll cheat and access the user lib directly.
+            userlib.updateUser(client, user.id, {
+                permissions: {
+                    developer: true
+                }
+            }, function(err, newUserData) {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(user);
+            });
+        });
+    });
 }
 
 function createGames() {
     var default_params = {
+        homepage_url: 'http://fake.game',
         icons: '128',
         screenshots: 'yes'
     };
 
-    return Promise.all(params.games.map(function(game) {
-        return postPromise(API_ENDPOINT + '/game/submit',
-            _.defaults(game, default_params));
-    }));
+    return createTestDeveloper().then(function(devUser) {
+        return Promise.all(params.games.map(function(game) {
+            var params = _.defaults(game, default_params);
+            params._user = devUser.token;
+            return postPromise(API_ENDPOINT + '/game/submit', params, true)
+                .then(function(result) {
+                    return result;
+                });
+        }));
+    });
 }
 
 function purchaseGames(userSSAs, gameSlugs) {
@@ -248,18 +273,16 @@ function createFriends(users) {
                 _user: user.token,
                 recipient: recipient.id
             }).then(function(result) {
-                if (result.error) {
-                    if (_.contains(['already_friends', 'already_requested'], result.error)) {
-                        console.log('Friend request warning:', result.error);
-                        return resolve({});
-                    }
-                    return reject(result.error);
-                }
-                
                 resolve({
                     user: user,
                     recipient: recipient
                 });
+            }).catch(function(err) {
+                if (_.contains(['already_friends', 'already_requested'], err)) {
+                    console.log('Friend request warning:', err);
+                    return resolve({});
+                }
+                reject(err);
             });
         });
     }
@@ -284,11 +307,9 @@ function createFriends(users) {
                 _user: friendRequest.recipient.token,
                 acceptee: friendRequest.user.id
             }).then(function(result) {
-                if (result.error) {
-                    reject('Friend accept failed: ' + result.error);
-                    return;
-                }
                 resolve(done());
+            }).catch(function(err) {
+                reject('Friend accept failed: ' + err);
             });
         });
     }
@@ -302,17 +323,22 @@ function createFriends(users) {
 }
 
 // Helper function that returns a promise for a post
-function postPromise(url, form) {
+function postPromise(url, form, asJson) {
     return new Promise(function(resolve, reject) {
         request.post({
             url: url,
-            form: form
+            form: asJson ? null : form,
+            json: asJson ? form : null
         }, function(err, resp, body) {
             if (err) {
-                reject(err);
-                return;
+                return reject(err);
             }
-            resolve(JSON.parse(body));
+            // request.js converts response body to JSON when request body is JSON
+            var json = typeof body === 'object' ? body : JSON.parse(body);
+            if (json.error) {
+                return reject(json.error);
+            }
+            resolve(json);
         });
     });
 }

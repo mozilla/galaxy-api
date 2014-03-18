@@ -4,7 +4,7 @@ var userlib = require('../../lib/user');
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/user/acl' -d 'id=1&dev=1&reviewer=1&admin=0'
+    // % curl -X POST 'http://localhost:5000/user/acl' -d 'id=1&developer=1&reviewer=1&admin=0'
     server.post({
         url: '/user/acl',
         validation: {
@@ -16,7 +16,7 @@ module.exports = function(server) {
                 description: 'User ID to change permissions for',
                 isRequired: true
             },
-            dev: {
+            developer: {
                 description: 'Whether or not user should have developer permissions',
                 isRequired: false
             },
@@ -54,7 +54,7 @@ module.exports = function(server) {
 
             userlib.updateUser(client, userID, {
                 permissions: {
-                    developer: !!+POST.dev,
+                    developer: !!+POST.developer,
                     reviewer: !!+POST.reviewer,
                     admin: !!+POST.admin
                 }
