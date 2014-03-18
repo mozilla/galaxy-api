@@ -35,27 +35,31 @@ module.exports = function(server) {
         gamelib.getGameFromSlug(client, slug, function(err, game) {
             if (!game) {
                 res.json(500, {error: 'db_error'});
-            } else {
-                game.purchased = true;
-                if (email) {
-                    user.getUserIDFromEmail(client, email, function(err, id) {
+                return done();
+            }
+            game.purchased = true;
+            if (email) {
+                user.getUserIDFromEmail(client, email, function(err, id) {
+                    if (err) {
+                        res.json(500, {error: 'user_id_db_error'});
+                        return done();
+                    }
+                    client.sismember('gamesPurchased:' + id, slug, function(err, resp) {
                         if (err) {
-                            res.json(game);
+                            res.json(500, {error: 'purchase_list_db_error'});
                             return done();
                         }
-                        client.sismember('gamesPurchased:' + id, slug, function(err, resp) {
-                            if (!err && !resp) {
-                                // game has not been purchased
-                                game.purchased = false;
-                            }
-                            res.json(game);
-                            return done();
-                        });
+                        if (!resp) {
+                            // game has not been purchased
+                            game.purchased = false;
+                        }
+                        res.json(game);
+                        return done();
                     });
-                } else {
-                    res.json(game);
-                    return done();
-                }
+                });
+            } else {
+                res.json(game);
+                return done();
             }
         });
     }));
