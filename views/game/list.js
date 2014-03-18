@@ -32,7 +32,7 @@ module.exports = function(server) {
             status: {
                 description: 'Filter by current status of the game',
                 isRequired: false,
-                isIn: ['approved', 'pending', 'rejected']
+                isIn: ['approved', 'pending', 'rejected', 'disabled', 'deleted']
             }
         }
     }, db.redisView(function(client, done, req, res, wrap) {
