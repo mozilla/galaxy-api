@@ -51,8 +51,8 @@ module.exports = function(server) {
         var dataToUpdate = {
             username: DATA.username,
             email: DATA.email,
-            companyName: DATA.teamName,
-            companySlug: DATA.teamSlug,
+            teamName: DATA.teamName,
+            teamSlug: DATA.teamSlug,
             homepage: DATA.homepage
         };
         user.updateUser(client, id, dataToUpdate, function(err, newUserData) {
