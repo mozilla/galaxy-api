@@ -5,7 +5,7 @@ var user = require('../../lib/user');
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl 'http://localhost:5000/user/purchase?id=0'
+    // % curl 'http://localhost:5000/user/purchase?_user=ssatoken'
     server.get({
         url: '/user/purchase',
         swagger: {
@@ -14,15 +14,12 @@ module.exports = function(server) {
             summary: 'Purchase history'
         },
         validation: {
-            id: {
-                description: 'user id',
+            _user: {
+                description: "A user's SSA token",
                 isRequired: true
             }
         }
-    }, db.redisView(function(client, done, req, res, wrap){
-        var GET = req.params;
-        var id = GET.id;
-
+    }, user.userIDView(function(id, client, done, req, res) {
         client.smembers('gamesPurchased:' + id, function(err, resp) {
             if (err) {
                 res.json(500, {error: 'internal_db_error'});
