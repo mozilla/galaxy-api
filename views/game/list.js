@@ -65,10 +65,10 @@ module.exports = function(server) {
 
             var permissions = userData.permissions;
             for (var p in permissions) {
-                // 'status' should only be accessible to reviewers and admins
-                if (statusFilter && permissions[p] && (p === 'reviewer' || p === 'admin')) {
-                    return fetchGames(userData);
-                } else if (developerFilter && permissions[p] && (p === 'developer')) {
+                // 'status' filter should only be accessible to reviewers and admins
+                // 'developer' filter should only be accessible to developers
+                if ((statusFilter && permissions[p] && (p === 'reviewer' || p === 'admin')) ||
+                    (developerFilter && permissions[p] && (p === 'developer'))) {
                     return fetchGames(userData);
                 }
             }
