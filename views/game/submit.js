@@ -52,9 +52,10 @@ module.exports = function(server) {
             return done();
         }
 
-        gamelib.newGame(client, gameData);
-        res.json(gameData);
-        done();
+        gamelib.newGame(client, gameData, user.id, db.plsNoError(res, done, function(game) {
+            res.json(game);
+            return done();
+        }));
     }));
 
     // Sample usage:

@@ -33,14 +33,19 @@ module.exports = function(server) {
                 description: 'Filter by current status of the game',
                 isRequired: false,
                 isIn: ['approved', 'pending', 'rejected', 'disabled', 'deleted']
+            },
+            developer: {
+                description: 'Filter by requesting developer',
+                isRequired: false
             }
         }
     }, db.redisView(function(client, done, req, res, wrap) {
         var GET = req.params;
         var count = 'count' in GET ? parseInt(GET.count, 10) : DEFAULT_COUNT;
         var statusFilter = GET.status;
+        var developerFilter = !!+GET.developer;
 
-        if (!statusFilter) {
+        if (!(statusFilter || developerFilter)) {
             fetchGames();
             return;
         }
@@ -61,7 +66,9 @@ module.exports = function(server) {
             var permissions = userData.permissions;
             for (var p in permissions) {
                 // 'status' should only be accessible to reviewers and admins
-                if (permissions[p] && (p === 'reviewer' || p === 'admin')) {
+                if (statusFilter && permissions[p] && (p === 'reviewer' || p === 'admin')) {
+                    return fetchGames();
+                } else if (developerFilter && permissions[p] && (p === 'developer')) {
                     return fetchGames();
                 }
             }
@@ -80,7 +87,20 @@ module.exports = function(server) {
             // TODO: Filter only 'count' games without having to fetch them all first
             // (will be somewhat tricky since we need to ensure order to do pagination
             // properly, and we use UUIDs for game keys that have no logical order in the db)
-            gamelib.getGameList(client, null, function(err, games) {
+            if (developerFilter) {
+                client.hget('gameIDsByUserID', userID, function(err, ids) {
+                    if (err) {
+                        res.json(500, {error: err || 'db_error'});
+                        done();
+                        return;
+                    }
+                    gamelib.getGameList(client, ids, gameListHandler);
+                });
+            } else {
+                gamelib.getGameList(client, null, gameListHandler);
+            }
+
+            function gameListHandler(err, games) {
                 if (err || !games) {
                     res.json(500, {error: err || 'db_error'});
                     return done();
@@ -96,7 +116,7 @@ module.exports = function(server) {
                 var gamesUpToCount = _.first(filteredGames, count).map(gamelib.publicGameObj);
                 res.json(gamesUpToCount);
                 done();
-            });
+            }
         }
     }));
 };
