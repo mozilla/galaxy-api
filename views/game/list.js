@@ -67,9 +67,9 @@ module.exports = function(server) {
             for (var p in permissions) {
                 // 'status' should only be accessible to reviewers and admins
                 if (statusFilter && permissions[p] && (p === 'reviewer' || p === 'admin')) {
-                    return fetchGames();
+                    return fetchGames(userData);
                 } else if (developerFilter && permissions[p] && (p === 'developer')) {
-                    return fetchGames();
+                    return fetchGames(userData);
                 }
             }
             return notAuthorized();
@@ -83,18 +83,22 @@ module.exports = function(server) {
             done();
         };
 
-        function fetchGames() {
+        function fetchGames(userData) {
             // TODO: Filter only 'count' games without having to fetch them all first
             // (will be somewhat tricky since we need to ensure order to do pagination
             // properly, and we use UUIDs for game keys that have no logical order in the db)
             if (developerFilter) {
-                client.hget('gameIDsByUserID', userID, function(err, ids) {
+                client.hget('gameIDsByUserID', userData.id, function(err, ids) {
                     if (err) {
                         res.json(500, {error: err || 'db_error'});
                         done();
                         return;
                     }
-                    gamelib.getGameList(client, ids, gameListHandler);
+                    if (!ids) {
+                        gameListHandler(null, []);
+                    } else {
+                        gamelib.getGameList(client, JSON.parse(ids), gameListHandler);
+                    }
                 });
             } else {
                 gamelib.getGameList(client, null, gameListHandler);
