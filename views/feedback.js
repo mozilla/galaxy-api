@@ -18,8 +18,6 @@ function validateFeedback(fbData, requiredKeys) {
         return null;
     }
 
-    // TODO: Validate page_url
-
     // We only allow the publicly accessible fields to be POST/PUT.
     return fblib.publicFeedbackObj(fbData);
 }
@@ -28,7 +26,7 @@ function validateFeedback(fbData, requiredKeys) {
 module.exports = function(server) {
     // Sample usage:
     // if the optional parameter '_user' is included, the token must be valid:
-    // % curl -X POST 'http://localhost:5000/feedback?_user=ssa_token' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"page_url":"http://galaxy.mozilla.com/badpage","feedback":"This page is terrible"}'
+    // % curl -X POST 'http://localhost:5000/feedback?_user=ssa_token' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"page_url":"http://galaxy.mozilla.org/badpage","feedback":"This page is terrible"}'
     server.post({
         url: '/feedback',
         swagger: {
@@ -37,17 +35,14 @@ module.exports = function(server) {
             summary: 'Submit feedback for a site page'
         },
     }, db.redisView(function(client, done, req, res, wrap) {
-        // TODO: remove
         var fbData = req.body;
-        console.log('fbData: ' + fbData);
-        console.log('fbData type: ' + typeof fbData);
-        if (typeof fbData != 'object') {
+        if (typeof fbData !== 'object') {
             res.json(400, {error: 'bad_json_request'});
             return done();
         }
 
         // TODO: use potato-captcha to verify real feedback
-        var requiredKeys = ['page_url', 'message'];
+        var requiredKeys = ['page_url', 'feedback'];
         fbData = validateFeedback(fbData, requiredKeys);
         if (!fbData) {
             res.json(400, {error: 'bad_feedback_data'});
@@ -56,15 +51,22 @@ module.exports = function(server) {
 
         // TODO: wrap
         var email = req._email;
-        userlib.getUserFromEmail(client, email, function(err, result) {
-            // include username in feedback iff logged in successfully
-            if (!err && result && result.username) {
-                fbData.user = result.username;
-            }
 
+        if (!req._email) {
             fblib.newFeedback(client, fbData);
             res.json(fbData);
-            return done();
-        });
+        } else {
+            userlib.getUserFromEmail(client, email, function(err, result) {
+                if (!err && result && result.username) {
+                   fbData.user = result.username;
+                } else {
+                    res.json(500, {error: err || 'db_error'});
+                    return done();
+                }
+                fblib.newFeedback(client, fbData);
+                res.json(fbData);
+                return done();
+            });
+        }
     }));
 };
