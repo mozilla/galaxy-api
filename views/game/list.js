@@ -9,7 +9,7 @@ const DEFAULT_COUNT = 15;
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl 'http://localhost:5000/game/list'
+    // % curl 'http://localhost:5000/game/list?_user=ssa_token&developer=1&status=pending'
     server.get({
         url: '/game/list',
         swagger: {
