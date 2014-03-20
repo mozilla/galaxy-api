@@ -51,7 +51,6 @@ module.exports = function(server) {
 
         // TODO: wrap
         var email = req._email;
-
         if (!req._email) {
             fblib.newFeedback(client, fbData);
             res.json(fbData);
