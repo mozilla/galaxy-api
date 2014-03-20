@@ -57,8 +57,8 @@ module.exports = function(server) {
             res.json(fbData);
         } else {
             userlib.getUserFromEmail(client, email, function(err, result) {
-                if (!err && result && result.username) {
-                   fbData.user = result.username;
+                if (!err && result && result.id) {
+                   fbData.user = result.id;
                 } else {
                     res.json(500, {error: err || 'db_error'});
                     return done();
