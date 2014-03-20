@@ -26,6 +26,7 @@ function validateFeedback(fbData, requiredKeys) {
 function saveFeedbackAndRespond(client, res, fbData) {
     fbData = fblib.newFeedback(client, fbData);
     res.json({success: true});
+    return fbData;
 }
 
 
@@ -59,7 +60,7 @@ module.exports = function(server) {
         var email = req._email;
 
         if (!req._email) {
-            saveFeedbackAndRespond(client, res, fbData);
+            fbData = saveFeedbackAndRespond(client, res, fbData);
         } else {
             userlib.getUserFromEmail(client, email, function(err, result) {
                 if (err || !result) {
@@ -67,7 +68,7 @@ module.exports = function(server) {
                     return done();
                 }
                 fbData.user = result.id;
-                saveFeedbackAndRespond(client, res, fbData);
+                fbData = saveFeedbackAndRespond(client, res, fbData);
                 return done();
             });
         }
