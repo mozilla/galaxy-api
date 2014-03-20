@@ -23,6 +23,12 @@ function validateFeedback(fbData, requiredKeys) {
 }
 
 
+function saveFeedbackAndRespond(fbData) {
+    fbData = fblib.newFeedback(client, fbData);
+    res.json({success: true});
+}
+
+
 module.exports = function(server) {
     // Sample usage:
     // if the optional parameter '_user' is included, the token must be valid:
@@ -53,18 +59,15 @@ module.exports = function(server) {
         var email = req._email;
 
         if (!req._email) {
-            fblib.newFeedback(client, fbData);
-            res.json(fbData);
+            saveFeedbackAndRespond();
         } else {
             userlib.getUserFromEmail(client, email, function(err, result) {
-                if (!err && result && result.id) {
-                   fbData.user = result.id;
-                } else {
+                if (err || !result) {
                     res.json(500, {error: err || 'db_error'});
                     return done();
                 }
-                fblib.newFeedback(client, fbData);
-                res.json(fbData);
+                fbData.user = result.id;
+                saveFeedbackAndRespond();
                 return done();
             });
         }
