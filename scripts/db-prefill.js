@@ -1,27 +1,28 @@
+#!/usr/bin/env node
+
+/*
+
+    Usage:
+
+        ./scripts/db-prefill.js
+
+*/
+
 var child_process = require('child_process');
 var path = require('path');
 var stream = require('stream');
 
 var _ = require('lodash');
-var request = require('request');
 var Promise = require('es6-promise').Promise;
+var request = require('request');
 
 var db = require('../db');
 var settings = require('../settings');
 var settings_local = require('../settings_local');
 var userlib = require('../lib/user');
 var utils = require('../lib/utils');
-var params = require('./prefillParameters');
 
-const PERSONA_PORT = '9009';
-const PERSONA_ENDPOINT = 'http://localhost:' + PERSONA_PORT;
-const PERSONA_PATH = 'node_modules/persona-faker/app.js';
-
-const API_PORT = '5009';
-const API_ENDPOINT = 'http://localhost:' + API_PORT;
-
-const PREFILL_NAMESPACE = 'galaxy-db-prefill';
-const SIGNAL_NAMES = ['api', 'persona-faker'];
+var prefillData = require('./prefillParameters');
 
 // A stream.Writable subclass that forwards to another stream after
 // prefixing each chunk with the provided name
@@ -38,6 +39,17 @@ NamedWritable.prototype._write = function(chunk, encoding, callback) {
     callback();
 };
 
+const PERSONA_PORT = '9009';
+const PERSONA_ENDPOINT = 'http://localhost:' + PERSONA_PORT;
+const PERSONA_PATH = 'node_modules/persona-faker/app.js';
+
+const API_PORT = '5009';
+const API_ENDPOINT = 'http://localhost:' + API_PORT;
+
+const PREFILL_NAMESPACE = 'galaxy-db-prefill';
+const SIGNAL_NAMES = ['api', 'persona-faker'];
+
+
 var client = db.redis();
 client.on('ready', function() {
     if (settings_local.FLUSH_DB_ON_PREFILL) {
@@ -51,7 +63,7 @@ client.on('ready', function() {
 });
 
 function run() {
-    _.defaults(params, {
+    _.defaults(prefillData, {
         games: [],
         numUsers: 0,
         numFriends: 0
@@ -196,7 +208,7 @@ function createUser(email) {
 };
 
 function createUsers() {
-    return Promise.all(_.times(params.numUsers, function(i) {
+    return Promise.all(_.times(prefillData.numUsers, function(i) {
         return createUser('test' + i + '@test.com');
     }));
 }
@@ -223,17 +235,10 @@ function createTestDeveloper() {
 }
 
 function createGames() {
-    var default_params = {
-        homepage_url: 'http://fake.game',
-        icons: '128',
-        screenshots: 'yes'
-    };
-
     return createTestDeveloper().then(function(devUser) {
-        return Promise.all(params.games.map(function(game) {
-            var params = _.defaults(game, default_params);
-            params._user = devUser.token;
-            return postPromise(API_ENDPOINT + '/game/submit', params, true)
+        return Promise.all(prefillData.games.map(function(game) {
+            game._user = devUser.token;
+            return postPromise(API_ENDPOINT + '/game/submit', game, true)
                 .then(function(result) {
                     return result;
                 });
@@ -260,7 +265,7 @@ function purchaseGames(userSSAs, gameSlugs) {
 
 function createFriends(users) {
     function sendRequests(user) {
-        var recipients = _.sample(users, Math.min(params.numFriends, params.numUsers));
+        var recipients = _.sample(users, Math.min(prefillData.numFriends, prefillData.numUsers));
         var promises = recipients.map(function(recipient){
             return sendRequest(user, recipient);
         });

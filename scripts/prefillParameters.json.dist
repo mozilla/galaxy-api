@@ -1,18 +1,463 @@
 {
     "games": [
+        {
+            "app_url": "http://nuttyninjas.com/",
+            "artwork": 
             {
-                "name": "Mario Broskis",
-                "app_url": "http://mario.broskis"
-            }, 
-            {
-                "name": "Halo 718",
-                "app_url": "http://halo.com"
+                "src": "background.jpg"
             },
-            {
-                "name": "Left 5 Dead",
-                "app_url": "http://dead.left"
-            }
-        ],
-    "numUsers": 50,
+            "default_locale": "en",
+            "description": "Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
+            "fullscreen": true,
+            "genre": "action",
+            "homepage_url": "http://www.nuttyninjas.com",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://static4.wikia.nocookie.net/__cb20120318204812/nintendo/en/images/5/5c/Jumping_Mario_Artwork_-_New_Super_Mario_Bros._Wii.png",
+                    "width": 64
+                }
+            ],
+            "license": "MIT",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "Nutty Ninjas", 
+            "privacy_policy_url": "http://una-org.github.io/demos.html",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg",
+                    "width": 573
+                },
+                {
+                    "height": 1024,
+                    "src": "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
+                    "width": 576
+                },
+                {
+                    "height": 1024,
+                    "src": "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg",
+                    "width": 673
+                }
+            ],
+            "slug":"nutty-ninjas",
+            "videos": [
+                "http://www.youtube.com/embed/4kvT0dywaF8",
+                "http://www.youtube.com/embed/1Sow2O8D9Ok"
+            ]
+        },
+        {
+            "app_url": "http://cvan.github.io/FullScreenMario/",
+            "artwork": [
+                {
+                    "height": 2560,
+                    "src": "http://static3.wikia.nocookie.net/__cb20120709013604/fantendo/images/a/ab/The-Mario-Bros-mario-and-luigi-9298164-1955-2560.jpg",
+                    "width": 1955
+                }
+            ],
+            "default_locale": "it",
+            "description": "Serving as Nintendo's mascot and the eponymous protagonist of the series, Mario has appeared in over 200 video games since his creation. Depicted as a short, pudgy, Italian plumber who resides in the Mushroom Kingdom, he repeatedly rescues Princess Peach from the Koopa villain Bowser and stops his numerous plans to destroy him and take over the kingdom. Mario also has other enemies and rivals, including Donkey Kong and Wario.",
+            "fullscreen": true,
+            "homepage_url": "http://cvan.github.io/",
+            "genre": "adventure",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://static4.wikia.nocookie.net/__cb20120318204812/nintendo/en/images/5/5c/Jumping_Mario_Artwork_-_New_Super_Mario_Bros._Wii.png",
+                    "width": 64
+                }
+            ],
+            "license": "Public Domain",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "Mario Bros",
+            "privacy_policy": "http://cvan.github.io/privacy-policy/",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg",
+                    "width": 573
+                },
+                {
+                    "height": 1024,
+                    "src": "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
+                    "width": 576
+                },
+                {
+                    "height": 1024,
+                    "src": "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg",
+                    "width": 673
+                }
+            ],
+            "slug": "mario-bros",
+            "videos": [
+                "http://www.youtube.com/embed/mX48y24t9iU",
+                "http://vimeo.com/14628852"
+            ]
+        },
+        {
+            "app_url": "http://localhost/left4dead",
+            "artwork": [
+                {
+                    "height": 2560,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/5/5b/Left4Dead_Windows_cover.jpg",
+                    "width": 1955
+                }
+            ],
+            "default_locale": "it",
+            "description": "Set during the aftermath of an apocalyptic pandemic, the game pits its four protagonists—dubbed the Survivors—against hordes of the infected. There are four game modes: a single-player mode in which allied characters are controlled by AI; a four-player, co-op campaign mode; an eight-player online versus mode; and a four-player survival mode. ",
+            "fullscreen": true,
+            "homepage_url": "http://cvan.github.io/",
+            "genre": "action",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/5/52/Left_4_Dead_Revised_Cast.jpg",
+                    "width": 64
+                }
+            ],
+            "license": "Commerical",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "Left4Dead",
+            "privacy_policy": "http://cvan.github.io/privacy-policy/",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/d/dc/Left_4_Dead_screenshot.jpg",
+                    "width": 573
+                },
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/2/2b/Left_4_Dead_Director_Intensity.jpg",
+                    "width": 576
+                }
+            ],
+            "slug": "left4dead",
+            "videos": [
+                "http://www.youtube.com/watch?v=PGC-_o6QteU"
+            ]
+        },
+        {
+            "app_url": "http://localhost/minecraft",
+            "artwork": [
+                {
+                    "height": 2560,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/c/c9/Minecraft_Mobs.png",
+                    "width": 1955
+                }
+            ],
+            "default_locale": "en",
+            "description": "The creative and building aspects of Minecraft allow players to build constructions out of textured cubes in a 3D procedurally generated world. Other activities in the game include exploration, gathering resources, crafting, and combat.",
+            "fullscreen": true,
+            "homepage_url": "http://cvan.github.io/",
+            "genre": "action",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/3/32/Minecraft_logo.svg",
+                    "width": 64
+                }
+            ],
+            "license": "Commerical",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "Minecraft",
+            "privacy_policy": "http://cvan.github.io/privacy-policy/",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/e/eb/Minecraft_Beta_1.0.2_crafting_a_stone_axe_-_from_Commons.png",
+                    "width": 573
+                },
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/7/74/Minecraft_city_hall.png",
+                    "width": 576
+                }
+            ],
+            "slug": "minecraft",
+            "videos": [
+                "http://www.youtube.com/watch?v=6ctNaBT1xZc",
+                "http://www.youtube.com/watch?v=r9DN7T2m6R8",
+                "http://www.youtube.com/watch?v=FKu_T2Xr31g"
+            ]
+        },
+        {
+            "app_url": "http://localhost/papersplease",
+            "artwork": [
+                {
+                    "height": 2560,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/6/65/Papers_Please_-_Title_Logo.png",
+                    "width": 1955
+                }
+            ],
+            "default_locale": "en",
+            "description": "The gameplay of Papers, Please focuses on the work life of an immigration inspector at a border checkpoint for the fictitious country of Arstotzka. The player inspects arrivals' documents and uses an array of tools to determine whether the papers are in order, for the purpose of keeping unwanted individuals, such as terrorists, wanted criminals, or smugglers, out of the country.",
+            "fullscreen": true,
+            "homepage_url": "http://cvan.github.io/",
+            "genre": "action",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/6/65/Papers_Please_-_Title_Logo.png",
+                    "width": 64
+                }
+            ],
+            "license": "Commerical",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "Paper Please",
+            "privacy_policy": "http://cvan.github.io/privacy-policy/",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/e/e4/Papers_please_gender_discrepancy.jpg",
+                    "width": 573
+                }
+            ],
+            "slug": "paper-please",
+            "videos": [
+                "http://www.youtube.com/watch?v=ApbpdKmf1_8"
+            ]
+        },
+        {
+            "app_url": "http://localhost/batman-asylum",
+            "artwork": [
+                {
+                    "height": 2560,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/4/42/Batman_Arkham_Asylum_Videogame_Cover.jpg",
+                    "width": 1955
+                }
+            ],
+            "default_locale": "en",
+            "description": "Batman: Arkham Asylum is an action-adventure game viewed from the third-person perspective. The playable character is visible on the screen and the camera can be freely rotated around him.[1][5][6] The player controls Batman as he traverses Arkham Asylum, a secure facility for the criminally insane located off the coast of Gotham City",
+            "fullscreen": true,
+            "homepage_url": "http://cvan.github.io/",
+            "genre": "action",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/4/42/Batman_Arkham_Asylum_Videogame_Cover.jpg",
+                    "width": 64
+                }
+            ],
+            "license": "Commerical",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "Batman Arkham Asylum",
+            "privacy_policy": "http://cvan.github.io/privacy-policy/",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/e/ec/Batman_arkham-detectiveMode.png",
+                    "width": 573
+                }
+            ],
+            "slug": "batman-asylum",
+            "videos": [
+                "http://www.youtube.com/watch?v=ApbpdKmf1_8"
+            ]
+        },
+        {
+            "app_url": "http://localhost/batman-city",
+            "artwork": [
+                {
+                    "height": 2560,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/0/00/Batman_Arkham_City_Game_Cover.jpg",
+                    "width": 1955
+                }
+            ],
+            "default_locale": "en",
+            "description": "Arkham City is an open world action-adventure game that incorporates elements of stealth game tactics.[13] It is presented from the third-person perspective, showing the playable character on screen and allowing the camera to be freely rotated around them.",
+            "fullscreen": true,
+            "homepage_url": "http://cvan.github.io/",
+            "genre": "action",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/0/00/Batman_Arkham_City_Game_Cover.jpg",
+                    "width": 64
+                }
+            ],
+            "license": "Commerical",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "Batman Arkham City",
+            "privacy_policy": "http://cvan.github.io/privacy-policy/",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/5/5d/Batman_-_Arkham_City_combat_screenshot.JPG",
+                    "width": 573
+                },
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/7/77/Batman_-_Arkham_City_screenshot.JPG",
+                    "width": 573
+                }
+            ],
+            "slug": "batman-city",
+            "videos": [
+                "http://www.youtube.com/watch?v=ApbpdKmf1_8"
+            ]
+        },
+        {
+            "app_url": "http://localhost/batman-knight",
+            "artwork": [
+                {
+                    "height": 2560,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/6/6c/Batman_Arkham_Knight_Cover_Art.jpg",
+                    "width": 1955
+                }
+            ],
+            "default_locale": "en",
+            "description": "The game's main storyline is set one year after that of 2011's Batman: Arkham City and follows Batman, at the peak of his ability, as he confronts the supervillain Scarecrow, who has returned to Gotham City to unite Batman's enemies in a plot to finally kill the Dark Knight.",
+            "fullscreen": true,
+            "homepage_url": "http://cvan.github.io/",
+            "genre": "action",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/6/6c/Batman_Arkham_Knight_Cover_Art.jpg",
+                    "width": 64
+                }
+            ],
+            "license": "Commerical",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "Batman Arkham Knight",
+            "privacy_policy": "http://cvan.github.io/privacy-policy/",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/6/6c/Batman_Arkham_Knight_Cover_Art.jpg",
+                    "width": 573
+                }
+            ],
+            "slug": "batman-knight"
+        },
+        {
+            "app_url": "http://localhost/2048",
+            "artwork": [
+                {
+                    "height": 2560,
+                    "src": "http://upload.wikimedia.org/wikipedia/commons/6/64/2048_Screenshot.png",
+                    "width": 1955
+                }
+            ],
+            "default_locale": "en",
+            "description": "2048 is a single-player online and mobile game in which the objective is to slide tiles on a grid to combine them and create a tile with the number 2048",
+            "fullscreen": true,
+            "homepage_url": "http://cvan.github.io/",
+            "genre": "action",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://upload.wikimedia.org/wikipedia/commons/6/64/2048_Screenshot.png",
+                    "width": 64
+                }
+            ],
+            "license": "Commerical",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "2048",
+            "privacy_policy": "http://cvan.github.io/privacy-policy/",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/commons/6/64/2048_Screenshot.png",
+                    "width": 573
+                }
+            ],
+            "slug": "2048"
+        },
+        {
+            "app_url": "http://localhost/flappy",
+            "artwork": [
+                {
+                    "height": 2560,
+                    "src": "http://upload.wikimedia.org/wikipedia/commons/d/d9/Flappy_Bird_Logo.jpg",
+                    "width": 1955
+                }
+            ],
+            "default_locale": "en",
+            "description": "Flappy Bird is a side-scrolling mobile game featuring 2D retro style graphics. The objective is to direct a flying bird, which moves continuously to the right, between each oncoming set of pipes without colliding with them, which otherwise ends the game.",
+            "fullscreen": true,
+            "homepage_url": "http://cvan.github.io/",
+            "genre": "action",
+            "icons": [
+                {
+                    "height": 64,
+                    "src": "http://upload.wikimedia.org/wikipedia/commons/d/d9/Flappy_Bird_Logo.jpg",
+                    "width": 64
+                }
+            ],
+            "license": "Commerical",
+            "locales": [
+                "en-US",
+                "es",
+                "fr",
+                "it",
+                "zh-TW"
+            ],
+            "name": "2048",
+            "privacy_policy": "http://cvan.github.io/privacy-policy/",
+            "screenshots": [
+                {
+                    "height": 1024,
+                    "src": "http://upload.wikimedia.org/wikipedia/en/5/52/Flappy_Bird_gameplay.png",
+                    "width": 573
+                }
+            ],
+            "slug": "flappy-bird"
+        }
+    ],
+    "numUsers": 10,
     "numFriends": 2
 }

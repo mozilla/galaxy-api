@@ -1,2 +1,3 @@
 exports.DEBUG = true;
 exports.SECRET = 'Change this to something witty.';
+exports.FLUSH_DB_ON_PREFILL = true;
