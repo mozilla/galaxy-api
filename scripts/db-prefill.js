@@ -8,13 +8,13 @@
 
 */
 
-var _ = require('lodash');
-var Promise = require('es6-promise').Promise;
-
 var child_process = require('child_process');
 var path = require('path');
-var request = require('request');
 var stream = require('stream');
+
+var _ = require('lodash');
+var Promise = require('es6-promise').Promise;
+var request = require('request');
 
 var db = require('../db');
 var settings = require('../settings');
