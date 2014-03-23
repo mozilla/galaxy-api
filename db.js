@@ -78,7 +78,7 @@ function redisView(view, persistent) {
             if (persistent || killed) {
                 return;
             }
-            client.end();
+            client.quit();
             killed = true;
         }
         function wrap(call) {
