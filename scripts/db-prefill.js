@@ -1,5 +1,16 @@
+#!/usr/bin/env node
+
+/*
+
+    Usage:
+
+        ./scripts/db-prefill.js
+
+*/
+
 var _ = require('lodash');
 var Promise = require('es6-promise').Promise;
+
 var child_process = require('child_process');
 var path = require('path');
 var request = require('request');

@@ -74,3 +74,10 @@ To access the shell on stackato:
 ### Revoke a user's admin+reviewer privileges
 
     ./scripts/removeuserfromgroup.js cvan@mozilla.com admin reviewer
+
+### Using prefilled data
+
+    ./scripts/db-prefill.js
+
+To flush the db everytime the script is run, add the following to `settings_local.js`:
+    `exports.FLUSH_DB_ON_PREFILL = true;`
