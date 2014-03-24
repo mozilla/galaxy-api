@@ -88,7 +88,7 @@ module.exports = function(server) {
             // (will be somewhat tricky since we need to ensure order to do pagination
             // properly, and we use UUIDs for game keys that have no logical order in the db)
             if (developerFilter) {
-                client.hget('gameIDsByUserID', userData.id, function(err, ids) {
+                client.hget('gameIDsByDeveloperID', userData.id, function(err, ids) {
                     if (err) {
                         res.json(500, {error: err || 'db_error'});
                         done();
