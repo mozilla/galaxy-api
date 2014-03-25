@@ -54,6 +54,7 @@ module.exports = function(server) {
 
         gamelib.newGame(client, gameData);
         res.json(gameData);
+        done();
     }));
 
     // Sample usage:
