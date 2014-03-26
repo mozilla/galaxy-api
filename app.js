@@ -9,6 +9,7 @@ var user = require('./lib/user');
 
 
 [
+    'feedback',
     'game/board',
     'game/detail',
     'game/featured',
