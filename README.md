@@ -27,6 +27,29 @@ nodemon app.js
 ```
 
 
+## Deployment
+
+We use stackato:
+
+    stackato push --no-prompt
+
+To start the instance on stackato:
+
+    stackato start
+
+To read the logs on stackato:
+
+    stackato logs
+
+To run shell commands on stackato:
+
+    stackato run cat ../logs/stdout.log
+
+To access the shell on stackato:
+
+    stackato ssh
+
+
 ## Sample Usage
 
 ### Game Submission
@@ -35,3 +58,26 @@ nodemon app.js
 ### Game Details
 
     curl 'http://localhost:5000/game/nutty-ninjas/detail'
+
+### Grant a user admin privileges
+
+    ./scripts/addusertogroup.js cvan@mozilla.com admin
+
+### Grant a user admin+reviewer privileges
+
+    ./scripts/addusertogroup.js cvan@mozilla.com admin reviewer
+
+### Revoke a user's admin privileges
+
+    ./scripts/removeuserfromgroup.js cvan@mozilla.com admin
+
+### Revoke a user's admin+reviewer privileges
+
+    ./scripts/removeuserfromgroup.js cvan@mozilla.com admin reviewer
+
+### Using prefilled data
+
+    ./scripts/db-prefill.js
+
+To flush the db everytime the script is run, add the following to `settings_local.js`:
+    `exports.FLUSH_DB_ON_PREFILL = true;`

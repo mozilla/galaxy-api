@@ -19,3 +19,4 @@ settings_local.js
 scripts/prefillParameters.json
 data/
 dump.rdb
+static/uploads

@@ -5,6 +5,32 @@ var user = require('../../lib/user');
 
 module.exports = function(server) {
     // Sample usage:
+    // % curl 'http://localhost:5000/user/purchase?_user=ssatoken'
+    server.get({
+        url: '/user/purchase',
+        swagger: {
+            nickname: 'get-purchase',
+            notes: 'Get the list of user purchases',
+            summary: 'Purchase history'
+        },
+        validation: {
+            _user: {
+                description: "A user's SSA token",
+                isRequired: true
+            }
+        }
+    }, user.userIDView(function(id, client, done, req, res) {
+        client.smembers('gamesPurchased:' + id, function(err, resp) {
+            if (err) {
+                res.json(500, {error: 'internal_db_error'});
+            } else {
+                res.json(resp);
+            }
+            return done();
+        });
+    }));
+
+    // Sample usage:
     // % curl -X POST 'http://localhost:5000/user/purchase' -d '_user=ssatoken&game=9'
     server.post({
         url: '/user/purchase',
@@ -15,7 +41,7 @@ module.exports = function(server) {
         },
         validation: {
             _user: {
-                description: 'User (ID or username slug)',
+                description: "A user's SSA token",
                 isRequired: true
             },
             game: {

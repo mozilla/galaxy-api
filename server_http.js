@@ -4,6 +4,7 @@ var restifyValidation = require('node-restify-validation');
 
 var auth = require('./lib/auth');
 var pkg = require('./package');
+var settings = require('./settings_local');
 
 var server = restify.createServer({
     name: pkg.name,
@@ -25,6 +26,20 @@ server.get(/\/static\/?.*/, restify.serveStatic({
 server.get(/\/data\/?.*/, restify.serveStatic({
     directory: './data'
 }));
+
+// This overrides restify's default uncaught exception handler, so we
+// need to send the default response ourselves.
+var InternalError = restify.errors.InternalError;
+server.on('uncaughtException', function (req, res, route, e) {
+    // Send the actual error in debug mode only
+    var msg = (settings.DEBUG ? e.message : null) || 'unexpected error';
+    res.send(new InternalError(e, msg));
+
+    var routeDesc = '[' + req.method + '] ' + req.url;
+    console.error('Uncaught exception in ' + routeDesc + ':\n' + e.stack);
+
+    return true;
+});
 
 restifySwagger.configure(server);
 restifySwagger.loadRestifyRoutes();

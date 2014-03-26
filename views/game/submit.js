@@ -34,7 +34,7 @@ module.exports = function(server) {
             summary: 'Submission'
         },
     }, userlib.userDataView(function(user, client, done, req, res) {
-        if (!user.permissions || (!user.permissions.admin && !user.permissions.dev)) {
+        if (!user.permissions || (!user.permissions.admin && !user.permissions.developer)) {
             res.json(403, {error: 'bad_permission'});
             return done();
         }
@@ -52,8 +52,10 @@ module.exports = function(server) {
             return done();
         }
 
-        gamelib.newGame(client, gameData);
-        res.json(gameData);
+        gamelib.newGame(client, gameData, user.id, db.plsNoError(res, done, function(game) {
+            res.json(game);
+            return done();
+        }));
     }));
 
     // Sample usage:
@@ -66,7 +68,7 @@ module.exports = function(server) {
             summary: 'Edit game details'
         }
     }, userlib.userDataView(function(user, client, done, req, res) {
-        if (!user.permissions || (!user.permissions.admin && !user.permissions.dev)) {
+        if (!user.permissions || (!user.permissions.admin && !user.permissions.developer)) {
             res.json(403, {error: 'bad_permission'});
             return done();
         }
