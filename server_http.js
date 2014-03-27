@@ -1,6 +1,7 @@
 var restify = require('restify');
 var restifySwagger = require('node-restify-swagger');
 var restifyValidation = require('node-restify-validation');
+var _ = require('lodash');
 
 var auth = require('./lib/auth');
 var pkg = require('./package');
@@ -16,7 +17,19 @@ server.use(restify.bodyParser());
 server.use(restify.CORS());
 server.use(restify.gzipResponse());
 server.use(restify.queryParser());
-server.use(restifyValidation.validationPlugin({errorsAsArray: false}));
+server.use(restifyValidation.validationPlugin({
+    errorsAsArray: false,
+    errorHandler: function(errors, scope, req, res, options, next) {
+        var data = {
+            error: errors.format ? 'bad_request_format' : 'invalid_request'
+        };
+        if (!errors.format) {
+            data.scope = scope;
+            data.validation = errors; // TODO: improve these errors
+        }
+        return res.send(400, data);
+    }
+}));
 server.use(auth.verifySSAPlugin());
 
 server.get(/\/static\/?.*/, restify.serveStatic({
