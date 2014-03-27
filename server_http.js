@@ -12,7 +12,7 @@ var server = restify.createServer({
 });
 
 server.use(restify.acceptParser(server.acceptable));
-server.use(restify.bodyParser());
+server.use(restify.bodyParser({mapParams: false}));
 server.use(restify.CORS());
 server.use(restify.gzipResponse());
 server.use(restify.queryParser());
