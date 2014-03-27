@@ -33,11 +33,7 @@ module.exports = function(server) {
             summary: 'Submit feedback for a site page'
         }
     }, db.redisView(function(client, done, req, res, wrap) {
-        var fbData = req.body;
-        if (typeof fbData !== 'object') {
-            res.json(400, {error: 'bad_json_request'});
-            return done();
-        }
+        var fbData = req.params;
 
         // TODO: use potato-captcha to verify real feedback
         var requiredKeys = ['page_url', 'feedback'];
