@@ -1,7 +1,6 @@
 var restify = require('restify');
 var restifySwagger = require('node-restify-swagger');
 var restifyValidation = require('node-restify-validation');
-var _ = require('lodash');
 
 var auth = require('./lib/auth');
 var pkg = require('./package');
