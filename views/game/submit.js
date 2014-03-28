@@ -15,7 +15,7 @@ module.exports = function(server) {
             notes: 'Submit game',
             summary: 'Submission'
         },
-        bodyValidation: {
+        validation: {
             // TODO: Validate each field of the game (#122)
             app_url: { isRequired: true },
             homepage_url: { isRequired: true },
@@ -46,7 +46,7 @@ module.exports = function(server) {
             notes: 'Edit game',
             summary: 'Edit game details'
         },
-        bodyValidation: {
+        validation: {
             // TODO: Validate each field of the game (#122)
             app_url: { isRequired: true },
             homepage_url: { isRequired: true },
