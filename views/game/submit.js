@@ -39,14 +39,8 @@ module.exports = function(server) {
             return done();
         }
 
-        var gameData = req.body;
-        if (typeof gameData != 'object') {
-            res.json(400, {error: 'bad_json_request'});
-            return done();
-        }
-
         var requiredKeys = ['app_url', 'homepage_url', 'icons', 'name', 'number_of_players', 'screenshots'];
-        gameData = validateGameData(gameData, requiredKeys);
+        var gameData = validateGameData(req.params, requiredKeys);
         if (!gameData) {
             res.json(400, {error: 'bad_game_data'});
             return done();
@@ -76,14 +70,8 @@ module.exports = function(server) {
         var PUT = req.params;
         var slug = PUT.slug;
 
-        var gameData = req.body;
-        if (typeof gameData != 'object') {
-            res.json(400, {error: 'bad_json_request'});
-            return done();
-        }
-
         var requiredKeys = ['app_url', 'homepage_url', 'icons', 'name', 'number_of_players', 'screenshots', 'slug'];
-        gameData = validateGameData(gameData, requiredKeys);
+        var gameData = validateGameData(PUT, requiredKeys);
         if (!gameData) {
             res.json(400, {error: 'bad_game_data'});
             return done();
