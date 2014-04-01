@@ -45,7 +45,7 @@ module.exports = function(server) {
             return done();
         }
 
-        var requiredKeys = ['app_url', 'homepage_url', 'icons', 'name', 'screenshots'];
+        var requiredKeys = ['app_url', 'homepage_url', 'icons', 'name', 'number_of_players', 'screenshots'];
         gameData = validateGameData(gameData, requiredKeys);
         if (!gameData) {
             res.json(400, {error: 'bad_game_data'});
@@ -82,7 +82,7 @@ module.exports = function(server) {
             return done();
         }
 
-        var requiredKeys = ['app_url', 'homepage_url', 'icons', 'name', 'screenshots', 'slug'];
+        var requiredKeys = ['app_url', 'homepage_url', 'icons', 'name', 'number_of_players', 'screenshots', 'slug'];
         gameData = validateGameData(gameData, requiredKeys);
         if (!gameData) {
             res.json(400, {error: 'bad_game_data'});
