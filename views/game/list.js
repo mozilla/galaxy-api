@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var Promise = require('es6-promise').Promise;
 
 var auth = require('../../lib/auth');
 var db = require('../../db');
@@ -117,9 +118,39 @@ module.exports = function(server) {
                     });
                 }
                 // Pick the first 'count' games
-                var gamesUpToCount = _.first(filteredGames, count).map(gamelib.publicGameObj);
-                res.json(gamesUpToCount);
-                done();
+                var gamesUpToCount = _.first(filteredGames, count);
+                if (developerFilter) {
+                    // Add queue position if using the developer filter
+                    function queuePromise(game) {
+                        return new Promise(function(resolve, reject){
+                            if (game.status === "pending"){
+                                client.zrank("gamesByStatus:pending", game.id,
+                                db.plsNoError(res, done, function(rank) {
+                                    game.queuePosition = rank + 1;
+                                    done();
+                                    console.log(game)
+                                    resolve(game);
+                                }));
+                            } else {
+                                resolve(game);
+                            }                            
+                        });
+                    }
+
+                    gamesUpToCount.forEach(queuePromise);
+                    Promise.all(gamesUpToCount).then(function(gamesWithQueuePosition){
+                        gamesWithQueuePosition.map(gamelib.publicGameObj);
+                        res.json(gamesWithQueuePosition);
+                        done();
+                    }, function(err){
+                        res.json(500, {error: err || 'db_error'});
+                        done();
+                    });
+                } else {
+                    gamesUpToCount.map(gamelib.publicGameObj);
+                    res.json(gamesUpToCount);
+                    done();
+                }
             }
         }
     }));
