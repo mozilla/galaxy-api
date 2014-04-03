@@ -128,7 +128,6 @@ module.exports = function(server) {
                                 db.plsNoError(res, done, function(rank) {
                                     game.queuePosition = rank + 1;
                                     done();
-                                    console.log(game)
                                     resolve(game);
                                 }));
                             } else {
@@ -137,8 +136,7 @@ module.exports = function(server) {
                         });
                     }
 
-                    gamesUpToCount.forEach(queuePromise);
-                    Promise.all(gamesUpToCount).then(function(gamesWithQueuePosition){
+                    Promise.all(gamesUpToCount.map(queuePromise)).then(function(gamesWithQueuePosition){
                         gamesWithQueuePosition.map(gamelib.publicGameObj);
                         res.json(gamesWithQueuePosition);
                         done();
