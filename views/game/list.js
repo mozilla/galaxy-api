@@ -119,34 +119,38 @@ module.exports = function(server) {
                 }
                 // Pick the first 'count' games
                 var gamesUpToCount = _.first(filteredGames, count);
+
                 if (developerFilter) {
                     // Add queue position if using the developer filter
                     function queuePromise(game) {
-                        return new Promise(function(resolve, reject){
-                            if (game.status === "pending"){
-                                client.zrank("gamesByStatus:pending", game.id,
-                                db.plsNoError(res, done, function(rank) {
-                                    game.queuePosition = rank + 1;
-                                    done();
-                                    resolve(game);
-                                }));
+                        return new Promise(function(resolve, reject) {
+                            if (game.status === 'pending') {
+                                client.zrank('gamesByStatus:pending', game.id,
+                                function(err, rank) {
+                                    if (err) {
+                                        reject(err);
+                                    } else {
+                                        game.queuePosition = rank + 1;
+                                        resolve(game);
+                                    }
+                                });
                             } else {
                                 resolve(game);
                             }                            
                         });
                     }
 
-                    Promise.all(gamesUpToCount.map(queuePromise)).then(function(gamesWithQueuePosition){
-                        gamesWithQueuePosition.map(gamelib.publicGameObj);
-                        res.json(gamesWithQueuePosition);
+                    Promise.all(gamesUpToCount.map(queuePromise)).then(function(games) {
+                        var publicGames = games.map(gamelib.publicGameObj);
+                        res.json(publicGames);
                         done();
-                    }, function(err){
+                    }, function(err) {
                         res.json(500, {error: err || 'db_error'});
                         done();
                     });
                 } else {
-                    gamesUpToCount.map(gamelib.publicGameObj);
-                    res.json(gamesUpToCount);
+                    var publicGames = gamesUpToCount.map(gamelib.publicGameObj);
+                    res.json(publicGames);
                     done();
                 }
             }
