@@ -1,0 +1,1 @@
+exports.REDIS_TEST_URL = 'http://localhost:6380'
