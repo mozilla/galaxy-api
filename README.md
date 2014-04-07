@@ -84,6 +84,6 @@ To flush the db everytime the script is run, add the following to `settings_loca
 
 ### Running unit tests
 
-    mv settings_test.js.dist settings_test.js
-    ./test/redis_server
+    cp settings_test.js.dist settings_test.js
+    ./test/redis_start
     make test

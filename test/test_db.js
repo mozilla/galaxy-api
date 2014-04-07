@@ -1,3 +1,5 @@
+// TODO: This file is temporarily, and should be removed once 
+// we added test support in ../db.js
 var url = require('url');
 var redis = require('redis');
 

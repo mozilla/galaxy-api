@@ -122,7 +122,7 @@ describe('user', function() {
             it.skip('should not work for id', function(done) {
                 var patch = {id: 'booya modified id woots'};
                 user.updateUser(client, TEST_USER.id, patch, function(error, test_user) {
-                    expect(error).to.exist
+                    expect(error).to.exist;
                     expect(test_user).to.not.have.property('dateLastModified');
                     expect(test_user).to.be.eql(TEST_USER);
                     done();
