@@ -16,6 +16,7 @@ build
 node_modules
 
 settings_local.js
+settings_test.js
 scripts/*.json
 data/
 dump.rdb

@@ -14,7 +14,9 @@
     "ws": "0.4.x"
   },
   "devDependencies": {
-    "persona-faker": "https://github.com/aricha/persona-faker/tarball/master"
+    "persona-faker": "https://github.com/aricha/persona-faker/tarball/master",
+    "mocha": "1.18.x",
+    "chai": "1.9.x"
   },
   "scripts": {
     "start": "node app.js",

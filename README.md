@@ -81,3 +81,9 @@ To access the shell on stackato:
 
 To flush the db everytime the script is run, add the following to `settings_local.js`:
     `exports.FLUSH_DB_ON_PREFILL = true;`
+
+### Running unit tests
+
+    cp settings_test.js.dist settings_test.js
+    ./test/redis_start
+    make test
