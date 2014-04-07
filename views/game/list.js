@@ -126,13 +126,13 @@ module.exports = function(server) {
                         return new Promise(function(resolve, reject) {
                             if (game.status === 'pending') {
                                 client.zrank('gamesByStatus:pending', game.id,
-                                function(err, rank) {
-                                    if (err) {
-                                        reject(err);
-                                    } else {
-                                        game.queuePosition = rank + 1;
-                                        resolve(game);
-                                    }
+                                    function(err, rank) {
+                                        if (err) {
+                                            reject(err);
+                                        } else {
+                                            game.queuePosition = rank + 1;
+                                            resolve(game);
+                                        }
                                 });
                             } else {
                                 resolve(game);
