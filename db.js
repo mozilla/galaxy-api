@@ -14,8 +14,13 @@ redisURL.hostname = redisURL.hostname || 'localhost';
 redisURL.port = redisURL.port || 6379;
 
 var Scripto = require('redis-scripto');
-var scriptManager = new Scripto(redisClient());
-scriptManager.loadFromDir('./lua');
+var manager = new Scripto(redisClient());
+manager.loadFromDir('./lua');
+
+function scriptManager() {
+    return manager;
+}
+exports.scriptManager = scriptManager;
 
 function redisClient() {
     var client = redis.createClient(redisURL.port, redisURL.hostname);
