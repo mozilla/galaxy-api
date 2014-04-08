@@ -167,7 +167,7 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl -X PUT 'http://localhost:5000/featured' -d '_user=ssa_token&game=game_slug&genres=["simulation"]'
+    // % curl -X PUT 'http://localhost:5000/featured' -d '_user=ssa_token&game=game_slug&rank=1&genres=["simulation"]'
     server.put({
         url: '/featured',
         swagger: {
