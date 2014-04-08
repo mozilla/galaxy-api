@@ -2,7 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var url = require('url');
 
-var redis = require('redis');
+var redis;
 
 var utils = require('./lib/utils');
 
@@ -14,6 +14,12 @@ var redisURL = url.parse(process.env.REDIS_URL ||
 redisURL.hostname = redisURL.hostname || 'localhost';
 redisURL.port = redisURL.port || 6379;
 
+if (process.env.TEST_MODE) {
+    console.log('db is using fakeredis (test mode)');
+    redis = require('fakeredis');
+} else {
+    redis = require('redis');
+}
 
 function redisClient() {
     var client = redis.createClient(redisURL.port, redisURL.hostname);
