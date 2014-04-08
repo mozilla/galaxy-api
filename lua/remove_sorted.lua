@@ -1,14 +1,17 @@
-local count = redis.call("ZCARD", KEYS[1])
-local curPosition = redis.call("ZSCORE", KEYS[1], ARGV[1])
+local key = KEYS[1]
+local member = ARGV[1]
+
+local count = redis.call("ZCARD", key)
+local curPosition = redis.call("ZSCORE", key, member)
 
 -- if game is not yet featured
 if curPosition == false then
 	return 0
 -- if game is already featured
 else
-	local items = redis.call("ZRANGEBYSCORE", KEYS[1], curPosition + 1, count)
+	local items = redis.call("ZRANGEBYSCORE", key, curPosition + 1, count)
 	for i, item in ipairs(items) do
-		redis.call("ZINCRBY", KEYS[1], -1, item)
+		redis.call("ZINCRBY", key, -1, item)
 	end
-	return redis.call("ZREM", KEYS[1], ARGV[1])
+	return redis.call("ZREM", key, member)
 end

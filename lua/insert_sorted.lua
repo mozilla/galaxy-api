@@ -12,6 +12,7 @@ if curPosition == false then
 		redis.call("ZINCRBY", key, 1, item)
 	end
 	return redis.call("ZADD", key, score, member)
+
 -- if game is already featured
 else
 	if curPosition > score then

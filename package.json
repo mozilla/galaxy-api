@@ -8,6 +8,7 @@
     "node-restify-swagger": "0.1.x",
     "node-restify-validation": "0.0.x",
     "redis": "0.9.x",
+    "redis-scripto": "*",
     "request": "2.30.x",
     "restify": "2.6.x",
     "node-uuid": "1.4.x",
