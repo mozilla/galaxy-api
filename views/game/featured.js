@@ -80,7 +80,7 @@ module.exports = function(server) {
             },
             rank: {
                 description: 'Game rank',
-                isRequired: false;
+                isRequired: false
             },
             genres: {
                 description: 'List of genres',
@@ -115,6 +115,13 @@ module.exports = function(server) {
         function addFeatured(client, id, genres) {
             var multi = client.multi();
             multi.hset('featured', id, JSON.stringify(genres));
+
+            var keys = [];
+            var values = [];
+
+            scriptManager.run('your-script', keys, values, function(err, result) {
+
+            });
 
             genres.forEach(function(genre) {
                 multi.sadd('featured:' + genre, id);

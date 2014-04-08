@@ -6,7 +6,6 @@ var redis = require('redis');
 
 var utils = require('./lib/utils');
 
-
 var redisURL = url.parse(process.env.REDIS_URL ||
                          process.env.REDISCLOUD_URL ||
                          process.env.REDISTOGO_URL ||
@@ -14,6 +13,9 @@ var redisURL = url.parse(process.env.REDIS_URL ||
 redisURL.hostname = redisURL.hostname || 'localhost';
 redisURL.port = redisURL.port || 6379;
 
+var Scripto = require('redis-scripto');
+var scriptManager = new Scripto(redisClient());
+scriptManager.loadFromDir('./lua');
 
 function redisClient() {
     var client = redis.createClient(redisURL.port, redisURL.hostname);
