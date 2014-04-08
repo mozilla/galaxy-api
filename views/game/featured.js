@@ -78,6 +78,10 @@ module.exports = function(server) {
                 description: 'Game slug',
                 isRequired: true
             },
+            rank: {
+                description: 'Game rank',
+                isRequired: false;
+            },
             genres: {
                 description: 'List of genres',
                 isRequired: false

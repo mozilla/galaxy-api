@@ -1,9 +1,16 @@
 local key = KEYS[1]
-local member = ARGV[2]
-local score = ARGV[1]
+local member = ARGV[1]
+local score = ARGV[2]
 
 local count = redis.call("ZCARD", key)
 local curPosition = redis.call("ZSCORE", key, member)
+
+-- if game is featured but no new position is given
+if (score == nil and curPosition ~= false) then
+	return 0
+else
+	score = count + 1
+end
 
 -- if game is not yet featured
 if curPosition == false then
