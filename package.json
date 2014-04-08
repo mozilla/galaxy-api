@@ -14,7 +14,7 @@
     "ws": "0.4.x"
   },
   "devDependencies": {
-    "persona-faker": "aricha/persona-faker"
+    "persona-faker": "aricha/persona-faker",
     "mocha": "1.18.x",
     "chai": "1.9.x"
   },
