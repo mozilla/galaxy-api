@@ -342,6 +342,8 @@ function postPromise(url, form, asJson) {
             var json = typeof body === 'object' ? body : JSON.parse(body);
             if (json.error) {
                 return reject(json.error);
+            } else if (resp.code >= 300 || resp.code < 200) {
+                return reject(json);
             }
             resolve(json);
         });

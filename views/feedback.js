@@ -4,22 +4,6 @@ var db = require('../db');
 var fblib = require('../lib/feedback');
 var userlib = require('../lib/user');
 
-function validateFeedback(fbData, requiredKeys) {
-    var requiredKeysExists = true;
-    requiredKeys.forEach(function(key) {
-        if (!(key in fbData) || !fbData[key]|| _.isEmpty(fbData[key])) {
-            requiredKeysExists = false;
-        }
-    });
-
-    if (!requiredKeysExists) {
-        return null;
-    }
-
-    // We only allow the publicly accessible fields to be POST/PUT.
-    return fblib.publicFeedbackObj(fbData);
-}
-
 
 module.exports = function(server) {
     // Sample usage:
@@ -31,17 +15,15 @@ module.exports = function(server) {
             nickname: 'feedback',
             notes: 'Submit feedback',
             summary: 'Submit feedback for a site page'
+        },
+        validation: {
+            // TODO: use potato-captcha to verify real feedback
+            feedback: { isRequired: true },
+            page_url: { isRequired: true }
         }
     }, db.redisView(function(client, done, req, res, wrap) {
-        var fbData = req.params;
-
-        // TODO: use potato-captcha to verify real feedback
-        var requiredKeys = ['page_url', 'feedback'];
-        fbData = validateFeedback(fbData, requiredKeys);
-        if (!fbData) {
-            res.json(400, {error: 'bad_feedback_data'});
-            return done();
-        }
+        // We only allow the publicly accessible fields to be POST/PUT.
+        var fbData = fblib.publicFeedbackObj(req.params);
 
         // TODO: wrap
         var email = req._email;
