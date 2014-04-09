@@ -78,7 +78,7 @@ module.exports = function(server) {
             // Return a single object.
             (lookup_email ? user.getUserFromEmail : user.getUserFromID)(client, lookup, function(err, obj) {
                 if (err || !obj) {
-                    res.json(400, {error: err || lookup_email ? 'bad_email' : 'bad_id'});
+                    res.json(400, {error: err || (lookup_email ? 'bad_email' : 'bad_id')});
                     done();
                     return;
                 }
