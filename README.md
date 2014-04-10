@@ -98,6 +98,8 @@ To access the shell on stackato:
 
     curl 'http://localhost:5000/game/nutty-ninjas/detail'
 
+## Scripts
+
 ### Grant a user admin privileges
 
     ./scripts/addusertogroup.js cvan@mozilla.com admin
@@ -123,8 +125,7 @@ To access the shell on stackato:
 To flush the db everytime the script is run, add the following to `settings_local.js`:
     `exports.FLUSH_DB_ON_PREFILL = true;`
 
-### Running unit tests
+### Running Tests
 
     cp settings_test.js.dist settings_test.js
-    ./test/redis_start
-    make test
+    npm test
