@@ -17,7 +17,7 @@
     "async": "0.7.x",
     "chai": "1.9.x",
     "mocha": "1.18.x",
-    "persona-faker": "aricha/persona-faker",
+    "persona-faker": "aricha/persona-faker"
   },
   "scripts": {
     "persona-faker": "pushd node_modules/persona-faker && node app.js && pushd",
