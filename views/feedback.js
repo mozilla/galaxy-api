@@ -4,26 +4,26 @@ var db = require('../db');
 var fblib = require('../lib/feedback');
 var userlib = require('../lib/user');
 
-function validatePotatoCaptcha(fbData, potatoCaptchaKeys) {
-    var potatoCaptchaKeysExists = true;
-    potatoCaptchaKeys.forEach(function(key) {
-        if (!(key in fbData) || !fbData[key] || (_.isEmpty(fbData[key]) && key !== 'tuber')) {
-            potatoCaptchaKeysExists = false;
-        }
-    });
+// function validatePotatoCaptcha(fbData, potatoCaptchaKeys) {
+//     var potatoCaptchaKeysExists = true;
+//     potatoCaptchaKeys.forEach(function(key) {
+//         if (!(key in fbData) || !fbData[key] || (_.isEmpty(fbData[key]) && key !== 'tuber')) {
+//             potatoCaptchaKeysExists = false;
+//         }
+//     });
 
-    // tuber's value should always be blank, and sprout's value should always be potato (set by HTML)
-    if (fbData['tuber'] || fbData['sprout'] !== 'potato') {
-         potatoCaptchaKeysExists = false;
-    }
+//     // tuber's value should always be blank, and sprout's value should always be potato (set by HTML)
+//     if (fbData['tuber'] || fbData['sprout'] !== 'potato') {
+//          potatoCaptchaKeysExists = false;
+//     }
 
-    if (!potatoCaptchaKeysExists) {
-        return null;
-    }
+//     if (!potatoCaptchaKeysExists) {
+//         return null;
+//     }
 
-    // We only allow the publicly accessible fields to be POST/PUT.
-    return fblib.publicFeedbackObj(fbData);
-}
+//     // We only allow the publicly accessible fields to be POST/PUT.
+//     return fblib.publicFeedbackObj(fbData);
+// }
 
 module.exports = function(server) {
     // Sample usage:
@@ -44,15 +44,22 @@ module.exports = function(server) {
         // We only allow the publicly accessible fields to be POST/PUT.
 
         var fbData = req.params;
-        var potatoCaptchaKeys = ['sprout', 'tuber'];
-        fbData = validatePotatoCaptcha(fbData, potatoCaptchaKeys);
-        if (!fbData) {
+        // var potatoCaptchaKeys = ['sprout', 'tuber'];
+        // fbData = validatePotatoCaptcha(fbData, potatoCaptchaKeys);
+        // if (!fbData) {
+        //     res.json(400, {error: 'bad_feedback_data'});
+        //     return done();
+        // } else {
+        //     fbData = fblib.publicFeedbackObj(fbData);
+        // }
+
+        if (fbData['tuber'] || fbData['sprout'] !== 'potato') {
             res.json(400, {error: 'bad_feedback_data'});
             return done();
-        } else {
-            fbData = fblib.publicFeedbackObj(fbData);
         }
 
+        fbData = fblib.publicFeedbackObj(fbData);
+        
         // TODO: wrap
         var email = req._email;
 
