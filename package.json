@@ -14,13 +14,15 @@
     "ws": "0.4.x"
   },
   "devDependencies": {
-    "persona-faker": "aricha/persona-faker",
+    "async": "0.7.x",
+    "chai": "1.9.x",
     "mocha": "1.18.x",
-    "chai": "1.9.x"
+    "persona-faker": "aricha/persona-faker",
   },
   "scripts": {
+    "persona-faker": "pushd node_modules/persona-faker && node app.js && pushd",
     "start": "node app.js",
-    "persona-faker": "pushd node_modules/persona-faker && node app.js && pushd"
+    "test": "node test/runner.js"
   },
   "engines": {
     "node": ">=0.10.x",
