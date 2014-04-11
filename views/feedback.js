@@ -4,7 +4,6 @@ var db = require('../db');
 var fblib = require('../lib/feedback');
 var userlib = require('../lib/user');
 
-
 module.exports = function(server) {
     // Sample usage:
     // if the optional parameter '_user' is included, the token must be valid:
@@ -17,13 +16,20 @@ module.exports = function(server) {
             summary: 'Submit feedback for a site page'
         },
         validation: {
-            // TODO: use potato-captcha to verify real feedback
             feedback: { isRequired: true },
             page_url: { isRequired: true }
         }
     }, db.redisView(function(client, done, req, res, wrap) {
         // We only allow the publicly accessible fields to be POST/PUT.
-        var fbData = fblib.publicFeedbackObj(req.params);
+
+        var fbData = req.params;
+        // potato-captcha validation: tuber's value should always be blank, and sprout's value should always be potato (set by HTML)
+        if (fbData.tuber || fb.sprout !== 'potato') {
+            res.json(400, {error: 'bad_feedback_data'});
+            return done();
+        } else {
+            fbData = fblib.publicFeedbackObj(fbData);
+        }
 
         // TODO: wrap
         var email = req._email;
