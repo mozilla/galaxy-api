@@ -24,7 +24,7 @@ module.exports = function(server) {
 
         var fbData = req.params;
         // potato-captcha validation: tuber's value should always be blank, and sprout's value should always be potato (set by HTML)
-        if (fbData['tuber'] || fbData['sprout'] !== 'potato') {
+        if (fbData.tuber || fb.sprout !== 'potato') {
             res.json(400, {error: 'bad_feedback_data'});
             return done();
         } else {
