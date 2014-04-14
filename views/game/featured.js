@@ -120,7 +120,7 @@ module.exports = function(server) {
 
             var scriptManager = db.scriptManager();
 
-            scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank], function(err, result){});
+            scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank]);
 
             genres.forEach(function(genre) {
                 multi.sadd('featured:' + genre, id);
@@ -216,7 +216,7 @@ module.exports = function(server) {
             var scriptManager = db.scriptManager();
 
             if (rank) {
-                scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank], function(err, result){});
+                scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank]);
             }
 
             var multi = client.multi();
@@ -293,7 +293,7 @@ module.exports = function(server) {
 
             var scriptManager = db.scriptManager();
 
-            scriptManager.run('remove_sorted', ['featured-ranked'], [id], function(err, result){});
+            scriptManager.run('remove_sorted', ['featured-ranked'], [id]);
 
             genres.forEach(function(genre) {
                 multi.srem('featured:' + genre, id);
