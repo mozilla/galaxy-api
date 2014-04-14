@@ -6,7 +6,6 @@ var db = require('../../db');
 var gamelib = require('../../lib/game');
 var genrelib = require('../../lib/genre');
 var userlib = require('../../lib/user');
-var Scripto = require('redis-scripto');
 
 
 module.exports = function(server) {
@@ -43,12 +42,6 @@ module.exports = function(server) {
         // If the caller did not specify a genre, we return the list of all
         // the featured games.
         if (!genre) {
-            /*
-            client.hkeys('featured', db.plsNoError(res, done, function(ids) {
-                outputGamesWithIds(ids);
-            }));
-            */
-
             client.zrange('featured-ranked', 0, -1, db.plsNoError(res, done, function(ids) {
                 outputGamesWithIds(ids);
             }));
@@ -127,11 +120,7 @@ module.exports = function(server) {
 
             var scriptManager = db.scriptManager();
 
-            var values = [];
-            values.push(id);
-            values.push(rank);
-
-            scriptManager.run('insert_sorted', ['featured-ranked'], values, function(err, result){});
+            scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank], function(err, result){});
 
             genres.forEach(function(genre) {
                 multi.sadd('featured:' + genre, id);
@@ -186,7 +175,7 @@ module.exports = function(server) {
             },
             rank: {
                 description: 'Game rank',
-                isRequired: true
+                isRequired: false
             },
             genres: {
                 description: 'List of genres',
@@ -226,11 +215,9 @@ module.exports = function(server) {
 
             var scriptManager = db.scriptManager();
 
-            var values = [];
-            values.push(id);
-            values.push(rank);
-
-            scriptManager.run('insert_sorted', ['featured-ranked'], values, function(err, result){});
+            if (rank) {
+                scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank], function(err, result){});
+            }
 
             var multi = client.multi();
             multi.hset('featured', id, JSON.stringify(new_genres));
@@ -306,10 +293,7 @@ module.exports = function(server) {
 
             var scriptManager = db.scriptManager();
 
-            var values = [];
-            values.push(id);
-
-            scriptManager.run('remove_sorted', ['featured-ranked'], values, function(err, result){});
+            scriptManager.run('remove_sorted', ['featured-ranked'], [id], function(err, result){});
 
             genres.forEach(function(genre) {
                 multi.srem('featured:' + genre, id);

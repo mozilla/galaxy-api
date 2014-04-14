@@ -6,6 +6,7 @@ var redis = require('redis');
 
 var utils = require('./lib/utils');
 
+
 var redisURL = url.parse(process.env.REDIS_URL ||
                          process.env.REDISCLOUD_URL ||
                          process.env.REDISTOGO_URL ||
