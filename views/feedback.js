@@ -7,7 +7,7 @@ var userlib = require('../lib/user');
 module.exports = function(server) {
     // Sample usage:
     // if the optional parameter '_user' is included, the token must be valid:
-    // % curl -X POST 'http://localhost:5000/feedback?_user=ssa_token' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"page_url":"http://galaxy.mozilla.org/badpage","feedback":"This page is terrible"}'
+    // % curl -X POST 'http://localhost:5000/feedback?_user=ssa_token' -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"page_url":"http://galaxy.mozilla.org/badpage","feedback":"This page is terrible","sprout": "potato", "tuber":""}'
     server.post({
         url: '/feedback',
         swagger: {
@@ -24,35 +24,25 @@ module.exports = function(server) {
 
         var fbData = req.params;
         // potato-captcha validation: tuber's value should always be blank, and sprout's value should always be potato (set by HTML)
-        if (fbData.tuber || fb.sprout !== 'potato') {
-            res.json(400, {error: 'bad_feedback_data'});
+        if (fbData.tuber || fbData.sprout !== 'potato') {
+            res.json(403, {error: 'bad_feedback_data'});
             return done();
-        } else {
-            fbData = fblib.publicFeedbackObj(fbData);
         }
 
-        // TODO: wrap
+        function feedbackCallback(error, result) {
+            if (error) {
+                res.json(500, {error: 'db_error'});
+            } else {
+                res.json({success: true});
+            }
+            done();
+        }
+
         var email = req._email;
-
-        if (!req._email) {
-            fbData = saveFeedbackAndRespond(fbData);
-            return done();
+        if (email) {
+            fblib.newFeedbackFromUserEmail(client, email, fbData.page_url, fbData.feedback, feedbackCallback);
         } else {
-            userlib.getUserFromEmail(client, email, function(err, result) {
-                if (err || !result) {
-                    res.json(500, {error: err || 'db_error'});
-                    return done();
-                }
-                fbData.user = result.id;
-                fbData = saveFeedbackAndRespond(fbData);
-                return done();
-            });
-        }
-
-        function saveFeedbackAndRespond(feedbackData) {
-            feedbackData = fblib.newFeedback(client, feedbackData);
-            res.json({success: true});
-            return feedbackData;
+            fblib.newAnonymousFeedback(client, fbData.page_url, fbData.feedback, feedbackCallback);
         }
     }));
 };
