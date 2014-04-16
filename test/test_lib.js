@@ -40,7 +40,6 @@ function unitTest(file) {
         mochaProc.stdout.pipe(process.stdout);
         mochaProc.stderr.pipe(process.stderr);
         mochaProc.on('error', function(error) { 
-            console.log('here');
             done(error);
         });
 
