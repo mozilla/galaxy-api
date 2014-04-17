@@ -16,7 +16,7 @@ describe('feedback', function() {
     });
 
     describe('valid feedback', function () {
-        it('should work', function() {
+        it('should work', function(done) {
             var opts = {
                 'feedback': 'This page is terrible',
                 'page_url': 'http://galaxy.mozilla.org/badpage'
@@ -24,6 +24,7 @@ describe('feedback', function() {
             testing.postJSON('feedback', opts, function (error, body) {
                 expect(error).to.not.exist;
                 expect(body.success).to.be.equal(true);
+                done();
             });
         });
     });
