@@ -19,7 +19,8 @@ describe('feedback', function() {
         it('should work', function(done) {
             var opts = {
                 'feedback': 'This page is terrible',
-                'page_url': 'http://galaxy.mozilla.org/badpage'
+                'page_url': 'http://galaxy.mozilla.org/badpage',
+                'sprout': 'potato'
             };
             testing.postJSON('feedback', opts, function (error, body) {
                 expect(error).to.not.exist;
