@@ -15,7 +15,7 @@ describe('feedback', function() {
         done();
     });
 
-    describe('valid feedback', function () {
+    describe('post valid feedback', function () {
         it('should work', function(done) {
             var opts = {
                 'feedback': 'This page is terrible',
