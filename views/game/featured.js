@@ -42,7 +42,7 @@ module.exports = function(server) {
         // If the caller did not specify a genre, we return the list of all
         // the featured games.
         if (!genre) {
-            client.hkeys('featured', db.plsNoError(res, done, function(ids) {
+            client.zrange('featured-ranked', 0, -1, db.plsNoError(res, done, function(ids) {
                 outputGamesWithIds(ids);
             }));
         } else {
@@ -61,7 +61,7 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/featured' -d '_user=ssa_token&game=game_slug&genres=["action"]'
+    // % curl -X POST 'http://localhost:5000/featured' -d '_user=ssa_token&game=game_slug&rank=1&genres=["action"]'
     server.post({
         url: '/featured',
         swagger: {
@@ -78,6 +78,10 @@ module.exports = function(server) {
                 description: 'Game slug',
                 isRequired: true
             },
+            rank: {
+                description: 'Game rank',
+                isRequired: false
+            },
             genres: {
                 description: 'List of genres',
                 isRequired: false
@@ -92,6 +96,8 @@ module.exports = function(server) {
             res.json(400, {error: 'bad_game'});
             return done();
         }
+
+        var rank = DATA.rank || null;
 
         var genres = DATA.genres;
         if (!genres) {
@@ -108,9 +114,13 @@ module.exports = function(server) {
             }
         }
 
-        function addFeatured(client, id, genres) {
+        function addFeatured(client, id, rank, genres) {
             var multi = client.multi();
             multi.hset('featured', id, JSON.stringify(genres));
+
+            var scriptManager = db.scriptManager();
+
+            scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank]);
 
             genres.forEach(function(genre) {
                 multi.sadd('featured:' + genre, id);
@@ -139,14 +149,14 @@ module.exports = function(server) {
                         res.json(400, {error: 'invalid_genres'});
                         return done();
                     }
-                    addFeatured(client, id, genres);
+                    addFeatured(client, id, rank, genres);
                 }));
             }));
         }));
     }));
 
     // Sample usage:
-    // % curl -X PUT 'http://localhost:5000/featured' -d '_user=ssa_token&game=game_slug&genres=["simulation"]'
+    // % curl -X PUT 'http://localhost:5000/featured' -d '_user=ssa_token&game=game_slug&rank=1&genres=["simulation"]'
     server.put({
         url: '/featured',
         swagger: {
@@ -163,6 +173,10 @@ module.exports = function(server) {
                 description: 'Game slug',
                 isRequired: true
             },
+            rank: {
+                description: 'Game rank',
+                isRequired: false
+            },
             genres: {
                 description: 'List of genres',
                 isRequired: false
@@ -177,6 +191,8 @@ module.exports = function(server) {
             res.json(400, {error: 'bad_game'});
             return done();
         }
+
+        var rank = DATA.rank;
 
         var new_genres = DATA.genres;
         if (!new_genres) {
@@ -193,9 +209,15 @@ module.exports = function(server) {
             }
         }
 
-        function editFeatured(client, id, old_genres, new_genres) {
+        function editFeatured(client, id, rank, old_genres, new_genres) {
             var remove_genres = _.difference(old_genres, new_genres);
             var add_genres = _.difference(new_genres, old_genres);
+
+            var scriptManager = db.scriptManager();
+
+            if (rank) {
+                scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank]);
+            }
 
             var multi = client.multi();
             multi.hset('featured', id, JSON.stringify(new_genres));
@@ -230,7 +252,7 @@ module.exports = function(server) {
                         res.json(400, {error: 'invalid_genres'});
                         return done();
                     }
-                    editFeatured(client, id, JSON.parse(genres), new_genres);
+                    editFeatured(client, id, rank, JSON.parse(genres), new_genres);
                 });
             }));
         }));
@@ -268,6 +290,10 @@ module.exports = function(server) {
         function removeFeatured(client, id, genres) {
             var multi = client.multi();
             multi.hdel('featured', id);
+
+            var scriptManager = db.scriptManager();
+
+            scriptManager.run('remove_sorted', ['featured-ranked'], [id]);
 
             genres.forEach(function(genre) {
                 multi.srem('featured:' + genre, id);
