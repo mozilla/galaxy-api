@@ -27,6 +27,7 @@
                 "zh-TW"
             ],
             "name": "Nutty Ninjas", 
+            "number_of_players": "multiplayer",
             "privacy_policy_url": "http://una-org.github.io/demos.html",
             "screenshots": [
                 {
@@ -81,6 +82,7 @@
                 "zh-TW"
             ],
             "name": "Mario Bros",
+            "number_of_players": "1",
             "privacy_policy": "http://cvan.github.io/privacy-policy/",
             "screenshots": [
                 {
@@ -135,6 +137,7 @@
                 "zh-TW"
             ],
             "name": "Left4Dead",
+            "number_of_players": "multiplayer",
             "privacy_policy": "http://cvan.github.io/privacy-policy/",
             "screenshots": [
                 {
@@ -183,6 +186,7 @@
                 "zh-TW"
             ],
             "name": "Minecraft",
+            "number_of_players": "multiplayer",
             "privacy_policy": "http://cvan.github.io/privacy-policy/",
             "screenshots": [
                 {
@@ -233,6 +237,7 @@
                 "zh-TW"
             ],
             "name": "Paper Please",
+            "number_of_players": "1",
             "privacy_policy": "http://cvan.github.io/privacy-policy/",
             "screenshots": [
                 {
@@ -276,6 +281,7 @@
                 "zh-TW"
             ],
             "name": "Batman Arkham Asylum",
+            "number_of_players": "1",
             "privacy_policy": "http://cvan.github.io/privacy-policy/",
             "screenshots": [
                 {
@@ -319,6 +325,7 @@
                 "zh-TW"
             ],
             "name": "Batman Arkham City",
+            "number_of_players": "1",
             "privacy_policy": "http://cvan.github.io/privacy-policy/",
             "screenshots": [
                 {
@@ -367,6 +374,7 @@
                 "zh-TW"
             ],
             "name": "Batman Arkham Knight",
+            "number_of_players": "1",
             "privacy_policy": "http://cvan.github.io/privacy-policy/",
             "screenshots": [
                 {
@@ -407,6 +415,7 @@
                 "zh-TW"
             ],
             "name": "2048",
+            "number_of_players": "1",
             "privacy_policy": "http://cvan.github.io/privacy-policy/",
             "screenshots": [
                 {
@@ -446,7 +455,8 @@
                 "it",
                 "zh-TW"
             ],
-            "name": "2048",
+            "name": "Flappy Bird",
+            "number_of_players": "1",
             "privacy_policy": "http://cvan.github.io/privacy-policy/",
             "screenshots": [
                 {
