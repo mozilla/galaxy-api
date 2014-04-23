@@ -120,7 +120,12 @@ module.exports = function(server) {
 
             var scriptManager = db.scriptManager();
 
-            scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank]);
+            if (rank) {
+                scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank]);
+            } else {
+                scriptManager.run('insert_sorted', ['featured-ranked'], [id]);
+            }
+            
 
             genres.forEach(function(genre) {
                 multi.sadd('featured:' + genre, id);
