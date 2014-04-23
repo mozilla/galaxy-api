@@ -97,7 +97,7 @@ module.exports = function(server) {
             return done();
         }
 
-        var rank = DATA.rank || null;
+        var rank = DATA.rank || -1;
 
         var genres = DATA.genres;
         if (!genres) {
@@ -120,12 +120,7 @@ module.exports = function(server) {
 
             var scriptManager = db.scriptManager();
 
-            if (rank) {
-                scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank]);
-            } else {
-                scriptManager.run('insert_sorted', ['featured-ranked'], [id]);
-            }
-            
+            scriptManager.run('insert_sorted', ['featured-ranked'], [id, rank]);           
 
             genres.forEach(function(genre) {
                 multi.sadd('featured:' + genre, id);
