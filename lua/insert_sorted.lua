@@ -6,7 +6,7 @@ local count = redis.call("ZCARD", key)
 local curPosition = redis.call("ZSCORE", key, member)
 
 -- if no position is given
-if (score == -1) then
+if ((score + 1) == 0) then
   if (curPosition ~= false) then
     return 0
   else
