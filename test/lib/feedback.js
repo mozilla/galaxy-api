@@ -104,7 +104,7 @@ describe('feedback', function() {
             }
 
             function addFeedback(i) {
-                if (i >= feedbacks.length) {
+                if (i === feedbacks.length) {
                     done();
                     return;
                 }
