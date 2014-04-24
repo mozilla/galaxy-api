@@ -18,7 +18,8 @@ module.exports = function(server) {
         validation: {
             // TODO: Validate each field of the game (#122)
             app_url: { isRequired: true },
-            homepage_url: { isRequired: true },
+            description: { isRequired: true },
+            genre: { isRequired: true },
             icons: { isRequired: true },
             name: { isRequired: true },
             number_of_players: { isRequired: true },
@@ -49,7 +50,8 @@ module.exports = function(server) {
         validation: {
             // TODO: Validate each field of the game (#122)
             app_url: { isRequired: true },
-            homepage_url: { isRequired: true },
+            description: { isRequired: true },
+            genre: { isRequired: true },
             icons: { isRequired: true },
             name: { isRequired: true },
             number_of_players: { isRequired: true },
