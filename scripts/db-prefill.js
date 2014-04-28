@@ -1,13 +1,3 @@
-#!/usr/bin/env node
-
-/*
-
-    Usage:
-
-        ./scripts/db-prefill.js
-
-*/
-
 var child_process = require('child_process');
 var path = require('path');
 var stream = require('stream');
@@ -16,9 +6,7 @@ var _ = require('lodash');
 var Promise = require('es6-promise').Promise;
 var request = require('request');
 
-var db = require('../db');
 var settings = require('../settings');
-var settings_local = require('../settings_local');
 var userlib = require('../lib/user');
 var utils = require('../lib/utils');
 
@@ -50,19 +38,7 @@ const PREFILL_NAMESPACE = 'galaxy-db-prefill';
 const SIGNAL_NAMES = ['api', 'persona-faker'];
 
 
-var client = db.redis();
-client.on('ready', function() {
-    if (settings_local.FLUSH_DB_ON_PREFILL) {
-        // FIXME: this doesn't work when the script is called
-        // from outside the root directory for some reason
-        console.log('flushing db...');
-        client.flushdb(run);
-    } else {
-        run();
-    }
-});
-
-function run() {
+function run(client) {
     _.defaults(prefillData, {
         games: [],
         numUsers: 0,
@@ -98,7 +74,7 @@ function run() {
         console.log('waiting for servers to finish launching...');
     }).then(function(result) {
         console.log('starting prefill...');
-        startRequests();
+        startRequests(client);
     }).catch(function(err) {
         console.error(err);
         process.exit(1);
@@ -158,10 +134,10 @@ function run() {
         }));
     }
 
-    function startRequests() {
+    function startRequests(client) {
         utils.promiseMap({
-            users: createUsers(), 
-            games: createGames()
+            users: createUsers(client), 
+            games: createGames(client)
         }).then(function(result) {
             var gameSlugs = result.games.map(function(json) { return json.slug; });
             var userSSAs = result.users.map(function(user) { return user.token; });
@@ -183,6 +159,7 @@ function run() {
         });
     };
 }
+exports.run = run;
 
 /*** Prefill Logic ***/
 
@@ -206,14 +183,16 @@ function createUser(email) {
         });
     };
 };
+exports.createUser = createUser;
 
-function createUsers() {
+function createUsers(client) {
     return Promise.all(_.times(prefillData.numUsers, function(i) {
         return createUser('test' + i + '@test.com');
     }));
 }
+exports.createUsers = createUsers;
 
-function createTestDeveloper() {
+function createTestDeveloper(client) {
     var email = 'test_developer' + Math.round(Math.random() * 1000) + '@test.com';
     return createUser(email).then(function(user) {
         return new Promise(function(resolve, reject) {
@@ -233,9 +212,10 @@ function createTestDeveloper() {
         });
     });
 }
+exports.createTestDeveloper = createTestDeveloper;
 
-function createGames() {
-    return createTestDeveloper().then(function(devUser) {
+function createGames(client) {
+    return createTestDeveloper(client).then(function(devUser) {
         return Promise.all(prefillData.games.map(function(game) {
             game._user = devUser.token;
             return postPromise(API_ENDPOINT + '/game/submit', game, true)
@@ -245,6 +225,7 @@ function createGames() {
         }));
     });
 }
+exports.createGames = createGames;
 
 function purchaseGames(userSSAs, gameSlugs) {
     var promises = _.flatten(userSSAs.map(function(user) {
@@ -262,6 +243,7 @@ function purchaseGames(userSSAs, gameSlugs) {
 
     return Promise.all(promises);
 }
+exports.purchaseGames = purchaseGames;
 
 function createFriends(users) {
     function sendRequests(user) {
@@ -326,6 +308,7 @@ function createFriends(users) {
     });
     return Promise.all(promises).then(_.flatten);
 }
+exports.createFriends = createFriends;
 
 // Helper function that returns a promise for a post
 function postPromise(url, form, asJson) {
