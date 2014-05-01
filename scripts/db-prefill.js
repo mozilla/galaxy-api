@@ -74,7 +74,7 @@ function run(client) {
         console.log('waiting for servers to finish launching...');
     }).then(function(result) {
         console.log('starting prefill...');
-        startRequests(client);
+        startRequests();
     }).catch(function(err) {
         console.error(err);
         process.exit(1);
@@ -134,7 +134,7 @@ function run(client) {
         }));
     }
 
-    function startRequests(client) {
+    function startRequests() {
         utils.promiseMap({
             users: createUsers(client),
             games: createGames(client)
@@ -157,23 +157,20 @@ function run(client) {
             console.error('Error running prefill:', err);
             process.exit(1);
         });
-    };
+    }
 }
 exports.run = run;
 
 /*** Prefill Logic ***/
 
-function createUserWithoutLogin(email) {
+exports.createUserWithoutLogin = function (email) {
     return postPromise(PERSONA_ENDPOINT + '/generate', {
         email: email
     });
 }
-exports.createUserWithoutLogin = createUserWithoutLogin;
 
 function createUser(email) {
-    return createUserWithoutLogin(email).then(login);
-
-    function login(emailAssertion) {
+    return createUserWithoutLogin(email).then(function (emailAssertion) {
         var assertion = emailAssertion.assertion;
         return postPromise(API_ENDPOINT + '/user/login', {
             assertion: assertion,
@@ -186,16 +183,14 @@ function createUser(email) {
                 id: result.public.id
             };
         });
-    };
-};
-exports.createUser = createUser;
+    });
+}
 
 function createUsers(client) {
     return Promise.all(_.times(prefillData.numUsers, function(i) {
         return createUser('test' + i + '@test.com');
     }));
 }
-exports.createUsers = createUsers;
 
 function createTestDeveloper(client) {
     var email = 'test_developer' + Math.round(Math.random() * 1000) + '@test.com';
@@ -217,7 +212,6 @@ function createTestDeveloper(client) {
         });
     });
 }
-exports.createTestDeveloper = createTestDeveloper;
 
 function createGames(client) {
     return createTestDeveloper(client).then(function(devUser) {
@@ -230,7 +224,6 @@ function createGames(client) {
         }));
     });
 }
-exports.createGames = createGames;
 
 function purchaseGames(userSSAs, gameSlugs) {
     var promises = _.flatten(userSSAs.map(function(user) {
@@ -248,7 +241,6 @@ function purchaseGames(userSSAs, gameSlugs) {
 
     return Promise.all(promises);
 }
-exports.purchaseGames = purchaseGames;
 
 function createFriends(users) {
     function sendRequests(user) {
@@ -313,7 +305,6 @@ function createFriends(users) {
     });
     return Promise.all(promises).then(_.flatten);
 }
-exports.createFriends = createFriends;
 
 // Helper function that returns a promise for a post
 function postPromise(url, form, asJson) {

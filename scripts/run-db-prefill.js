@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 
 /*
-
-    Usage:
-
-        ./scripts/run-db-prefill.js
-
-*/
+    Usage: ./scripts/run-db-prefill.js
+ */
 
 var db = require('../db');
 var prefill = require('./db-prefill');
@@ -18,7 +14,7 @@ client.on('ready', function() {
         // FIXME: this doesn't work when the script is called
         // from outside the root directory for some reason
         console.log('flushing db...');
-        client.flushdb(run);
+        client.flushdb(prefill.run);
     } else {
         prefill.run(client);
     }
