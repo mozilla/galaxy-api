@@ -131,7 +131,17 @@ module.exports = function(server) {
                                             reject(err);
                                         } else {
                                             game.queuePosition = rank + 1;
-                                            resolve(game);
+                                            client.zscore('gamesByStatus:pending', game.id,
+                                                function(err, score) {
+                                                    if (err) {
+                                                        reject(err);
+                                                    } else {
+                                                        var waitingTime = new Date();
+                                                        waitingTime.setTime(score);
+                                                        game.waitingTime = waitingTime;
+                                                        resolve(game);
+                                                    }
+                                            });
                                         }
                                 });
                             } else {
