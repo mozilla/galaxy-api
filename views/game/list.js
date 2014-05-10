@@ -129,20 +129,20 @@ module.exports = function(server) {
                                     function(err, rank) {
                                         if (err) {
                                             reject(err);
-                                        } else {
-                                            game.queuePosition = rank + 1;
-                                            client.zscore('gamesByStatus:pending', game.id,
-                                                function(err, score) {
-                                                    if (err) {
-                                                        reject(err);
-                                                    } else {
-                                                        var waitingTime = new Date();
-                                                        waitingTime.setTime(score);
-                                                        game.waitingTime = waitingTime;
-                                                        resolve(game);
-                                                    }
-                                            });
+                                            return;
                                         }
+                                        game.queuePosition = rank + 1;
+                                        client.zscore('gamesByStatus:pending', game.id,
+                                            function(err, score) {
+                                                if (err) {
+                                                    reject(err);
+                                                    return;
+                                                }
+                                                var waitingTime = new Date();
+                                                waitingTime.setTime(score);
+                                                game.waitingTime = waitingTime;
+                                                resolve(game);
+                                        });
                                 });
                             } else {
                                 resolve(game);
