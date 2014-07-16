@@ -20,10 +20,10 @@ module.exports = function(server) {
             app_url: { isRequired: true },
             description: { isRequired: true },
             genre: { isRequired: true },
-            icons: { isRequired: true },
+            icon_file: { isRequired: true },
             name: { isRequired: true },
             number_of_players: { isRequired: true },
-            screenshots: { isRequired: true }
+            screenshot_file: { isRequired: true }
         }
     }, userlib.userDataView(function(user, client, done, req, res) {
         if (!user.permissions || (!user.permissions.admin && !user.permissions.developer)) {
