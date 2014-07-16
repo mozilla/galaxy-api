@@ -27,6 +27,42 @@ nodemon app.js
 ```
 
 
+## Settings
+
+For database and authentication settings, this is the process we take for
+resolving setting values:
+
+1. Check for the setting as an environment variable.
+2. Check for the setting in `settings_local.js`.
+3. Check for the setting in `settings.js`.
+
+
+## Database
+
+We use Redis as a data store. `redis://localhost:6379` is the default.
+To change the credentials, set an environment variable, like so:
+
+    export REDIS_URL='redis://[db-number[:password]@]host:port'
+
+Or use this format:
+
+    export REDIS_URL='redis://[[:password]@]host:port/[db-number]'
+
+All fields after the scheme are optional and will default to
+`localhost` on port `6379`, using database `0`.
+
+
+## Authentication
+
+We use [Persona](https://login.persona.org/) for authentication.
+
+In production, make sure that these are set correctly:
+
+    export DEBUG=''
+    export ORIGIN='https://api.galaxy.mozilla.org'
+    export PERSONA_VERIFICATION_URL='https://verifier.login.persona.org/verify'
+
+
 ## Deployment
 
 We use stackato:

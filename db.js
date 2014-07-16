@@ -23,11 +23,60 @@ function scriptManager() {
 }
 exports.scriptManager = scriptManager;
 
+// lol
+var redisURL = urllib.parse(process.env.REDIS_URL ||
+                            process.env.REDISCLOUD_URL ||
+                            process.env.REDISTOGO_URL ||
+                            settings_local.REDIS_URL ||
+                            settings_local.REDISCLOUD_URL ||
+                            settings_local.REDISTOGO_URL ||
+                            settings.REDIS_URL ||
+                            settings.REDISCLOUD_URL ||
+                            settings.REDISTOGO_URL ||
+                            'redis://localhost:6379');
+
+// Examples:
+//
+//     export REDIS_URL='redis://[db-number[:password]@]host:port'
+//     export REDIS_URL='redis://[[:password]@]host:port/[db-number]'
+//
+// All fields after the scheme are optional and will default to
+// `localhost` on port `6379`, using database `0`.
+//
+// Default:
+//
+//     export REDIS_URL='redis://localhost:6379'
+//
+
 function redisClient() {
-    var client = redis.createClient(redisURL.port, redisURL.hostname);
-    if (redisURL.auth) {
-        client.auth(redisURL.auth.split(':')[1]);
+    var client = redis.createClient(parseInt(redisURL.port || '6379', 10),
+        redisURL.hostname || 'localhost');
+
+    var redisAuth = (redisURL.auth || '').split(':');
+    var db = redisAuth[0];
+    var passwd = redisAuth[1];
+
+    if (passwd = redisAuth[1]) {
+        client.auth(passwd, function (err) {
+            if (err) {
+                throw err;
+            }
+        });
     }
+
+    if (!db && redisURL.pathname && redisURL.pathname !== '/') {
+        db = redisURL.pathname.substring(1);
+    }
+
+    if (db) {
+        client.select(db);
+        client.on('connect', function () {
+            redis.send_anyways = true;
+            redis.select(db);
+            redis.send_anyways = false;
+        });
+    }
+
     return client;
 }
 exports.redis = redisClient;
