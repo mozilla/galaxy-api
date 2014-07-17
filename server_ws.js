@@ -8,7 +8,7 @@ var auth = require('./lib/auth');
 var user = require('./lib/user');
 
 module.exports.listen = function(cb) {
-    var host = serverHTTP.url.replace(/https?:\/\//, 'ws://');
+    var host = serverHTTP.url.replace(/^http/, 'ws');  // http:// -> ws://, https:// -> wss://
     var wss = new WebSocketServer({server: serverHTTP});
 
     wss.on('connection', function(ws) {
