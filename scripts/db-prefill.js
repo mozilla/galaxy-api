@@ -18,7 +18,6 @@ var request = require('request');
 
 var db = require('../db');
 var settings = require('../settings');
-var settings_local = require('../settings_local');
 var userlib = require('../lib/user');
 var utils = require('../lib/utils');
 
@@ -52,7 +51,7 @@ const SIGNAL_NAMES = ['api', 'persona-faker'];
 
 var client = db.redis();
 client.on('ready', function() {
-    if (settings_local.FLUSH_DB_ON_PREFILL) {
+    if (settings.FLUSH_DB_ON_PREFILL) {
         // FIXME: this doesn't work when the script is called
         // from outside the root directory for some reason
         console.log('flushing db...');

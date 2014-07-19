@@ -4,7 +4,7 @@ var restifyValidation = require('node-restify-validation');
 
 var auth = require('./lib/auth');
 var pkg = require('./package');
-var settings = require('./settings_local');
+var settings = require('./settings');
 
 var server = restify.createServer({
     name: pkg.name,

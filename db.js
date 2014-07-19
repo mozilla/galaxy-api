@@ -6,11 +6,10 @@ var redis = require('redis');
 
 var utils = require('./lib/utils');
 
+var settings = require('./settings');
 
-var redisURL = url.parse(process.env.REDIS_URL ||
-                         process.env.REDISCLOUD_URL ||
-                         process.env.REDISTOGO_URL ||
-                         '');
+
+var redisURL = url.parse(settings.REDIS_URL);
 redisURL.hostname = redisURL.hostname || 'localhost';
 redisURL.port = redisURL.port || 6379;
 
@@ -24,16 +23,7 @@ function scriptManager() {
 exports.scriptManager = scriptManager;
 
 // lol
-var redisURL = urllib.parse(process.env.REDIS_URL ||
-                            process.env.REDISCLOUD_URL ||
-                            process.env.REDISTOGO_URL ||
-                            settings_local.REDIS_URL ||
-                            settings_local.REDISCLOUD_URL ||
-                            settings_local.REDISTOGO_URL ||
-                            settings.REDIS_URL ||
-                            settings.REDISCLOUD_URL ||
-                            settings.REDISTOGO_URL ||
-                            'redis://localhost:6379');
+var redisURL = url.parse(settings.REDIS_URL);
 
 // Examples:
 //

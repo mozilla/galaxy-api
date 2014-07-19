@@ -1,4 +1,4 @@
-var settings = require('./settings_local.js');
+var settings = require('./settings.js');
 
 var db = require('./db');
 var serverHTTP = require('./server_http');
@@ -39,7 +39,7 @@ serverHTTP.get('/', function(req, res) {
     res.end();
 });
 
-serverHTTP.listen(process.env.PORT || 5000, function() {
+serverHTTP.listen(settings.PORT, function() {
     console.log('%s HTTP server listening at %s', serverName, serverHTTP.url);
     if (process.env.DB_PREFILL) {
         var client = db.redis();
