@@ -31,19 +31,14 @@ nodemon app.js
 
 The local settings file is configured with the environment variable, `GALAXY_API_SETTINGS`.
 
-`export GALAXY_API_SETTINGS=/etc/galaxy-api.js`
-
-For database and authentication settings, this is the process we take for
-resolving setting values:
-
-1. Check for the setting in `GALAXY_API_SETTINGS`.
-2. Check for the setting in `settings.js`.
-
+```
+export GALAXY_API_SETTINGS=/etc/galaxy-api.js
+```
 
 ## Database
 
 We use Redis as a data store. `redis://localhost:6379` is the default.
-To change the credentials, override the variable in `GALAXY_API_SETTINGS`, like so:
+To change the credentials, override the variable in file defined in the `GALAXY_API_SETTINGS` environment variable, like so:
 
     exports.REDIS_URL='redis://[db-number[:password]@]host:port';
 
@@ -61,9 +56,9 @@ We use [Persona](https://login.persona.org/) for authentication.
 
 In production, make sure that these are set correctly:
 
-    exports.DEBUG=''
-    exports.ORIGIN='https://api.galaxy.mozilla.org'
-    exports.PERSONA_VERIFICATION_URL='https://verifier.login.persona.org/verify'
+    exports.DEBUG = false;
+    exports.ORIGIN = 'https://api.galaxy.mozilla.org';
+    exports.PERSONA_VERIFICATION_URL = 'https://verifier.login.persona.org/verify';
 
 
 ## Deployment
