@@ -29,22 +29,24 @@ nodemon app.js
 
 ## Settings
 
-The local settings file is configured with the environment variable, `GALAXY_API_SETTINGS`.
+Create a local settings file:
 
-```
-export GALAXY_API_SETTINGS=/etc/galaxy-api.js
-```
+    cp settings_local.js.dist settings_local.js
+
+Then specify the path to the settings file by using the environment variable, `GALAXY_API_SETTINGS`:
+
+    export GALAXY_API_SETTINGS=$(pwd)'/settings_local.js'
+
 
 ## Database
 
-We use Redis as a data store. `redis://localhost:6379` is the default.
-To change the credentials, override the variable in file defined in the `GALAXY_API_SETTINGS` environment variable, like so:
+We use Redis as a data store. `redis://localhost:6379` is the default. To change the credentials, edit `REDIS_URL` in your settings file, like so:
 
-    exports.REDIS_URL='redis://[db-number[:password]@]host:port';
+    exports.REDIS_URL = 'redis://[db-number[:password]@]host:port';
 
 Or use this format:
 
-    exports.REDIS_URL='redis://[[:password]@]host:port/[db-number]';
+    exports.REDIS_URL = 'redis://[[:password]@]host:port/[db-number]';
 
 All fields after the scheme are optional and will default to
 `localhost` on port `6379`, using database `0`.
@@ -62,6 +64,9 @@ In production, make sure that these are set correctly:
 
 
 ## Deployment
+
+In production, check the settings file and make sure `exports.SECRET` is
+set to something other than the default.
 
 We use stackato:
 
