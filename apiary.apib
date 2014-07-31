@@ -13,11 +13,11 @@ Galaxy API is based on REST principles. The current version of Galaxy API is ver
 # Group Game
 Game related resources of the **Galaxy API**
 
-## Game Detail [/game/{game-slug}/detail]
+## Game Detail [/game/{game_slug}/detail]
 ### Get details of a game [GET]
 
 + Parameter
-    + game-slug (required, string, `mario-bros`) ... `game-slug` of the game to fetch detail of.
+    + game_slug (required, string, `mario-bros`) ... `game_slug` of the game to fetch detail of.
 
 + Response 200 (application/json)
 
@@ -156,10 +156,10 @@ Game related resources of the **Galaxy API**
             slug: "left-5-dead"
         }]
 
-## Game Moderation [/{game-slug}/{action}]
+## Game Moderation [/{game_slug}/{action}]
 ### Change a game to specified status [GET]
 + Parameter
-    + game-slug (required, string, `mario-bros`) ... `game-slug` of the game to moderate.
+    + game_slug (required, string, `mario-bros`) ... `game_slug` of the game to moderate.
     + action (required, string, `approve`) ... `action` to be performed on the game.
 
 + Response 200 (application/json)
@@ -267,7 +267,7 @@ Game related resources of the **Galaxy API**
             ]
         }
 
-## Game Editing [/game/{game-slug}/edit]
+## Game Editing [/game/{game_slug}/edit]
 ### Edit a game [PUT]
 ####Data parameters:
 
@@ -298,7 +298,7 @@ Game related resources of the **Galaxy API**
 `videos`: list of game demo videos
 
 + Parameter
-    + game-slug (required, string, `mario-bros`) ... `game-slug` of the game to edit.
+    + game_slug (required, string, `mario-bros`) ... `game_slug` of the game to edit.
 
 + Request (application/json)
 
