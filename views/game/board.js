@@ -8,9 +8,9 @@ var user = require('../../lib/user');
 
 module.exports = function(server) {
     // Sample usage:
-    // % curl 'http://localhost:5000/game/mario-bros/board'
+    // % curl 'http://localhost:5000/game/mario-bros/boards'
     server.get({
-        url: '/game/:game/board',
+        url: '/game/:game/boards',
         swagger: {
             nickname: 'get-board',
             notes: 'Returns a list of the leaderboards boards that are ' +
@@ -60,9 +60,9 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/game/mario-bros/board' -d 'name=Warios Smashed&slug=warios-smashed'
+    // % curl -X POST 'http://localhost:5000/game/mario-bros/boards' -d 'name=Warios Smashed&slug=warios-smashed'
     server.post({
-        url: '/game/:game/board',
+        url: '/game/:game/boards',
         swagger: {
             nickname: 'create-board',
             notes: 'Creates a leaderboard board for a particular game.',
@@ -110,9 +110,9 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl -X DELETE 'http://localhost:5000/game/mario-bros/board' -d 'slug=warios-smashed'
+    // % curl -X DELETE 'http://localhost:5000/game/mario-bros/boards/warios-smashed'
     server.del({
-        url: '/game/:game/board',
+        url: '/game/:game/boards/:slug',
         swagger: {
             nickname: 'delete-board',
             notes: 'Removes a leaderboard from a particular game.',
@@ -150,7 +150,7 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl -X POST 'http://localhost:5000/game/mario-bros/score' -d 'slug=warios-smashed&value=100'
+    // % curl -X POST 'http://localhost:5000/game/mario-bros/boards/warios-smashed/score'
     //
     // Note: `navigator.game.updateScore` also calls `user.updateLeaderboard`:
     // https://github.com/mozilla/galaxy-api/blob/84ad70c1/server_ws.js
@@ -159,7 +159,7 @@ module.exports = function(server) {
     // TODO: Figure out how to thwart cheating. That's why we didn't expose
     // this endpoint in the first place.
     server.post({
-        url: '/game/:game/board/:board/score',
+        url: '/game/:game/boards/:board/score',
         swagger: {
             nickname: 'increment-score',
             notes: 'Updates the score for a leaderboard board for a particular game.',
@@ -206,10 +206,10 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
-    // % curl 'http://localhost:5000/game/mario-bros/board/warios-smashed'
-    // % curl 'http://localhost:5000/game/mario-bros/board/warios-smashed?sort=asc&friendsOnly=true&_user=ssa_token'
+    // % curl 'http://localhost:5000/game/mario-bros/boards/warios-smashed'
+    // % curl 'http://localhost:5000/game/mario-bros/boards/warios-smashed?sort=asc&friendsOnly=true&_user=ssa_token'
     server.get({
-        url: '/game/:game/board/:board',
+        url: '/game/:game/boards/:board',
         swagger: {
             nickname: 'get-scores',
             notes: 'Returns the list of scores of a particular leaderboard',
