@@ -22,21 +22,21 @@ Game related resources of the **Galaxy API**
 + Response 200 (application/json)
 
         {
-            app_url: "http://nuttyninjas.com/",
-            artwork: {
-                background: "background.jpg"
+            "app_url": "http://nuttyninjas.com/",
+            "artwork": {
+                "background": "background.jpg"
             },
-            created: "2014-02-27T02:28:23.244Z",
-            description: "Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
-            developer: {
-                name: "Yang Shun",
-                url: "http://yangshun.im/"
+            "created": "2014-02-27T02:28:23.244Z",
+            "description": "Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
+            "developer": {
+                "name": "Yang Shun",
+                "url": "http://yangshun.im/"
             },
-            genre: "action",
-            icons: "http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
-            name: "Nutty Ninjas",
-            privacy_policy_url: "http://una-org.github.io/demos.html",
-            screenshots: [
+            "genre": "action",
+            "icons": "http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
+            "name": "Nutty Ninjas",
+            "privacy_policy_url": "http://una-org.github.io/demos.html",
+            "screenshots": [
                 "http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg",
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg",
@@ -47,13 +47,13 @@ Game related resources of the **Galaxy API**
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg"
             ],
-            status: "pending",
-            slug: "nutty-ninjas",
-            videos: [
+            "status": "pending",
+            "slug": "nutty-ninjas",
+            "videos": [
                 "http://www.youtube.com/embed/4kvT0dywaF8",
                 "http://www.youtube.com/embed/1Sow2O8D9Ok"
             ],
-            id: "463ae91d-4e86-476a-b44a-86fe3aa10f05"
+            "id": "463ae91d-4e86-476a-b44a-86fe3aa10f05"
         }
 
 
@@ -85,10 +85,10 @@ Game related resources of the **Galaxy API**
 + Request (application/x-www-form-urlencoded)
 
         _user=00000000&game=mario-bros&genres=["action"]
-        
+
 + Response 200 (application/json)
-        
-        {success: true}
+
+        {"success": true}
 
 ### Change the genre of an existing featured game [PUT]
 #### Data parameters:
@@ -105,9 +105,10 @@ Game related resources of the **Galaxy API**
         
 + Response 200 (application/json)
         
-        {success: true}
+        {"success": true}
 
 ### Remove an existing featured game [DELETE]
+
 #### Data parameters:
 
 `_user`: ssa token of the currently logged-in user. **[required]**
@@ -117,11 +118,10 @@ Game related resources of the **Galaxy API**
 + Request (application/x-www-form-urlencoded)
 
         _user=00000000&game=mario-bros
-        
 
 + Response 200 (application/json)
         
-        {success: true}
+        {"success": true}
 
 ## Games List [/list]
 ### Get the list of games matching provided filters [GET]
@@ -140,24 +140,29 @@ Game related resources of the **Galaxy API**
 
 + Response 200 (application/json)
         
-        [{
-            app_url: "http://halo.com",
-            created: "2014-02-25T07:43:31.348Z",
-            icons: "128",
-            name: "Halo 718",
-            screenshots: "yes",
-            slug: "halo-718"
-        },{
-            app_url: "http://dead.left",
-            created: "2014-02-25T08:17:54.938Z",
-            icons: "128",
-            name: "Left 5 Dead",
-            screenshots: "yes",
-            slug: "left-5-dead"
-        }]
+        [
+            {
+                "app_url": "http://halo.com",
+                "created": "2014-02-25T07:43:31.348Z",
+                "icons": "128",
+                "name": "Halo 718",
+                "screenshots": "yes",
+                "slug": "halo-718"
+            },
+            {
+                "app_url": "http://dead.left",
+                "created": "2014-02-25T08:17:54.938Z",
+                "icons": "128",
+                "name": "Left 5 Dead",
+                "screenshots": "yes",
+                "slug": "left-5-dead"
+            }
+        ]
 
 ## Game Moderation [/{game_slug}/{action}]
+
 ### Change a game to specified status [GET]
+
 + Parameter
     + game_slug (required, string, `mario-bros`) ... `game_slug` of the game to moderate.
     + action (required, string, `approve`) ... `action` to be performed on the game.
@@ -167,7 +172,9 @@ Game related resources of the **Galaxy API**
         {success: true}
 
 ## Game Submission [/game/submit]
+
 ### Submit a game [POST]
+
 ####Data parameters:
 
 `_user`: ssa token of the current logged-in user **[required]**
@@ -199,21 +206,21 @@ Game related resources of the **Galaxy API**
 + Request (application/json)
 
         {
-            "app_url":"http://nuttyninjas.com/",
-            "artwork":{
-                "background":"background.jpg"
+            "app_url": "http://nuttyninjas.com/",
+            "artwork": {
+                "background": "background.jpg"
             },
-            "description":"Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
-            "developer":{
-                "name":"Yang Shun",
-                "url":"http://yangshun.im/"
+            "description": "Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
+            "developer": {
+                "name": "Yang Shun",
+                "url": "http://yangshun.im/"
             },
-            "genre":"action",
-            "homepage_url":"http://www.nuttyninjas.com",
-            "icons":"http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
-            "name":"Nutty Ninjas",
-            "privacy_policy_url":"http://una-org.github.io/demos.html",
-            "screenshots":[
+            "genre": "action",
+            "homepage_url": "http://www.nuttyninjas.com",
+            "icons": "http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
+            "name": "Nutty Ninjas",
+            "privacy_policy_url": "http://una-org.github.io/demos.html",
+            "screenshots": [
                 "http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg",
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg",
@@ -224,8 +231,8 @@ Game related resources of the **Galaxy API**
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg"
             ],
-            "slug":"nutty-ninjas",
-            "videos":[
+            "slug": "nutty-ninjas",
+            "videos": [
                 "http://www.youtube.com/embed/4kvT0dywaF8",
                 "http://www.youtube.com/embed/1Sow2O8D9Ok"
             ]
@@ -235,21 +242,21 @@ Game related resources of the **Galaxy API**
 + Response 200 (application/json)
         
         {
-            "app_url":"http://nuttyninjas.com/",
-            "artwork":{
-                "background":"background.jpg"
+            "app_url": "http://nuttyninjas.com/",
+            "artwork": {
+                "background": "background.jpg"
             },
-            "description":"Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
-            "developer":{
-                "name":"Yang Shun",
-                "url":"http://yangshun.im/"
+            "description": "Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
+            "developer": {
+                "name": "Yang Shun",
+                "url": "http://yangshun.im/"
             },
-            "genre":"action",
-            "homepage_url":"http://www.nuttyninjas.com",
-            "icons":"http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
-            "name":"Nutty Ninjas",
-            "privacy_policy_url":"http://una-org.github.io/demos.html",
-            "screenshots":[
+            "genre": "action",
+            "homepage_url": "http://www.nuttyninjas.com",
+            "icons": "http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
+            "name": "Nutty Ninjas",
+            "privacy_policy_url": "http://una-org.github.io/demos.html",
+            "screenshots": [
                 "http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg",
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg",
@@ -260,16 +267,18 @@ Game related resources of the **Galaxy API**
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg"
             ],
-            "slug":"nutty-ninjas",
-            "videos":[
+            "slug": "nutty-ninjas",
+            "videos": [
                 "http://www.youtube.com/embed/4kvT0dywaF8",
                 "http://www.youtube.com/embed/1Sow2O8D9Ok"
             ]
         }
 
 ## Game Editing [/game/{game_slug}/edit]
+
 ### Edit a game [PUT]
-####Data parameters:
+
+#### Data parameters:
 
 `_user`: ssa token of the current logged-in user **[required]**
 
@@ -303,21 +312,21 @@ Game related resources of the **Galaxy API**
 + Request (application/json)
 
         {
-            "app_url":"http://nuttyninjas.com/",
-            "artwork":{
-                "background":"background.jpg"
+            "app_url": "http://nuttyninjas.com/",
+            "artwork": {
+                "background": "background.jpg"
             },
-            "description":"Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
-            "developer":{
-                "name":"Yang Shun",
-                "url":"http://yangshun.im/"
+            "description": "Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
+            "developer": {
+                "name": "Yang Shun",
+                "url": "http://yangshun.im/"
             },
-            "genre":"action",
-            "homepage_url":"http://www.nuttyninjas.com",
-            "icons":"http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
-            "name":"Nutty Ninjas",
-            "privacy_policy_url":"http://una-org.github.io/demos.html",
-            "screenshots":[
+            "genre": "action",
+            "homepage_url": "http://www.nuttyninjas.com",
+            "icons": "http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
+            "name": "Nutty Ninjas",
+            "privacy_policy_url": "http://una-org.github.io/demos.html",
+            "screenshots": [
                 "http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg",
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg",
@@ -328,8 +337,8 @@ Game related resources of the **Galaxy API**
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg"
             ],
-            "slug":"nutty-ninjas",
-            "videos":[
+            "slug": "nutty-ninjas",
+            "videos": [
                 "http://www.youtube.com/embed/4kvT0dywaF8",
                 "http://www.youtube.com/embed/1Sow2O8D9Ok"
             ]
@@ -338,21 +347,21 @@ Game related resources of the **Galaxy API**
 + Response 200 (application/json)
         
         {
-            "app_url":"http://nuttyninjas.com/",
-            "artwork":{
-                "background":"background.jpg"
+            "app_url": "http://nuttyninjas.com/",
+            "artwork": {
+                "background": "background.jpg"
             },
-            "description":"Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
-            "developer":{
-                "name":"Yang Shun",
-                "url":"http://yangshun.im/"
+            "description": "Nutty Ninjas is a real-time shooter that brings the experience of social multiplayer gaming to a whole new level; it is a console-style game that can be played anywhere and anytime, simply with your computer and mobile devices. Multiple players can join a common gameplay screen just by using their mobile devices, and control their ninja character to unleash dangerous weapons at fellow players!",
+            "developer": {
+                "name": "Yang Shun",
+                "url": "http://yangshun.im/"
             },
-            "genre":"action",
-            "homepage_url":"http://www.nuttyninjas.com",
-            "icons":"http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
-            "name":"Nutty Ninjas",
-            "privacy_policy_url":"http://una-org.github.io/demos.html",
-            "screenshots":[
+            "genre": "action",
+            "homepage_url": "http://www.nuttyninjas.com",
+            "icons": "http://png-4.findicons.com/files/icons/2297/super_mario/256/paper_mario.png",
+            "name": "Nutty Ninjas",
+            "privacy_policy_url": "http://una-org.github.io/demos.html",
+            "screenshots": [
                 "http://www.digitaltrends.com/wp-content/uploads/2011/02/nintendo-new-super-mario-bros-ds-art-screenshot.jpg",
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg",
@@ -363,8 +372,8 @@ Game related resources of the **Galaxy API**
                 "http://splitkick.com/wp-content/uploads/2013/01/newsuper2img.jpg",
                 "http://www.mariowiki.com/images/f/fc/SuperMarioBrosArtwork2.jpg"
             ],
-            "slug":"nutty-ninjas",
-            "videos":[
+            "slug": "nutty-ninjas",
+            "videos": [
                 "http://www.youtube.com/embed/4kvT0dywaF8",
                 "http://www.youtube.com/embed/1Sow2O8D9Ok"
             ]
@@ -386,20 +395,20 @@ User related resources of the **Galaxy API**
 + Response 200 (application/json)
         
         {
-            username: "mario", 
-            email: "mario@bros.com", 
-            permissions: {
-                developer: false,
-                reviewer: false,
-                admin: false
+            "username": "mario", 
+            "email": "mario@bros.com", 
+            "permissions": {
+                "developer": false,
+                "reviewer": false,
+                "admin": false
             }, 
-            homepage: "",
-            avatar: "http://www.gravatar.com/avatar/00000000"
-            companyName: ""
-            companySlug: ""
-            dateLastLogin: 1394222212
-            id: "b08cbc4b-71ee-4726-934c-7c7bec555acc"
-            support: ""
+            "homepage": "",
+            "avatar": "http://www.gravatar.com/avatar/00000000"
+            "companyName": ""
+            "companySlug": ""
+            "dateLastLogin": 1394222212
+            "id": "b08cbc4b-71ee-4726-934c-7c7bec555acc"
+            "support": ""
         }   
 
 ## User Profile [/user/profile]
@@ -418,7 +427,7 @@ User related resources of the **Galaxy API**
 
 + Response 200 (application/json)
         
-        {success: true}
+        {"success": "true"}
 
 ## User Search [/user/search]
 ### Search for user [GET]
@@ -469,19 +478,20 @@ User related resources of the **Galaxy API**
 + Response 200 (application/json)
         
         {
-            permission: {
-                developer: true,
-                reviewer: true,
-                admin: false
+            "permission": {
+                "developer": true,
+                "reviewer": true,
+                "admin": false
             }
         }
 
-# Group Other
-Other resources of the **Galaxy API**
+# Group Feedback
 
-## Feedback [/feedback]
+## Submit [/feedback]
+
 ### Submit Galaxy feedback [POST]
-####Data parameters:
+
+#### Data parameters:
 
 `feedback`: the feedback message **[required]**
 
@@ -496,16 +506,16 @@ Other resources of the **Galaxy API**
 + Request (application/json)
 
         {
-            "feedback":"This page is terrible",
-            "page_url":"http://galaxy.mozilla.org/badpage",
-            "sprout': "potato",
-            "tuber': ""
+            "feedback": "This page is terrible",
+            "page_url": "http://galaxy.mozilla.org/badpage",
+            "sprout": "potato",
+            "tuber": ""
         }
         
 
 + Response 200 (application/json)
         
         {
-            "success":"true"
+            "success": "true"
         }
 
