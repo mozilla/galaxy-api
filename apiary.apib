@@ -379,8 +379,48 @@ Game related resources of the **Galaxy API**
             ]
         }
 
+
+# Group Leaderboard
+
+Note: These API endpoints currently expect parameters sent with `application/x-www-form-urlencoded`.
+
+## Leaderboard [/game/mario-bros/board]
+
+A Leaderboard.
+
++ Model (application/json)
+
+    ```js
+    [
+        {
+            "data": [],
+            "name": "Warios Smashed",
+            "slug": "warios-smashed"
+        }
+    ]
+    ```
+
+### Create a Leaderboard [POST]
+
+To create a new Leaderboard object simply provide a JSON hash of the `name` and `slug` attributes for the new Leaderboard.
+
++ Request (application/json)
+
+    ```js
+    {
+        "name": "Name of leaderboard",
+        "string": "Slug of leaderboard"
+    }
+    ```
+
++ Response 200
+
+    ```js
+   {"success": "true"}
+   ```
+
+
 # Group User
-User related resources of the **Galaxy API**
 
 ## User Login [/user/login]
 ### User login via Persona [POST]
@@ -484,6 +524,7 @@ User related resources of the **Galaxy API**
                 "admin": false
             }
         }
+
 
 # Group Feedback
 
