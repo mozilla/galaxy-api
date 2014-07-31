@@ -383,26 +383,127 @@ Game related resources of the **Galaxy API**
 # Group Leaderboard
 
 Note: These API endpoints currently expect parameters sent with `application/x-www-form-urlencoded`.
+When https://github.com/mozilla/galaxy-api/issues/207 gets fixed, these endpoints will all accept JSON blobs.
 
-## Leaderboard [/game/mario-bros/board]
+## Leaderboard [/game/{game_slug}/boards/{board_slug}]
 
-A Leaderboard.
++ Parameters
+    + game_slug (string, `mario-bros`) ... The slug of the Game.
+    + board_slug (string, `warios-smashed`) ... The slug of the Leaderboard.
+    
++ Model (application/json)
+
+    ```js
+    {
+        "data": [
+            {
+                "user": 1,
+                "score": 100
+            },
+            {
+                "user": 5,
+                "score": 705
+            },
+            {
+                "user": 9,
+                "score": 340
+            },
+        ],
+        "name": "Warios Smashed",
+        "slug": "warios-smashed"
+    }
+    ```
+
+### Retrieve a Leaderboard [GET]
+Returns a specific Leaderboard.
+
++ Response 200 (application/json)
+
+    [Leaderboard][]
+
+### Delete a Leaderboard [DELETE]
+Delete a Leaderboard. The current user must be the same user who created the Leaderboard (or be an admin).
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": "true"
+    }
+    ```
+
+### Update a Leaderboard [PATCH]
+Update the `name` and `slug` for a leaderboard. Coming soon.
+
++ Request (application/json)
+
+    [Leaderboard][]
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": "true"
+    }
+    ```
+
+## Leaderboard Score [/game/{game_slug}/boards/{board_slug}/score]
+
++ Parameters
+    + game_slug (string, `mario-bros`) ... The slug of the Game.
+    + board_slug (string, `warios-smashed`) ... The slug of the Leaderboard.
+
+### Increment a Score [POST]
+Updates the score for a leaderboard board for a particular game.
+
++ Request (application/json)
+
+    ```js
+    {
+        "value": 5.0
+    }
+    ```
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": "true"
+    }
+    ```
+
+## Leaderboard Collection [/game/{game_slug}/boards]
+A collection of Leaderboards.
 
 + Model (application/json)
 
     ```js
     [
         {
-            "data": [],
+            "data": [
+                {
+                    "user": 1,
+                    "score": 100
+                },
+                {
+                    "user": 5,
+                    "score": 705
+                },
+                {
+                    "user": 9,
+                    "score": 340
+                },
+                ...
+            ],
             "name": "Warios Smashed",
             "slug": "warios-smashed"
-        }
+        },
+        ...
     ]
     ```
 
 ### Create a Leaderboard [POST]
-
-To create a new Leaderboard object simply provide a JSON hash of the `name` and `slug` attributes for the new Leaderboard.
+To create a new Leaderboard object simply provide a JSON blob of the `name` and `slug` attributes for the new Leaderboard.
 
 + Request (application/json)
 
@@ -413,11 +514,20 @@ To create a new Leaderboard object simply provide a JSON hash of the `name` and 
     }
     ```
 
-+ Response 200
++ Response 200 (application/json)
 
     ```js
-   {"success": "true"}
-   ```
+    {
+        "success": "true"
+    }
+    ```
+
+### Retrieve all Leaderboards [GET]
+Returns a list of the leaderboards boards that are available for a particular game.
+
++ Response 200 (application/json)
+
+    [Leaderboard Collection][]
 
 
 # Group User
