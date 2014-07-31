@@ -85,7 +85,7 @@ module.exports = function(server) {
         var slug = DATA.slug;
 
         // TODO: Check for valid game.
-        // https://github.com/cvan/galaxy-api/issues/67        
+        // https://github.com/cvan/galaxy-api/issues/67
         var game = DATA.game;
         if (!game) {
             res.json(400, {error: 'bad_game'});
@@ -150,6 +150,62 @@ module.exports = function(server) {
     }));
 
     // Sample usage:
+    // % curl -X POST 'http://localhost:5000/game/mario-bros/score' -d 'slug=warios-smashed&value=100'
+    //
+    // Note: `navigator.game.updateScore` also calls `user.updateLeaderboard`:
+    // https://github.com/mozilla/galaxy-api/blob/84ad70c1/server_ws.js
+    // https://github.com/mozilla/galaxy-api/blob/84ad70c1/static/include.js#L235
+    //
+    // TODO: Figure out how to thwart cheating. That's why we didn't expose
+    // this endpoint in the first place.
+    server.post({
+        url: '/game/:game/board/:board/score',
+        swagger: {
+            nickname: 'increment-score',
+            notes: 'Updates the score for a leaderboard board for a particular game.',
+            summary: 'Increment Game Leaderboard Score'
+        },
+        validation: {
+            value: {
+                isFloat: true,
+                description: 'Points to increment leaderboard score by'
+            }
+        }
+    }, user.userIDView(function(id, client, done, req, res) {
+        var DATA = req.params;
+
+        var slug = DATA.board;
+
+        // TODO: Check for valid game.
+        // https://github.com/cvan/galaxy-api/issues/67
+        var game = DATA.game;
+        if (!game) {
+            res.json(400, {error: 'bad_game'});
+            done();
+            return;
+        }
+
+        // TODO: Check for valid leaderboard
+        // https://github.com/cvan/galaxy-api/issues/57
+        var board = DATA.board;
+        if (!board) {
+            res.json(400, {error: 'bad_board'});
+            done();
+            return;
+        }
+
+        user.updateLeaderboard(slug, DATA.value, function(err) {
+            if (err) {
+                console.error(err);
+                res.json(400, {error: true});
+            } else {
+                res.json({success: true});
+            }
+            done();
+        });
+    }));
+
+    // Sample usage:
     // % curl 'http://localhost:5000/game/mario-bros/board/warios-smashed'
     // % curl 'http://localhost:5000/game/mario-bros/board/warios-smashed?sort=asc&friendsOnly=true&_user=ssa_token'
     server.get({
@@ -157,7 +213,7 @@ module.exports = function(server) {
         swagger: {
             nickname: 'get-scores',
             notes: 'Returns the list of scores of a particular leaderboard',
-            summary: 'List of Scores for LeaderBoard'
+            summary: 'List of Leaderboard Scores'
         },
         validation: {
             sort: {
@@ -187,7 +243,7 @@ module.exports = function(server) {
     }, db.redisView(function(client, done, req, res, wrap) {
         var DATA = req.params;
 
-        // TODO: Check for valid game. 
+        // TODO: Check for valid game.
         // https://github.com/cvan/galaxy-api/issues/57
         var game = DATA.game;
         if (!game) {
@@ -202,7 +258,7 @@ module.exports = function(server) {
         if (!board) {
             res.json(400, {error: 'bad_board'});
             done();
-            return;            
+            return;
         }
 
         var sortDesc = DATA.sort !== 'asc';
