@@ -433,7 +433,7 @@ Delete a Leaderboard. The current user must be the same user who created the Lea
     ```
 
 ### Update a Leaderboard [PATCH]
-Update the `name` and `slug` for a leaderboard. Coming soon.
+Update the `name` and `slug` for the Leaderboard. Coming soon.
 
 + Request (application/json)
 
@@ -454,7 +454,7 @@ Update the `name` and `slug` for a leaderboard. Coming soon.
     + board_slug (string, `warios-smashed`) ... The slug of the Leaderboard.
 
 ### Increment a Score [POST]
-Updates the score for a leaderboard board for a particular game.
+Updates the score for a Leaderboard board for a particular game.
 
 + Request (application/json)
 
@@ -509,8 +509,8 @@ To create a new Leaderboard object simply provide a JSON blob of the `name` and 
 
     ```js
     {
-        "name": "Name of leaderboard",
-        "string": "Slug of leaderboard"
+        "name": "Name of Leaderboard",
+        "string": "Slug of Leaderboard"
     }
     ```
 
@@ -523,7 +523,7 @@ To create a new Leaderboard object simply provide a JSON blob of the `name` and 
     ```
 
 ### Retrieve all Leaderboards [GET]
-Returns a list of the leaderboards boards that are available for a particular game.
+Returns a list of the Leaderboards available for a particular game.
 
 + Response 200 (application/json)
 
