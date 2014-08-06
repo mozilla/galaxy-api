@@ -1,4 +1,7 @@
-var settings_local = require(process.env.GALAXY_API_SETTINGS);
+var settings_local = {};
+if ('GALAXY_API_SETTINGS' in process.env) {
+    settings_local = require(process.env.GALAXY_API_SETTINGS);
+}
 
 exports.DEBUG = false;
 exports.ORIGIN = 'https://api.galaxy.mozilla.org';
