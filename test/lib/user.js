@@ -138,6 +138,13 @@ describe('user', function() {
                 testUpdateSuccess(client, test_user, patch, done);
             });
         });
+
+        describe('team properties', function() {
+            it('should work for team slug', function(done) {
+                var patch = {teamSlug: 'my_team'};
+                testUpdateSuccess(client, test_user, patch, done);
+            });
+        })
     });
 
     describe('masked', function() {
@@ -167,6 +174,18 @@ describe('user', function() {
             done();
         });
 
+        it.skip('should work for publicUserObj with null input', function(done) {
+            var public_user = user.publicUserObj(null);
+            expect(public_user).to.not.exist;
+            done();
+        });
+
+        it.skip('should work for publicDevObj with null input', function(done) {
+            var dev_user = user.publicDevObj(null);
+            expect(public_user).to.not.exist;
+            done();
+        });
+
         it.skip('should work for getPublicUserObj', function(done) {
             var test_user = test_users[0];
             var public_user = user.publicUserObj(test_user);
@@ -193,10 +212,111 @@ describe('user', function() {
             });
         });
 
-        // TODO: Test the above functions with empty inputs (#178)
+        it('should work for empty null user in getPublicUserObj', function(done) {
+            user.getPublicUserObj(client, undefined, function(error, db_user) {
+                expect(error).to.not.exist;
+                expect(db_user).to.not.exist;
+                done();
+            });
+        });
+
+        it('should work for empty users in getPublicUserObjList', function(done) {
+            user.getPublicUserObj(client, [], function(error, db_users) {
+                expect(error).to.not.exist;
+                expect(db_users).to.not.exist;
+                done();
+            });
+        });
+
+        it('should work for null users in getPublicUserObjList', function(done) {
+            user.getPublicUserObj(client, undefined, function(error, db_users) {
+                expect(error).to.not.exist;
+                expect(db_users).to.not.exist;
+                done();
+            });
+        });
     });
     
-    // TODO: Add developer related functions (#178)
+    describe('team slug', function() {
+        var test_devs = [];
+        var updated_devs = [];
+        before(function(done) {
+            var patches = [{permissions: {developer: true}, teamSlug: 'team_a', companyName: 'Team A'}, 
+                           {permissions: {developer: true}, teamSlug: 'team_a', companyName: 'Team A'},
+                           {permissions: {developer: true}, teamSlug: 'team_b', companyName: 'Team B'}];
+
+            test_devs.push(user.newUser(client, TEST_USER_EMAILS[0]));
+            test_devs.push(user.newUser(client, TEST_USER_EMAILS[1]));
+            test_devs.push(user.newUser(client, TEST_USER_EMAILS[2]));
+
+            (function updateDevelopers(i) {
+                if (i >= test_devs.length) {
+                    return done();
+                }
+
+                user.getUserFromEmail(client, TEST_USER_EMAILS[i], function(error, dev_user) {
+                    user.updateUser(client, dev_user.id, patches[i], function(error, dev) {
+                        updated_devs.push(dev);
+                        updateDevelopers(i+1);
+                    });
+                });
+            })(0);
+        });
+
+        describe('get dev ids from team slug', function() {
+            it('should work for valid teams', function(done) {
+                user.getUserIDsFromDevSlug(client, 'team_a', function(error, db_dev_ids) {
+                    expect(error).to.not.exist;
+                    expect(db_dev_ids).to.exist;
+                    expect(db_dev_ids).to.have.length(2);
+                    expect(db_dev_ids).to.include(updated_devs[0].id);
+                    expect(db_dev_ids).to.include(updated_devs[1].id);
+
+                    user.getUserIDsFromDevSlug(client, 'team_b', function(error, db_dev_ids) {
+                        expect(error).to.not.exist;
+                        expect(db_dev_ids).to.exist;
+                        expect(db_dev_ids).to.have.length(1);
+                        expect(db_dev_ids).to.include(updated_devs[2].id);
+                        done();
+                    });
+                });
+            });
+
+            it('should work for invalid teams', function(done) {
+                user.getUserIDsFromDevSlug(client, 'team_z', function(error, db_dev_ids) {
+                    expect(error).to.not.exist;
+                    expect(db_dev_ids).to.exist;
+                    expect(db_dev_ids).to.have.length(0);
+                    done();
+                });
+            });
+        });
+
+        describe('get team info from team slug', function() {
+            it('should work for valid teams', function(done) {
+                user.getCompanyInfoFromDevSlug(client, 'team_a', function(error, db_team_info) {
+                    expect(error).to.not.exist;
+                    expect(db_team_info).to.exist;
+                    expect(db_team_info.companyName).to.be.equal('Team A');
+
+                    user.getCompanyInfoFromDevSlug(client, 'team_b', function(error, db_team_info) {
+                        expect(error).to.not.exist;
+                        expect(db_team_info).to.exist;
+                        expect(db_team_info.companyName).to.be.equal('Team B');
+                        done();
+                    });
+                });
+            });
+
+            it.skip('should work for invalid teams', function(done) {
+                user.getCompanyInfoFromDevSlug(client, 'team_z', function(error, db_team_info) {
+                    expect(error).to.not.exist;
+                    expect(db_team_info).to.not.exist;
+                    done();
+                });
+            });
+        });
+    });
 
     // TODO: Authentication functions (#178)
 
