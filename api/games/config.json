@@ -1,0 +1,12 @@
+{
+  "name": "games",
+  "description": "games",
+  "routes": {
+    "GET /games": "all",
+    "POST /games": "create",
+    "GET /games/:slug": "get",
+    "PATCH /games/:slug": "update",
+    "PUT /games/:slug": "replace",
+    "DELETE /games/:slug": "delete"
+  }
+}

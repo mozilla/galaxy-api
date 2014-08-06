@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var program = require('commander');
+
+var api = require('..');
+
+
+// Options.
+program
+  .option('-H, --host <host>', 'specify the host [$HOST || 0.0.0.0]',
+    process.env.HOST || '0.0.0.0')
+  .option('-p, --port <port>', 'specify the port [$PORT || 4000]',
+    process.env.PORT || '4000')
+  .option('-b, --backlog <size>', 'specify the backlog size [511]',
+    process.env.BACKLOG || '511')
+  .option('-r, --ratelimit <n>', 'ratelimit requests [2500]',
+    process.env.RATELIMIT || '2500')
+  .option('-d, --ratelimit-duration <ms>', 'ratelimit duration [1h]',
+    process.env.RATELIMIT_DURATION || '1h')
+  .parse(process.argv);
+
+
+// Create app.
+var app = api({
+  ratelimit: ~~program.ratelimit,
+  duration: ~~program.ratelimitDuration
+});
+
+
+// Listen.
+app.listen(program.port, program.host, ~~program.backlog);
+console.log('Listening on %s:%s', program.host, program.port);
