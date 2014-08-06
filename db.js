@@ -40,7 +40,7 @@ var redisURL = url.parse(settings.REDIS_URL);
  *     export REDIS_URL='redis://localhost:6379'
  *
  */
- function redisClient() {
+ function redisClient(callback) {
     var client = redis.createClient(parseInt(redisURL.port || '6379', 10),
         redisURL.hostname || 'localhost');
 
@@ -67,6 +67,12 @@ var redisURL = url.parse(settings.REDIS_URL);
             redis.select(db);
             redis.send_anyways = false;
         });
+
+        if (callback) {
+            client.on('ready', function() {
+                callback(client);
+            });
+        }
     }
 
     return client;
