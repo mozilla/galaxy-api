@@ -61,7 +61,7 @@ exports.all = function *() {
     // Return 200 with an array of all the games.
     // TODO: Return an object with paginated results and metadata.
     response.success(games);
-  }, response.dbError);
+  }).catch(response.dbError);
 };
 
 
@@ -80,8 +80,7 @@ exports.create = function *() {
 
       // Add game to local cache.
       games[payload.slug] = payload;
-    },
-    response.dbError);
+    }).catch(response.dbError);
   },
   response.validationError);
 };
@@ -115,13 +114,6 @@ function* edit(self, replace) {
   var newGameData;
   var schema = replace ? gameSchema : gameSchemaPatch;
 
-  function editSuccess() {
-    response.success();
-
-    // Update game in local cache.
-    games[payload.slug] = payload;
-  }
-
   yield validate(payload, schema, {abortEarly: false})
   .then(function () {
     return redis.hget('game', oldSlug)
@@ -150,10 +142,13 @@ function* edit(self, replace) {
         if (newSlug !== oldSlug) {
           // Slug was changed, so rename keys.
           delete games[oldSlug];
-          return redis.hdel('game', oldSlug).then(editSuccess);
+          return redis.hdel('game', oldSlug);
         }
+      }).then(function () {
+        // Update game in local cache.
+        games[payload.slug] = payload;
 
-        return editSuccess();
+        response.success();
       });
     });
   },
@@ -181,6 +176,7 @@ exports.replace = function *() {
  * DELETE a single game.
  */
 exports.delete = function *() {
+  var response = new utils.Response(this);
   var slug = this.params.slug;
 
   if (slug in games) {

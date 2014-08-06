@@ -1,0 +1,18 @@
+{
+  "name": "leaderboards",
+  "description": "leaderboards",
+  "routes": {
+    "GET /games/:game_slug/leaderboards": "all",
+    "POST /games/:game_slug/leaderboards": "create",
+    "GET /games/:game_slug/leaderboards/:board_slug": "get",
+    "PATCH /games/:game_slug/leaderboards/:board_slug": "update",
+    "PUT /games/:game_slug/leaderboards/:board_slug": "replace",
+    "DELETE /games/:game_slug/leaderboards/:board_slug": "delete",
+    "GET /games/:game_slug/leaderboards/:board_slug/scores": "scores_all",
+    "POST /games/:game_slug/leaderboards/:board_slug/scores": "scores_create",
+    "POST /games/:game_slug/leaderboards/:board_slug/scores/:score_id": "scores_get",
+    "POST /games/:game_slug/leaderboards/:board_slug/scores/:score_id": "scores_update",
+    "PUT /games/:game_slug/leaderboards/:board_slug/scores/:score_id": "scores_replace",
+    "DELETE /games/:game_slug/leaderboards/:board_slug/scores": "scores_delete"
+  }
+}
