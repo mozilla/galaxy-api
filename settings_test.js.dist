@@ -1,2 +1,0 @@
-exports.REDIS_TEST_URL = 'http://localhost:6380';
-exports.PERSONA_FAKER_TEST_URL = 'http://localhost:9009';
