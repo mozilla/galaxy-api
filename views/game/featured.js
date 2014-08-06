@@ -97,7 +97,7 @@ module.exports = function(server) {
             return done();
         }
 
-        var rank = DATA.rank || null;
+        var rank = DATA.rank || -1;
 
         var genres = DATA.genres;
         if (!genres) {
