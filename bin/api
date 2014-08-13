@@ -6,7 +6,7 @@
 
 var program = require('commander');
 
-var api = require('..');
+var api = require('../app');
 
 
 // Options.
