@@ -37,6 +37,7 @@
   "scripts": {
     "start": "node --harmony ./bin/api",
     "dev": "nodemon --harmony ./bin/api",
+    "prod": "node --harmony ./bin/api",
     "test": "NODE_ENV=test ./node_modules/.bin/mocha --require should --reporter spec --harmony --bail api/*/test.js"
   },
   "version": "0.0.3"
