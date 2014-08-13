@@ -191,7 +191,7 @@ exports.delete = function *() {
  */
 exports.scores_all = function *() {
   // TODO: Allow filtering by user.
-  yield;
+  yield new Promise();
 };
 
 
@@ -202,7 +202,7 @@ exports.scores_create = function *() {
   // TODO: Add score schema.
   // TODO: Accept user and score.
   // TODO: Add User API endpoints.
-  yield;
+  yield new Promise();
 };
 
 
@@ -210,7 +210,7 @@ exports.scores_create = function *() {
  * GET a single score from a leaderboard.
  */
 exports.scores_get = function *() {
-  yield;
+  yield new Promise();
 };
 
 
@@ -218,7 +218,7 @@ exports.scores_get = function *() {
  * PATCH a single score (change only the fields supplied).
  */
 exports.scores_update = function *() {
-  yield;
+  yield new Promise();
 };
 
 
@@ -226,7 +226,7 @@ exports.scores_update = function *() {
  * PUT a single score (replace the entire object).
  */
 exports.scores_replace = function *() {
-  yield;
+  yield new Promise();
 };
 
 
@@ -234,5 +234,5 @@ exports.scores_replace = function *() {
  * DELETE a single score.
  */
 exports.scores_delete = function *() {
-  yield;
+  yield new Promise();
 };
