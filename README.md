@@ -25,6 +25,10 @@ Alternatively:
 
     npm run-script dev
 
+To run linting tools:
+
+    gulp lint
+
 
 ## Testing
 
