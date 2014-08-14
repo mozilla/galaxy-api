@@ -7,8 +7,8 @@ var Promise = require('es6-promise').Promise;
 
 var db = require('../../lib/db');
 var utils = require('../../lib/utils');
+var Game = require('../../lib/models/game').Game;
 
-var games = {};  // Local cache of game data
 var redis = db.redis();  // Real database for game data
 var validate = utils.promisify(Joi.validate);  // Promise-based `Joi.validate`
 
@@ -52,16 +52,9 @@ var gameSchemaPatch = Joi.object().keys(gameKeysPatch);
 exports.all = function *() {
   var response = new utils.Response(this);
 
-  yield redis.hvals('game')
-  .then(function (values) {
-    // `values` is an array of serialised games.
-    // Create an array of parsed games, and update the local cache.
-    games = values.map(JSON.parse);
-
-    // Return 200 with an array of all the games.
-    // TODO: Return an object with paginated results and metadata.
-    response.success(games);
-  }).catch(response.dbError);
+  yield Game.all()
+  .then(response.success)
+  .catch(response.dbError);
 };
 
 
@@ -74,15 +67,10 @@ exports.create = function *() {
 
   yield validate(payload, gameSchema, {abortEarly: false})
   .then(function () {
-    return redis.hset('game', payload.slug, JSON.stringify(payload))
-    .then(function () {
-      response.success();
-
-      // Add game to local cache.
-      games[payload.slug] = payload;
-    }).catch(response.dbError);
-  },
-  response.validationError);
+    return Game.create(payload)
+    .then(response.success, response.validationError)
+    .catch(response.dbError);
+  }, response.validationError);
 };
 
 
@@ -93,82 +81,40 @@ exports.get = function *() {
   var response = new utils.Response(this);
   var slug = this.params.slug;
 
-  var game = yield redis.hget('game', slug).catch(response.dbError);
-
-  if (game) {
-    // Return 200 with game data.
-    response.success(game);
-  } else if (game === null) {
-    // Return 404 if game slug does not exist as a key in the database.
-    response.missing(game);
-  }
+  // Return 200 with game data if the slug exists.
+  yield Game.get({slug: slug})
+  .then(response.success)
+  .catch(function (err) {
+    utils.CaughtResponse(response, err);
+  });
 };
-
-
-function* edit(self, replace) {
-  var payload = self.request.body;
-  var response = new utils.Response(self);
-
-  var oldSlug = self.params.slug;
-  var newSlug = 'slug' in payload ? payload.slug : oldSlug;
-  var newGameData;
-  var schema = replace ? gameSchema : gameSchemaPatch;
-
-  yield validate(payload, schema, {abortEarly: false})
-  .then(function () {
-    return redis.hget('game', oldSlug)
-    .then(function (gameData) {
-      if (gameData === null) {
-        return response.missing();
-      }
-
-      if (replace) {
-        newGameData = JSON.stringify(payload);
-      } else {
-        // Deserialise.
-        newGameData = JSON.parse(gameData);
-
-        // Replace the old keys' values with the new keys' values.
-        Object.keys(payload).forEach(function (key) {
-          newGameData[key] = payload[key];
-        });
-
-        // Serialise.
-        newGameData = JSON.stringify(newGameData);
-      }
-
-      return redis.hset('game', newSlug, newGameData)
-      .then(function () {
-        if (newSlug !== oldSlug) {
-          // Slug was changed, so rename keys.
-          delete games[oldSlug];
-          return redis.hdel('game', oldSlug);
-        }
-      }).then(function () {
-        // Update game in local cache.
-        games[payload.slug] = payload;
-
-        response.success();
-      });
-    });
-  },
-  response.validationError).catch(response.dbError);
-}
 
 
 /**
  * PATCH a single game (change only the fields supplied).
  */
 exports.update = function *() {
-  yield edit(this);
-};
+  var payload = this.request.body;
+  var response = new utils.Response(this);
 
+  var oldSlug = this.params.slug;
+  // Use the new slug or the old slug, depending on whether's it in the payload.
+  var newSlug = 'slug' in payload ? payload.slug : oldSlug;
 
-/**
- * PUT a single game (replace the entire object).
- */
-exports.replace = function *() {
-  yield edit(this, true);
+  yield validate(payload, gameSchemaPatch, {abortEarly: false})
+  .then(function () {
+    return Game.get({slug: oldSlug})
+    .then(function (gameModel) {
+      return Game.update(gameModel, payload);
+    })
+    .then(function (updateResponse) {
+      // Return 200 with success.
+      response.success();
+    });
+  }, response.validationError)
+  .catch(function (err) {
+    utils.CaughtResponse(response, err);
+  });
 };
 
 
@@ -179,17 +125,21 @@ exports.delete = function *() {
   var response = new utils.Response(this);
   var slug = this.params.slug;
 
-  if (slug in games) {
-    delete games[slug];
-  }
-
-  var game = yield redis.hdel('game', slug).catch(response.dbError);
-
-  if (game) {
-    // Return 200 with success.
-    response.success();
-  } else if (game === null) {
-    // Return 404 if game slug does not exist as a key in the database.
-    response.missing(game);
-  }
+  yield Game.get({slug: slug})
+  .then(function (gameModel) {
+    return Game.delete(gameModel);
+  })
+  .then(function (deleteResponse) {
+    if (deleteResponse === 1) {
+      // Return 200 with success.
+      response.success();
+    } else {
+      // Return 500 with error.
+      response.dbError('Unexpected response upon deletion: ' +
+        deleteResponse);
+    }
+  })
+  .catch(function (err) {
+    utils.CaughtResponse(response, err);
+  });
 };

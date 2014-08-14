@@ -223,14 +223,6 @@ exports.scores_update = function *() {
 
 
 /**
- * PUT a single score (replace the entire object).
- */
-exports.scores_replace = function *() {
-  yield new Promise();
-};
-
-
-/**
  * DELETE a single score.
  */
 exports.scores_delete = function *() {
