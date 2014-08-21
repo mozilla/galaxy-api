@@ -15,5 +15,4 @@ node_modules
 pids
 results
 scripts/*.json
-settings_local.js
-settings_test.js
+settings_*.js

@@ -17,6 +17,15 @@ Node 0.11.x is required for the `--harmony` flag which enables generators (requi
 
 ## Development
 
+Initialise settings, if you haven't already:
+
+    cp ./settings_local.js.dist ./settings_local.js
+
+Set these environment variables:
+
+    NODE_ENV=development
+    GALAXY_API_SETTINGS=./settings_local.js
+
 To run the local web server:
 
     nodemon --harmony bin/api
@@ -32,6 +41,15 @@ To run linting tools:
 
 ## Production
 
+Initialise settings if you haven't already:
+
+    cp ./settings_prod.js.dist ./settings_prod.js
+
+Set these environment variables:
+
+    NODE_ENV=production
+    GALAXY_API_SETTINGS=./settings_prod.js
+
 Node 0.11.x is required for the `--harmony` flag which enables generators (required for Koa, the web framework).
 
 To run the web server in production:
@@ -44,6 +62,17 @@ Alternatively:
 
 
 ## Testing
+
+Initialise settings:
+
+    cp ./settings_local.js.dist ./settings_local.js
+
+Set these environment variables:
+
+    NODE_ENV=test
+    GALAXY_API_SETTINGS=./settings_test.js
+
+To run tests:
 
     npm test
 

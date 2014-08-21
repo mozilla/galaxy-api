@@ -5,11 +5,9 @@
 var Joi = require('joi');
 var Promise = require('es6-promise').Promise;
 
-var db = require('../../lib/db');
 var utils = require('../../lib/utils');
 var Game = require('../../lib/models/game').Game;
 
-var redis = db.redis();  // Real database for game data
 var validate = utils.promisify(Joi.validate);  // Promise-based `Joi.validate`
 
 

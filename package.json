@@ -7,7 +7,7 @@
     "joi": "^4.6.2",
     "koa": "^0.8.2",
     "koa-compress": "1.0.7",
-    "koa-logger": "~1.2.1",
+    "koa-logger": "^1.2.2",
     "koa-parse-json": "^1.0.0",
     "koa-ratelimit": "~1.0.3",
     "koa-response-time": "~1.0.2",
@@ -35,10 +35,10 @@
     "url": "git://github.com/mozilla/galaxy-api.git"
   },
   "scripts": {
-    "start": "node --harmony ./bin/api",
-    "dev": "nodemon --harmony ./bin/api",
-    "prod": "node --harmony ./bin/api",
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha --require should --reporter spec --harmony --bail api/*/test.js"
+    "start": "node --harmony index.js",
+    "dev": "NODE_ENV=development GALAXY_API_SETTINGS=./settings_dev.js nodemon --harmony index.js",
+    "prod": "NODE_ENV=production GALAXY_API_SETTINGS=./settings_prod.js node --harmony index.js",
+    "test": "NODE_ENV=test GALAXY_API_SETTINGS=./settings_test.js ./node_modules/.bin/mocha --require should --reporter spec --harmony --bail api/*/test.js"
   },
   "version": "0.0.3"
 }

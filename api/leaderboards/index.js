@@ -5,12 +5,10 @@
 var Joi = require('joi');
 var Promise = require('es6-promise').Promise;
 
-var db = require('../../lib/db');
+var app = require('../..').app;
 var utils = require('../../lib/utils');
 var Leaderboard = require('../../lib/models/leaderboard');
 
-var redis = db.redis();  // Real database for game data
-var self;
 var validate = utils.promisify(Joi.validate);  // Promise-based `Joi.validate`
 
 
@@ -44,7 +42,7 @@ exports.all = function *() {
   var response = new utils.Response(this);
   var gameSlug = this.params.game_slug;
 
-  yield redis.hvals('game:' + gameSlug).then(function (values) {
+  yield app.redis.hvals('game:' + gameSlug).then(function (values) {
     // Return 200 with an array of all the leaderboards.
     // TODO: Return an object with paginated results and metadata.
     response.success(values.map(JSON.parse));
@@ -67,7 +65,7 @@ exports.create = function *() {
       game: gameSlug,
       slug: payload.slug,
       payload: payload
-    }, redis).save();
+    }).save();
   }).catch(response.dbError).then(function () {
     response.success();
   }, response.validationError);
@@ -82,7 +80,7 @@ exports.get = function *() {
   var gameSlug = this.params.game_slug;
   var boardSlug = this.params.board_slug;
 
-  var game = yield redis.hget('game:' + gameSlug, boardSlug)
+  var game = yield app.redis.hget('game:' + gameSlug, boardSlug)
   .catch(response.dbError);
 
   // TODO: Validate game by its slug (issue #225).
@@ -114,7 +112,7 @@ function* edit(self, replace) {
 
   yield validate(payload, schema, {abortEarly: false})
   .then(function () {
-    return redis.hget('game', oldSlug)
+    return app.redis.hget('game', oldSlug)
     .then(function (gameData) {
       if (gameData === null) {
         return response.missing();
@@ -135,11 +133,11 @@ function* edit(self, replace) {
         newGameData = JSON.stringify(newGameData);
       }
 
-      return redis.hset('game', newSlug, newGameData)
+      return app.redis.hset('game', newSlug, newGameData)
       .then(function () {
         if (newSlug !== oldSlug) {
           // Slug was changed, so rename keys.
-          return redis.hdel('game', oldSlug);
+          return app.redis.hdel('game', oldSlug);
         }
       }).then(function () {
         response.success();
@@ -174,12 +172,12 @@ exports.delete = function *() {
   var gameSlug = this.params.game_slug;
   var boardSlug = this.params.board_slug;
 
-  yield redis.hexists('game:' + gameSlug, boardSlug).then(function (board) {
+  yield app.redis.hexists('game:' + gameSlug, boardSlug).then(function (board) {
     if (!board) {
       return response.missing(board);
     }
 
-    return redis.hdel('game:' + gameSlug, boardSlug).then(function () {
+    return app.redis.hdel('game:' + gameSlug, boardSlug).then(function () {
       response.success();
     });
   }).catch(response.dbError);
