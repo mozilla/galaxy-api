@@ -15,13 +15,16 @@ var validate = utils.promisify(Joi.validate);  // Promise-based `Joi.validate`
 var boardKeys = {
   // Leaderboard Name cannot be longer than 150 characters long.
   name: Joi.string().max(150).required()
-    .example('Mario Bros.'),
+    .example('Warios Smashed'),
 
   // Leaderboard Slug cannot be all digits, all underscores, or all hyphens
   // and must contain only letters, numbers, underscores, and hyphens.
   // TODO: Throw an error if `slug` is already taken for this game.
   slug: Joi.string().regex(/^(?!\d*$)(?!_*$)(?!-*$)[\w-]+$/).required()
-    .example('mario-bros')
+    .example('warios-smashed'),
+
+  description: Joi.string().example('This keeps track of how many Warios a ' +
+                                    'player smashes.')
 };
 var boardSchema = Joi.object().keys(boardKeys);
 
