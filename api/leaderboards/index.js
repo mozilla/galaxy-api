@@ -192,7 +192,19 @@ exports.delete = function *() {
  */
 exports.scores_all = function *() {
   // TODO: Allow filtering by user.
-  yield new Promise();
+
+  var response = new utils.Response(this);
+  var payload = this.request.body || {};
+  var gameSlug = this.params.game_slug;
+  var boardSlug = this.params.board_slug;
+
+  yield new Leaderboard({
+    game: gameSlug,
+    slug: boardSlug,
+    payload: payload
+  }).list().then(function (list) {
+    response.success(list);
+  }).catch(response.dbError);
 };
 
 
@@ -200,10 +212,24 @@ exports.scores_all = function *() {
  * POST a new score to a leaderboard.
  */
 exports.scores_create = function *() {
-  // TODO: Add score schema.
-  // TODO: Accept user and score.
-  // TODO: Add User API endpoints.
-  yield new Promise();
+  // TODO:
+  // * Add score schema and validate.
+  // * Add User API endpoints.
+  // * Validate the user.
+  // * Add anti-cheating mechanisms (single-use tokens, bearer tokens, etc.).
+
+  var response = new utils.Response(this);
+  var payload = this.request.body || {};
+  var gameSlug = this.params.game_slug;
+  var boardSlug = this.params.board_slug;
+
+  yield new Leaderboard({
+    game: gameSlug,
+    slug: boardSlug,
+    payload: payload
+  }).add(payload.user, payload.score).then(function () {
+    response.success();
+  }).catch(response.dbError);
 };
 
 
