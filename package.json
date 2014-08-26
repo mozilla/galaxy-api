@@ -39,5 +39,5 @@
     "prod": "NODE_ENV=production GALAXY_API_SETTINGS=./settings_prod.js node --harmony index.js",
     "test": "NODE_ENV=test GALAXY_API_SETTINGS=./settings_test.js ./node_modules/.bin/mocha --require should --reporter spec --harmony --bail api/*/test.js"
   },
-  "version": "0.0.3"
+  "version": "0.0.4"
 }
