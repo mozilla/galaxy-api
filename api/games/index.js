@@ -24,14 +24,17 @@ var gameKeys = {
   // and must contain only letters, numbers, underscores, and hyphens.
   // TODO: Throw an error if `slug` is already taken.
   slug: Joi.string().regex(/^(?!\d*$)(?!_*$)(?!-*$)[\w-]+$/).required()
-    .example('mario-bros')
+    .example('mario-bros'),
+
+  description: Joi.string().example('Mario Bros. is a sweet adventure game.')
 };
 
 // Define schema for JSON payloads. (Run `Joi.describe` to see examples.)
 var gameSchema = Joi.object().keys(gameKeys).example({
   app_url: 'http://nintendo.com/mario-bros/',
   name: 'Mario Bros.',
-  slug: 'mario-bros'
+  slug: 'mario-bros',
+  description: 'Mario Bros. is a sweet adventure game.'
 });
 
 
