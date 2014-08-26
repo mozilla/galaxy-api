@@ -37,6 +37,9 @@ console.log('API initialised');
  */
 var app = koa();
 
+// Remove 'X-Powered-By: Koa' header.
+app.poweredBy = false;
+
 // Logging.
 if (env !== 'test') {
   app.use(logger());
