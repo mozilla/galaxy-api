@@ -2,7 +2,6 @@
   "name": "galaxy-api",
   "description": "Galaxy API",
   "dependencies": {
-    "commander": "~2.2.0",
     "debug": "^1.0.4",
     "joi": "^4.6.2",
     "koa": "^0.8.2",
