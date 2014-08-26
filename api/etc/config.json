@@ -1,0 +1,7 @@
+{
+  "name": "etc",
+  "description": "etc",
+  "routes": {
+    "GET /": "root"
+  }
+}
