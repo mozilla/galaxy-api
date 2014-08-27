@@ -11,22 +11,94 @@ By default, all requests receive the __v1__ version of the API. We encourage you
 
 
 # Group Game
-Game related resources of the **Galaxy API**
 
-## Game [/games/{game_slug}]
-### Get details of a game [GET]
+## Game [/game/{game_slug}]
 
-+ Parameter
-    + game_slug (required, string, `pokemon`) ... `game_slug` of the game to fetch detail of.
++ Parameters
+    + game_slug (string, `pokemon`) ... The slug of the Game.
+
++ Model (application/json)
+
+    ```js
+    {
+        "app_url": "http://www.fullscreenpokemon.com/",
+        "slug": "pokemon",
+        "description": "Full Screen Pokemon is an open source HTML5 remake of the original Pokemon games. You can play the original two generations (Red/Blue through Crystal), literally billions of procedurally generated maps, or create your own using the level editor.",
+        "name": "Pok\u00e9mon"
+    }
+    ```
+
+### Retrieve a Game [GET]
+Returns a specific Game.
 
 + Response 200 (application/json)
 
+    [Game][]
+
+### Delete a Game [DELETE]
+Delete a Game. The current user must be the same user who created the Game (or be an admin).
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": true
+    }
+    ```
+
+### Update a Game [PATCH]
+Update the fields of the Game.
+
++ Request (application/json)
+
+    [Game][]
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": true
+    }
+    ```
+
+## Game Collection [/games]
+A collection of Games.
+
++ Model (application/json)
+
+    ```js
+    [
         {
-            "app_url": "http://www.fullscreenpokemon.com/", 
-            "slug": "pokemon", 
-            "description": "Full Screen Pokemon is an open source HTML5 remake of the original Pokemon games. You can play the original two generations (Red/Blue through Crystal), literally billions of procedurally generated maps, or create your own using the level editor.", 
+            "app_url": "http://www.fullscreenpokemon.com/",
+            "slug": "pokemon",
+            "description": "Full Screen Pokemon is an open source HTML5 remake of the original Pokemon games. You can play the original two generations (Red/Blue through Crystal), literally billions of procedurally generated maps, or create your own using the level editor.",
             "name": "Pok\u00e9mon"
-        }
+        },
+        ...
+    ]
+    ```
+
+### Create a Game [POST]
+To create a new Game object simply provide a JSON blob of the attributes of the new Game.
+
++ Request (application/json)
+
+    [Game][]
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": true
+    }
+    ```
+
+### Retrieve all Games [GET]
+Returns a list of the Games available for a particular game.
+
++ Response 200 (application/json)
+
+    [Game Collection][]
 
 
 # Group Leaderboard
@@ -34,29 +106,16 @@ Game related resources of the **Galaxy API**
 ## Leaderboard [/game/{game_slug}/boards/{board_slug}]
 
 + Parameters
-    + game_slug (string, `mario-bros`) ... The slug of the Game.
-    + board_slug (string, `warios-smashed`) ... The slug of the Leaderboard.
-    
+    + game_slug (string, `pokemon`) ... The slug of the Game.
+    + board_slug (string, `pokeballs-collected`) ... The slug of the Leaderboard.
+
 + Model (application/json)
 
     ```js
     {
-        "data": [
-            {
-                "user": "cvan",
-                "score": 100
-            },
-            {
-                "user": "david",
-                "score": 705
-            },
-            {
-                "user": "wil",
-                "score": 340
-            },
-        ],
-        "name": "Warios Smashed",
-        "slug": "warios-smashed"
+        "slug": "pokeballs-collected",
+        "description": "This keeps track of how many pok\u00e9balls a user finds.",
+        "name": "Pok\u00e9balls Collected"
     }
     ```
 
@@ -74,12 +133,12 @@ Delete a Leaderboard. The current user must be the same user who created the Lea
 
     ```js
     {
-        "success": "true"
+        "success": true
     }
     ```
 
 ### Update a Leaderboard [PATCH]
-Update the `name` and `slug` for the Leaderboard. Coming soon.
+Update the fields of the Leaderboard.
 
 + Request (application/json)
 
@@ -89,15 +148,15 @@ Update the `name` and `slug` for the Leaderboard. Coming soon.
 
     ```js
     {
-        "success": "true"
+        "success": true
     }
     ```
 
 ## Leaderboard Score [/game/{game_slug}/boards/{board_slug}/scores]
 
 + Parameters
-    + game_slug (string, `mario-bros`) ... The slug of the Game.
-    + board_slug (string, `warios-smashed`) ... The slug of the Leaderboard.
+    + game_slug (string, `pokemon`) ... The slug of the Game.
+    + board_slug (string, `pokeballs-collected`) ... The slug of the Leaderboard.
 
 ### Add a Score [POST]
 Updates the score for a Leaderboard board for a particular game.
@@ -106,7 +165,8 @@ Updates the score for a Leaderboard board for a particular game.
 
     ```js
     {
-        "value": 5.0
+        "user": "cvan"
+        "score": 50
     }
     ```
 
@@ -114,8 +174,45 @@ Updates the score for a Leaderboard board for a particular game.
 
     ```js
     {
-        "success": "true"
+        "success": true
     }
+    ```
+
+### Retrieve all Scores [GET]
+
++ Response 200 (application/json)
+
+    ```js
+    [
+      {
+        "member": "rick",
+        "score": "101"
+      },
+      {
+        "member": "mark",
+        "score": "99"
+      },
+      {
+        "member": "toby",
+        "score": "84"
+      },
+      {
+        "member": "david",
+        "score": "72"
+      },
+      {
+        "member": "cvan",
+        "score": "50"
+      },
+      {
+        "member": "bill",
+        "score": "39"
+      },
+      {
+        "member": "wil",
+        "score": "4"
+      }
+    ]
     ```
 
 ## Leaderboard Collection [/game/{game_slug}/boards]
@@ -126,30 +223,16 @@ A collection of Leaderboards.
     ```js
     [
         {
-            "data": [
-                {
-                    "user": 1,
-                    "score": 100
-                },
-                {
-                    "user": 5,
-                    "score": 705
-                },
-                {
-                    "user": 9,
-                    "score": 340
-                },
-                ...
-            ],
-            "name": "Warios Smashed",
-            "slug": "warios-smashed"
+            "slug": "pokeballs-collected",
+            "description": "This keeps track of how many pok\u00e9balls a user finds.",
+            "name": "Pok\u00e9balls Collected"
         },
         ...
     ]
     ```
 
 ### Create a Leaderboard [POST]
-To create a new Leaderboard object simply provide a JSON blob of the `name` and `slug` attributes for the new Leaderboard.
+To create a new Leaderboard object simply provide a JSON blob of the attributes of the new Leaderboard.
 
 + Request (application/json)
 
@@ -164,7 +247,7 @@ To create a new Leaderboard object simply provide a JSON blob of the `name` and 
 
     ```js
     {
-        "success": "true"
+        "success": true
     }
     ```
 
