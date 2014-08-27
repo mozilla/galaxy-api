@@ -1,0 +1,176 @@
+FORMAT: 1A
+HOST: https://api-galaxy.dev.mozaws.net
+
+# Galaxy API
+
+## Current Version
+
+By default, all requests receive the __v1__ version of the API. We encourage you to explicitly request this version via the `Accept` header.
+
+    Accept: application/vnd.galaxy.v1+json
+
+
+# Group Game
+Game related resources of the **Galaxy API**
+
+## Game [/games/{game_slug}]
+### Get details of a game [GET]
+
++ Parameter
+    + game_slug (required, string, `pokemon`) ... `game_slug` of the game to fetch detail of.
+
++ Response 200 (application/json)
+
+        {
+            "app_url": "http://www.fullscreenpokemon.com/", 
+            "slug": "pokemon", 
+            "description": "Full Screen Pokemon is an open source HTML5 remake of the original Pokemon games. You can play the original two generations (Red/Blue through Crystal), literally billions of procedurally generated maps, or create your own using the level editor.", 
+            "name": "Pok\u00e9mon"
+        }
+
+
+# Group Leaderboard
+
+## Leaderboard [/game/{game_slug}/boards/{board_slug}]
+
++ Parameters
+    + game_slug (string, `mario-bros`) ... The slug of the Game.
+    + board_slug (string, `warios-smashed`) ... The slug of the Leaderboard.
+    
++ Model (application/json)
+
+    ```js
+    {
+        "data": [
+            {
+                "user": "cvan",
+                "score": 100
+            },
+            {
+                "user": "david",
+                "score": 705
+            },
+            {
+                "user": "wil",
+                "score": 340
+            },
+        ],
+        "name": "Warios Smashed",
+        "slug": "warios-smashed"
+    }
+    ```
+
+### Retrieve a Leaderboard [GET]
+Returns a specific Leaderboard.
+
++ Response 200 (application/json)
+
+    [Leaderboard][]
+
+### Delete a Leaderboard [DELETE]
+Delete a Leaderboard. The current user must be the same user who created the Leaderboard (or be an admin).
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": "true"
+    }
+    ```
+
+### Update a Leaderboard [PATCH]
+Update the `name` and `slug` for the Leaderboard. Coming soon.
+
++ Request (application/json)
+
+    [Leaderboard][]
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": "true"
+    }
+    ```
+
+## Leaderboard Score [/game/{game_slug}/boards/{board_slug}/scores]
+
++ Parameters
+    + game_slug (string, `mario-bros`) ... The slug of the Game.
+    + board_slug (string, `warios-smashed`) ... The slug of the Leaderboard.
+
+### Add a Score [POST]
+Updates the score for a Leaderboard board for a particular game.
+
++ Request (application/json)
+
+    ```js
+    {
+        "value": 5.0
+    }
+    ```
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": "true"
+    }
+    ```
+
+## Leaderboard Collection [/game/{game_slug}/boards]
+A collection of Leaderboards.
+
++ Model (application/json)
+
+    ```js
+    [
+        {
+            "data": [
+                {
+                    "user": 1,
+                    "score": 100
+                },
+                {
+                    "user": 5,
+                    "score": 705
+                },
+                {
+                    "user": 9,
+                    "score": 340
+                },
+                ...
+            ],
+            "name": "Warios Smashed",
+            "slug": "warios-smashed"
+        },
+        ...
+    ]
+    ```
+
+### Create a Leaderboard [POST]
+To create a new Leaderboard object simply provide a JSON blob of the `name` and `slug` attributes for the new Leaderboard.
+
++ Request (application/json)
+
+    ```js
+    {
+        "name": "Name of Leaderboard",
+        "string": "Slug of Leaderboard"
+    }
+    ```
+
++ Response 200 (application/json)
+
+    ```js
+    {
+        "success": "true"
+    }
+    ```
+
+### Retrieve all Leaderboards [GET]
+Returns a list of the Leaderboards available for a particular game.
+
++ Response 200 (application/json)
+
+    [Leaderboard Collection][]
