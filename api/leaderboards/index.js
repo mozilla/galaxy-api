@@ -223,11 +223,13 @@ exports.scores_create = function *() {
   var gameSlug = this.params.game_slug;
   var boardSlug = this.params.board_slug;
 
-  yield new Leaderboard({
+  var leaderboard = new Leaderboard({
     game: gameSlug,
     slug: boardSlug,
     payload: payload
-  }).add(payload.user, payload.score).then(function () {
+  });
+
+  yield leaderboard.incr(payload.user, payload.score).then(function () {
     response.success();
   }).catch(response.dbError);
 };
