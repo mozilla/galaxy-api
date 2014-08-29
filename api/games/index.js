@@ -12,29 +12,30 @@ var validate = utils.promisify(Joi.validate);  // Promise-based `Joi.validate`
 
 
 var gameKeys = {
-  // App URL must start with `https://` or `http://`.
-  app_url: Joi.string().regex(/^https?:\/\//).required()
+  // Game Descripion is optional.
+  description: Joi.string().example('Mario Bros. is a sweet adventure game.'),
+
+  // Game URL must start with `https://` or `http://`.
+  game_url: Joi.string().regex(/^https?:\/\//).required()
     .example('http://nintendo.com/mario-bros/'),
 
-  // App Name cannot be longer than 150 characters long.
+  // Game Name cannot be longer than 150 characters long.
   name: Joi.string().max(150).required()
     .example('Mario Bros.'),
 
-  // App Slug cannot be all digits, all underscores, or all hyphens
+  // Game Slug cannot be all digits, all underscores, or all hyphens
   // and must contain only letters, numbers, underscores, and hyphens.
   // TODO: Throw an error if `slug` is already taken.
   slug: Joi.string().regex(/^(?!\d*$)(?!_*$)(?!-*$)[\w-]+$/).required()
-    .example('mario-bros'),
-
-  description: Joi.string().example('Mario Bros. is a sweet adventure game.')
+    .example('mario-bros')
 };
 
 // Define schema for JSON payloads. (Run `Joi.describe` to see examples.)
 var gameSchema = Joi.object().keys(gameKeys).example({
-  app_url: 'http://nintendo.com/mario-bros/',
+  description: 'Mario Bros. is a sweet adventure game.'
+  game_url: 'http://nintendo.com/mario-bros/',
   name: 'Mario Bros.',
   slug: 'mario-bros',
-  description: 'Mario Bros. is a sweet adventure game.'
 });
 
 
