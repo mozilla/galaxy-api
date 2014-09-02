@@ -1,4 +1,4 @@
-# galaxy-api
+![galaxy-api logo](images/logo.png?raw=true)
 
 Here lies the REST API for [Galaxy](https://github.com/mozilla/galaxy).
 
