@@ -32,7 +32,7 @@ var gameKeys = {
 
 // Define schema for JSON payloads. (Run `Joi.describe` to see examples.)
 var gameSchema = Joi.object().keys(gameKeys).example({
-  description: 'Mario Bros. is a sweet adventure game.'
+  description: 'Mario Bros. is a sweet adventure game.',
   game_url: 'http://nintendo.com/mario-bros/',
   name: 'Mario Bros.',
   slug: 'mario-bros',
