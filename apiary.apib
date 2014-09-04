@@ -5,9 +5,19 @@ HOST: https://api-galaxy.dev.mozaws.net
 
 ## Current Version
 
-By default, all requests receive the __v1__ version of the API. We encourage you to explicitly request this version via the `Accept` header.
+By default, all requests receive the __v1__ version of the API. We encourage you to explicitly request the version via the `Accept` header:
 
     Accept: application/vnd.galaxy.v1+json
+
+## Schema
+
+All API access is over HTTPS and is accessed from the api-galaxy.dev.mozaws.net origin. All data is sent and received as JSON.
+
+Blank fields are included as null instead of being omitted.
+
+All timestamps are returned in ISO 8601 format:
+
+    YYYY-MM-DDTHH:MM:SSZ
 
 
 # Group Game
