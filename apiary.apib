@@ -22,7 +22,7 @@ All timestamps are returned in ISO 8601 format:
 
 # Group Game
 
-## Game [/game/{game_slug}]
+## Game [/games/{game_slug}]
 
 + Parameters
     + game_slug (string, `pokemon`) ... The slug of the Game.
@@ -113,7 +113,7 @@ Returns a list of the Games available for a particular game.
 
 # Group Leaderboard
 
-## Leaderboard [/game/{game_slug}/leaderboards/{board_slug}]
+## Leaderboard [/games/{game_slug}/leaderboards/{board_slug}]
 
 + Parameters
     + game_slug (string, `pokemon`) ... The slug of the Game.
@@ -162,7 +162,7 @@ Update the fields of the Leaderboard.
     }
     ```
 
-## Leaderboard Score [/game/{game_slug}/leaderboards/{board_slug}/scores]
+## Leaderboard Score [/games/{game_slug}/leaderboards/{board_slug}/scores]
 
 + Parameters
     + game_slug (string, `pokemon`) ... The slug of the Game.
@@ -225,7 +225,7 @@ Updates the score for a Leaderboard board for a particular game.
     ]
     ```
 
-## Leaderboard Collection [/game/{game_slug}/leaderboards]
+## Leaderboard Collection [/games/{game_slug}/leaderboards]
 A collection of Leaderboards.
 
 + Model (application/json)
