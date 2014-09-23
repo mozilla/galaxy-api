@@ -16,17 +16,21 @@ Node 0.11.x is required for the `--harmony` flag which enables generators (requi
     npm install -g n
     n 0.11.12
 
+Other dependencies:
+
+    redis
+
 
 ## Development
 
 Initialise settings, if you haven't already:
 
-    cp ./settings_local.js.dist ./settings_local.js
+    cp ./settings_dev.js.dist ./settings_dev.js
 
 Set these environment variables:
 
     NODE_ENV=development
-    GALAXY_API_SETTINGS=./settings_local.js
+    GALAXY_API_SETTINGS=./settings_dev.js
 
 To run the local web server:
 
@@ -67,7 +71,7 @@ Alternatively:
 
 Initialise settings:
 
-    cp ./settings_local.js.dist ./settings_local.js
+    cp ./settings_test.js.dist ./settings_test.js
 
 Set these environment variables:
 
