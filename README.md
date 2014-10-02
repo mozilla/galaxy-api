@@ -4,6 +4,8 @@ Here lies the API for [Galaxy](https://github.com/mozilla/galaxy).
 
 There is a REST HTTP API and WebSocket API. The REST API can be consumed by game developers. The WebSocket API is intended to be consumed by [galaxy.js](https://github.com/mozilla/galaxy.js), a simple drop-in JavaScript API for multiplayer, web-based games.
 
+> __Note:__ This project is not ready for prime time. Not an official Mozilla project. Pre-alpha everything. Anything and everything at your own risk.
+
 
 ## Installation
 
