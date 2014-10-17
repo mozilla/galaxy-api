@@ -10,6 +10,7 @@ var responseTime = require('koa-response-time');
 var router = require('koa-router');
 
 var db = require('./lib/db');
+var errors = require('./lib/utils/errors');
 var load = require('./lib/load');
 var settings = require('./settings');
 
@@ -64,6 +65,20 @@ if (settings.RATELIMIT_ENABLED) {
 }
 
 // Parse JSON bodies.
+app.use(function *(next) {
+  try {
+    yield next;
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      // Caused by a malformed JSON payload, thrown by the koa-parse-json module.
+      this.status = 400;
+      this.body = errors.ValidationError('Payload is malformed: ' + err.message);
+    } else {
+      // Let other errors bubble up.
+      throw err;
+    }
+  }
+});
 app.use(body());
 
 // Routing.
