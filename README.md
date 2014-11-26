@@ -1,5 +1,7 @@
 ![galaxy-api logo](images/logo.png?raw=true)
 
+[![Build Status](https://travis-ci.org/mozilla/galaxy-api.svg?branch=master)](https://travis-ci.org/mozilla/galaxy-api "Build Status")
+
 Here lies the API for [Galaxy](https://github.com/mozilla/galaxy).
 
 There is a REST HTTP API and WebSocket API. The REST API can be consumed by game developers. The WebSocket API is intended to be consumed by [galaxy.js](https://github.com/mozilla/galaxy.js), a simple drop-in JavaScript API for multiplayer, web-based games.
