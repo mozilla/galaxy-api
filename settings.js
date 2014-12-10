@@ -1,21 +1,26 @@
 var settings_local = {};
-if ('GALAXY_API_SETTINGS' in process.env) {
-  console.log('Using settings file ' + process.env.GALAXY_API_SETTINGS);
-  settings_local = require(process.env.GALAXY_API_SETTINGS);
+
+var settings_path = process.env.GALAXY_API_SETTINGS;
+if (settings_path) {
+  if (settings_path[0] !== '.' &&
+      settings_path[0] !== '/' &&
+      settings_path[0] !== '~') {
+    // Assume it's a relative path.
+    settings_path = './' + settings_path;
+  }
+  console.log('Using settings file ' + settings_path);
+  settings_local = require(settings_path);
 }
 
 exports.DEBUG = false;
-exports.ORIGIN = 'http://localhost/';
+exports.ORIGIN = 'http://localhost:4000';
 
 exports.HOST = '0.0.0.0';
 exports.PORT = 4000;
-exports.BACKLOG_SIZE = 511;
 
-exports.RATELIMIT_ENABLED = false;
-exports.RATELIMIT_MAX = 2500;  // Max number of requests
-exports.RATELIMIT_DURATION = '1h';  // Duration of ratelimiting
+// Usage: postgres://user:password@host/database
+exports.POSTGRES_URL = 'postgres://localhost/galaxy-api';
 
-exports.REDIS_URL = 'redis://localhost:6379';
 exports.SECRET = 'a secret string';
 
 for (var k in settings_local) {
