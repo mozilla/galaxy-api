@@ -7,7 +7,6 @@ var sources = {
   scripts: [
     '*.js',
     'api/**/*.js',
-    'bin/**/*.js',
     'lib/**/*.js'
   ]
 };
