@@ -12,7 +12,7 @@ var validate = utils.promisify(Joi.validate);  // Promise-based `Joi.validate`
 
 
 var gameKeys = {
-  // Game Descripion is optional.
+  // Game Description is optional.
   description: Joi.string().example('Mario Bros. is a sweet adventure game.'),
 
   // Game URL must start with `https://` or `http://`.
