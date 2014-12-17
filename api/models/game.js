@@ -1,3 +1,6 @@
+var Promise = require('es6-promise').Promise;
+
+
 function Game(data) {
   // Game Description is optional.
   this.description = data.description;
@@ -13,5 +16,13 @@ function Game(data) {
   // The slug must also be unique.
   this.slug = data.slug;
 }
+
+Game.get = function get(data) {
+  return new Promise(function (resolve, reject) {
+
+
+
+  });
+};
 
 module.exports = Game;
