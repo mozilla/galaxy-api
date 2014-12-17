@@ -18,9 +18,7 @@ module.exports = function (server) {
     method: 'POST',
     path: '/games',
     handler: function (request, reply) {
-      reply(gameController.create(request));
-
-      // request.reply(product).code(201).header('Location', '/products/' + product.id);
+      gameController.create(request, reply);
     },
     config: {
       validate: {
@@ -51,23 +49,24 @@ module.exports = function (server) {
     method: 'GET',
     path: '/games/{idOrSlug}',
     handler: function (request, reply) {
-      reply(gameController.get(request));
+      console.log('games/id handler');
+      gameController.get(request, reply);
     },
-    config: {
-      validate: {
-        params: {
-          // // Game Slug cannot be all digits, all underscores, or all hyphens
-          // // and must contain only letters, numbers, underscores, and hyphens.
-          // // TODO: ID *or* slug is required; enforce.
-          // idOrSlug: joi.number().integer().example('9'),
+    // config: {
+    //   validate: {
+    //     params: {
+    //       // Game Slug cannot be all digits, all underscores, or all hyphens
+    //       // and must contain only letters, numbers, underscores, and hyphens.
+    //       // TODO: ID *or* slug is required; enforce.
+    //       idOrSlug: joi.number().integer().example('9'),
 
-          // // Game Slug cannot be all digits, all underscores, or all hyphens
-          // // and must contain only letters, numbers, underscores, and hyphens.
-          // // TODO: ID *or* slug is required; enforce.
-          idOrSlug: joi.string().regex(/^(?!\d*$)(?!_*$)(?!-*$)[\w-]+$/)
-            .example('mario-bros')
-        }
-      }
-    }
+    //       // Game Slug cannot be all digits, all underscores, or all hyphens
+    //       // and must contain only letters, numbers, underscores, and hyphens.
+    //       // TODO: ID *or* slug is required; enforce.
+    //       idOrSlug: joi.string().regex(/^(?!\d*$)(?!_*$)(?!-*$)[\w-]+$/)
+    //         .example('mario-bros')
+    //     }
+    //   }
+    // }
   });
 };
