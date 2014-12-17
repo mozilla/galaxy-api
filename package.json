@@ -4,8 +4,10 @@
   "dependencies": {
     "es6-promise": "^1.0.0",
     "hapi": "^8.0.0",
-    "pg": "^4.1.0",
-    "hapi-pg": "^0.1.0"
+    "joi": "^5.0.2",
+    "pg": "^4.1.1",
+    "hapi-node-postgres": "cvan/hapi-node-postgres#no-pg-native",
+    "node-pg-migrate": "0.0.7"
   },
   "devDependencies": {
     "gulp": "^3.8.7",

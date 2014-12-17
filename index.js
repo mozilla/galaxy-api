@@ -13,13 +13,13 @@ server.start(function () {
 });
 
 server.register({
-  register: require('hapi-pg'),
+  register: require('hapi-node-postgres'),
   options: {
     connectionString: settings.POSTGRES_URL
   }
 }, function (err) {
   if (err) {
-    console.error(err);
+    console.error('Failed to load "hapi-node-postgres" plugin: %s', err);
     throw err;
   }
 });
