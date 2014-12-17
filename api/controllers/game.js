@@ -1,5 +1,4 @@
 var Game = require('../models/game.js');
-var db = require('../../lib/db');
 
 
 module.exports = {

@@ -4,7 +4,8 @@
   "dependencies": {
     "es6-promise": "^1.0.0",
     "hapi": "^8.0.0",
-    "pg": "^4.1.0"
+    "pg": "^4.1.0",
+    "hapi-pg": "^0.1.0"
   },
   "devDependencies": {
     "gulp": "^3.8.7",
