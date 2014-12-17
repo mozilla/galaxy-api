@@ -11,13 +11,7 @@ function Game(data) {
   // Game Slug cannot be all digits, all underscores, or all hyphens
   // and must contain only letters, numbers, underscores, and hyphens.
   // The slug must also be unique.
-  this.slug = this.slug();
-
-  this.task = task || 'New Task';
-  this.category = category || 'General';
-  this.priority = priority || 1;
-  this.endDate = endDate || 'No End Date';
-  this.isDone = false;
+  this.slug = data.slug;
 }
 
 module.exports = Game;

@@ -19,7 +19,7 @@ exports.HOST = '0.0.0.0';
 exports.PORT = 4000;
 
 // Usage: postgres://user:password@host/database
-exports.POSTGRES_URL = 'postgres://localhost/galaxy-api';
+exports.POSTGRES_URL = process.env.DATABASE_URL || 'postgres://localhost/galaxy-api';
 
 exports.SECRET = 'a secret string';
 

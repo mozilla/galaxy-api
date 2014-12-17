@@ -47,10 +47,6 @@ To run linting tools:
 
     gulp lint
 
-To access the PostgreSQL prompt:
-
-    psql
-
 
 ## Production
 
@@ -82,7 +78,35 @@ Set these environment variables:
 
     NODE_ENV=test
     GALAXY_API_SETTINGS=./settings_test.js
+    DATABASE_URL='postgres://localhost/galaxy-api'
 
 To run tests:
 
     npm test
+
+
+## Database
+
+If you haven't already, create a PostgreSQL database:
+
+    createdb galaxy-api
+
+To access the PostgreSQL prompt:
+
+    psql -d galaxy-api
+
+To run migrations, run this from the shell:
+
+    node node_modules/.bin/pg-migrate up
+
+To get a list the tables:
+
+    \dt+
+
+To get a table's schema:
+
+    \d+ games
+
+To delete a table:
+
+    drop table <table_name>;
