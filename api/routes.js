@@ -10,7 +10,12 @@ module.exports = function (server) {
     method: 'GET',
     path: '/games',
     handler: function (request, reply) {
-      reply(gameController.get(request));
+      gameController.get(request).then(reply, function (response) {
+        reply(response).code(response.statusCode);
+      }).catch(function (err) {
+        console.error(err);
+        reply(err);
+      });
     }
   });
 
@@ -18,7 +23,12 @@ module.exports = function (server) {
     method: 'POST',
     path: '/games',
     handler: function (request, reply) {
-      gameController.create(request, reply);
+      gameController.create(request).then(reply, function (response) {
+        reply(response).code(response.statusCode);
+      }).catch(function (err) {
+        console.error(err);
+        reply(err);
+      });
     },
     config: {
       validate: {
@@ -50,7 +60,12 @@ module.exports = function (server) {
     path: '/games/{idOrSlug}',
     handler: function (request, reply) {
       console.log('games/id handler');
-      gameController.get(request, reply);
+      gameController.get(request).then(reply, function (response) {
+        reply(response).code(response.statusCode);
+      }).catch(function (err) {
+        console.error(err);
+        reply(err);
+      });
     },
     // config: {
     //   validate: {
