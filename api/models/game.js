@@ -30,15 +30,14 @@ Game.objects.get = function (db, data) {
 
     db.query(query, [data.idOrSlug], function (err, result) {
       if (err) {
-        return reject(err);
+        return reject(utils.errors.DatabaseError(err));
       }
 
       if (!result.rows.length) {
         return reject(utils.errors.DoesNotExist());
       }
 
-      // TODO: Throw error when row couldn't get be selected (#259).
-      resolve(err || result.rows[0]);
+      resolve(result.rows[0]);
     });
   });
 };
