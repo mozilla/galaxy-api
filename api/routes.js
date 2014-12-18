@@ -15,7 +15,7 @@ module.exports = function (server) {
     method: 'GET',
     path: '/games',
     handler: function (request, reply) {
-      gameController.get(request)
+      gameController.all(request)
       .then(reply)
       .catch(function (err) {
         reply(utils.returnError(err));

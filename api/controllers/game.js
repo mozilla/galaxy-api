@@ -5,17 +5,21 @@ var utils = require('../../lib/utils');
 
 
 module.exports = {
+  all: function (request) {
+    return Game.objects.all(request.pg.client,
+      request.params);
+  },
   create: function (request) {
     return Game.objects.create(request.pg.client,
       request.payload
     );
   },
-  remove: function () {
-  },
   get: function (request) {
     return Game.objects.get(request.pg.client, {
       idOrSlug: request.params.idOrSlug
     });
+  },
+  remove: function () {
   },
   update: function () {
   }
