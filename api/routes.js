@@ -5,6 +5,12 @@ var utils = require('../lib/utils');
 
 
 module.exports = function (server) {
+  /*
+  Sample usage:
+
+    curl 'http://localhost:4000/games'
+
+  */
   server.route({
     method: 'GET',
     path: '/games',
@@ -17,6 +23,14 @@ module.exports = function (server) {
     }
   });
 
+  /*
+  Sample usage:
+
+    curl -X POST 'http://localhost:4000/games' \
+      -d '{"name": "mario bros", "game_url": "http://nintendo.com", "slug": "mario"}' \
+      -H 'Content-Type: application/json'
+
+  */
   server.route({
     method: 'POST',
     path: '/games',
@@ -51,6 +65,13 @@ module.exports = function (server) {
     }
   });
 
+  /*
+  Sample usage:
+
+    curl 'http://localhost:4000/games/1'
+    curl 'http://localhost:4000/games/mario'
+
+  */
   // TODO: Throw error if neither `/games/{id}` nor `/games/{slug}` resolves.
   server.route({
     method: 'GET',
