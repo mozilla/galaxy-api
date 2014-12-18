@@ -23,6 +23,19 @@ function Game(data) {
 Game.objects = {};
 
 
+Game.objects.all = function (db, data) {
+  return new Promise(function (resolve, reject) {
+    db.query('SELECT * FROM games', function (err, result) {
+      if (err) {
+        return reject(utils.errors.DatabaseError(err));
+      }
+
+      resolve(result.rows);
+    });
+  });
+};
+
+
 Game.objects.create = function (db, data) {
   return new Promise(function (resolve, reject) {
     var game = new Game(data);
