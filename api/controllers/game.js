@@ -26,33 +26,9 @@ module.exports = {
   remove: function () {
   },
   get: function (request) {
-    return new Promise(function (resolve, reject) {
-      var game = new Game(request.params);
-
-      var query = (utils.isNumeric(request.params.idOrSlug) ?
-        'SELECT * FROM games WHERE id = $1' :
-        'SELECT * FROM games WHERE slug = $1'
-      );
-
-      request.pg.client.query(query, [request.params.idOrSlug],
-        function (err, result) {
-          if (err) {
-            return reject(err);
-          }
-
-          if (!result.rows.length) {
-            // TODO: Return proper JSON when row couldn't be seleced.
-            return reject({
-              statusCode: 404,
-              error: 'Not Found',
-              message: 'No game found'
-            });
-          }
-
-          // TODO: Throw error for `err` when row couldn't get be selected.
-          resolve(err || result.rows[0]);
-      });
-    });
+    return Game.objects.get(request.pg.client, {
+      idOrSlug: request.params.idOrSlug
+    }).catch(utils.returnError);
   },
   update: function () {
   }

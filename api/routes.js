@@ -59,13 +59,7 @@ module.exports = function (server) {
     method: 'GET',
     path: '/games/{idOrSlug}',
     handler: function (request, reply) {
-      console.log('games/id handler');
-      gameController.get(request).then(reply, function (response) {
-        reply(response).code(response.statusCode);
-      }).catch(function (err) {
-        console.error(err);
-        reply(err);
-      });
+      gameController.get(request).then(reply).catch(reply);
     },
     // config: {
     //   validate: {

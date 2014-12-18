@@ -1,5 +1,7 @@
 var Promise = require('es6-promise').Promise;
 
+var utils = require('../../lib/utils');
+
 
 function Game(data) {
   // Game Description is optional.
@@ -17,11 +19,27 @@ function Game(data) {
   this.slug = data.slug;
 }
 
-Game.get = function get(data) {
+Game.objects = {};
+
+Game.objects.get = function (db, data) {
   return new Promise(function (resolve, reject) {
+    var query = (utils.isNumeric(data.idOrSlug) ?
+      'SELECT * FROM games WHERE id = $1' :
+      'SELECT * FROM games WHERE slug = $1'
+    );
 
+    db.query(query, [data.idOrSlug], function (err, result) {
+      if (err) {
+        return reject(err);
+      }
 
+      if (!result.rows.length) {
+        return reject(utils.errors.DoesNotExist());
+      }
 
+      // TODO: Throw error when row couldn't get be selected (#259).
+      resolve(err || result.rows[0]);
+    });
   });
 };
 
