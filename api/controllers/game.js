@@ -14,12 +14,12 @@ module.exports = {
         'VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
         [game.slug, game.game_url, game.name, game.description],
         function (err, result) {
-          if (err) {
-            return reject(err);
-          }
 
-          // TODO: Throw error if row couldn't be inserted.
-          resolve(err || result.rows[0]);
+        if (err) {
+          return reject(utils.errors.DatabaseError(err));
+        }
+
+        resolve(result.rows[0]);
       });
     });
   },
@@ -28,7 +28,7 @@ module.exports = {
   get: function (request) {
     return Game.objects.get(request.pg.client, {
       idOrSlug: request.params.idOrSlug
-    }).catch(utils.returnError);
+    });
   },
   update: function () {
   }

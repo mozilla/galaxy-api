@@ -1,8 +1,7 @@
-var hapi = require('hapi');
-
 var joi = require('joi');
 
 var gameController = require('./controllers/game.js');
+var utils = require('../lib/utils');
 
 
 module.exports = function (server) {
@@ -10,11 +9,10 @@ module.exports = function (server) {
     method: 'GET',
     path: '/games',
     handler: function (request, reply) {
-      gameController.get(request).then(reply, function (response) {
-        reply(response).code(response.statusCode);
-      }).catch(function (err) {
-        console.error(err);
-        reply(err);
+      gameController.get(request)
+      .then(reply)
+      .catch(function (err) {
+        reply(utils.returnError(err));
       });
     }
   });
@@ -23,11 +21,10 @@ module.exports = function (server) {
     method: 'POST',
     path: '/games',
     handler: function (request, reply) {
-      gameController.create(request).then(reply, function (response) {
-        reply(response).code(response.statusCode);
-      }).catch(function (err) {
-        console.error(err);
-        reply(err);
+      gameController.create(request)
+      .then(reply)
+      .catch(function (err) {
+        reply(utils.returnError(err));
       });
     },
     config: {
@@ -59,7 +56,11 @@ module.exports = function (server) {
     method: 'GET',
     path: '/games/{idOrSlug}',
     handler: function (request, reply) {
-      gameController.get(request).then(reply).catch(reply);
+      gameController.get(request)
+      .then(reply)
+      .catch(function (err) {
+        reply(utils.returnError(err));
+      });
     },
     // config: {
     //   validate: {
