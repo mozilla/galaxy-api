@@ -6,22 +6,9 @@ var utils = require('../../lib/utils');
 
 module.exports = {
   create: function (request) {
-    return new Promise(function (resolve, reject) {
-      var game = new Game(request.payload);
-
-      request.pg.client.query(
-        'INSERT INTO games (slug, game_url, name, description, created) ' +
-        'VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
-        [game.slug, game.game_url, game.name, game.description],
-        function (err, result) {
-
-        if (err) {
-          return reject(utils.errors.DatabaseError(err));
-        }
-
-        resolve(result.rows[0]);
-      });
-    });
+    return Game.objects.create(request.pg.client,
+      request.payload
+    );
   },
   remove: function () {
   },
