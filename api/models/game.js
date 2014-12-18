@@ -19,7 +19,29 @@ function Game(data) {
   this.slug = data.slug;
 }
 
+
 Game.objects = {};
+
+
+Game.objects.create = function (db, data) {
+  return new Promise(function (resolve, reject) {
+    var game = new Game(data);
+
+    db.query(
+      'INSERT INTO games (slug, game_url, name, description, created) ' +
+      'VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
+      [game.slug, game.game_url, game.name, game.description],
+      function (err, result) {
+
+      if (err) {
+        return reject(utils.errors.DatabaseError(err));
+      }
+
+      resolve(result.rows[0]);
+    });
+  });
+};
+
 
 Game.objects.get = function (db, data) {
   return new Promise(function (resolve, reject) {
@@ -41,5 +63,6 @@ Game.objects.get = function (db, data) {
     });
   });
 };
+
 
 module.exports = Game;
