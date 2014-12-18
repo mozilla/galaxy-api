@@ -1,10 +1,10 @@
 exports.up = function (pgm, run) {
   pgm.createTable('games', {
     id: {type: 'serial', primaryKey: true},
-    description: {type: 'string'},
+    slug: {type: 'string', unique: true},
     game_url: {type: 'string', unique: true},
     name: {type: 'string'},
-    slug: {type: 'string', unique: true},
+    description: {type: 'string'},
     created: {type: 'datetime'},
     modified: {type: 'datetime'}
   });

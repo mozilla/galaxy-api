@@ -10,9 +10,9 @@ module.exports = {
       var game = new Game(request.payload);
 
       request.pg.client.query(
-        'INSERT INTO games (description, game_url, name, slug, created) ' +
+        'INSERT INTO games (slug, game_url, name, description, created) ' +
         'VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
-        [game.description, game.game_url, game.name, game.slug],
+        [game.slug, game.game_url, game.name, game.description],
         function (err, result) {
           if (err) {
             return reject(err);
