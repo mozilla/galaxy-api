@@ -4,6 +4,26 @@ var gameController = require('./controllers/game.js');
 var utils = require('../lib/utils');
 
 
+var gameSchema = {
+  // Game Description is optional.
+  description: joi.string().example('Mario Bros. is a sweet adventure game.'),
+
+  // Game URL must start with `https://` or `http://`.
+  game_url: joi.string().regex(/^https?:\/\//).required()
+    .example('http://nintendo.com/mario-bros/'),
+
+  // Game Name cannot be longer than 150 characters long.
+  name: joi.string().max(150).required()
+    .example('Mario Bros.'),
+
+  // Game Slug cannot be all digits, all underscores, or all hyphens
+  // and must contain only letters, numbers, underscores, and hyphens.
+  // TODO: Throw an error if `slug` is already taken.
+  slug: joi.string().regex(/^(?!\d*$)(?!_*$)(?!-*$)[\w-]+$/).required()
+    .example('mario-bros')
+};
+
+
 module.exports = function (server) {
   /*
   Sample usage:
@@ -43,24 +63,7 @@ module.exports = function (server) {
     },
     config: {
       validate: {
-        payload: {
-          // Game Description is optional.
-          description: joi.string().example('Mario Bros. is a sweet adventure game.'),
-
-          // Game URL must start with `https://` or `http://`.
-          game_url: joi.string().regex(/^https?:\/\//).required()
-            .example('http://nintendo.com/mario-bros/'),
-
-          // Game Name cannot be longer than 150 characters long.
-          name: joi.string().max(150).required()
-            .example('Mario Bros.'),
-
-          // Game Slug cannot be all digits, all underscores, or all hyphens
-          // and must contain only letters, numbers, underscores, and hyphens.
-          // TODO: Throw an error if `slug` is already taken.
-          slug: joi.string().regex(/^(?!\d*$)(?!_*$)(?!-*$)[\w-]+$/).required()
-            .example('mario-bros')
-        }
+        payload: gameSchema
       }
     }
   });
@@ -117,6 +120,34 @@ module.exports = function (server) {
       .catch(function (err) {
         reply(utils.returnError(err));
       });
+    }
+  });
+
+  /*
+  Sample usage:
+
+    curl -X PUT 'http://localhost:4000/games/1' \
+      -d '{"name": "mario bros", "game_url": "http://nintendo.com", "slug": "mario"}' \
+      -H 'Content-Type: application/json'
+    curl -X PUT 'http://localhost:4000/games/mario' \
+      -d '{"name": "mario bros", "game_url": "http://nintendo.com", "slug": "mario"}' \
+      -H 'Content-Type: application/json'
+
+  */
+  server.route({
+    method: 'PUT',
+    path: '/games/{idOrSlug}',
+    handler: function (request, reply) {
+      gameController.update(request)
+      .then(reply)
+      .catch(function (err) {
+        reply(utils.returnError(err));
+      });
+    },
+    config: {
+      validate: {
+        payload: gameSchema
+      }
     }
   });
 };

@@ -4,13 +4,10 @@ var utils = require('../../lib/utils');
 
 var internals = {
   publicFields: [
-    'id',
     'slug',
     'game_url',
     'name',
     'description',
-    'created',
-    'modified'
   ]
 };
 
@@ -54,7 +51,7 @@ function Game(data) {
 }
 
 
-Game._getPublicObj = function (row) {
+Game.getPublicObj = function (row) {
   var publicObj = {};
   internals.publicFields.forEach(function (key) {
     publicObj[key] = row[key];
@@ -75,7 +72,7 @@ Game.objects.all = function (db, data) {
         return reject(utils.errors.DatabaseError(err));
       }
 
-      resolve(result.rows.map(Game._getPublicObj));
+      resolve(result.rows);
     });
   });
 };
@@ -93,7 +90,7 @@ Game.objects.create = function (db, data) {
         return reject(utils.errors.DatabaseError(err));
       }
 
-      resolve(Game._getPublicObj(result.rows[0]));
+      resolve(result.rows[0]);
     });
   });
 };
@@ -111,11 +108,11 @@ Game.objects._select = function (db, data, columns) {
         return reject(utils.errors.DatabaseError(err));
       }
 
-      if (!result.rows.length) {
+      if (!result.rowCount) {
         return reject(utils.errors.DoesNotExist());
       }
 
-      resolve(Game._getPublicObj(result.rows[0]));
+      resolve(result.rows[0]);
     });
   });
 };
@@ -151,6 +148,33 @@ Game.objects.remove = function (db, data) {
         }
 
         resolve({success: true});
+      });
+    });
+
+  });
+};
+
+
+Game.objects.update = function (db, dataToFetchBy, dataToSave) {
+  return Game.objects.get(db, dataToFetchBy).then(function (game) {
+
+    return new Promise(function (resolve, reject) {
+      db.query(
+        'UPDATE games SET slug = $1, game_url = $2, name = $3, ' +
+        'description = $4, modified = NOW() WHERE id = $5 RETURNING *',
+        [dataToSave.slug, dataToSave.game_url, dataToSave.name,
+         dataToSave.description, game.id], function (err, result) {
+
+        if (err) {
+          return reject(utils.errors.DatabaseError(err));
+        }
+
+        // This should never be possible.
+        if (!result.rowCount) {
+          return reject(utils.errors.DoesNotExist());
+        }
+
+        resolve(result.rows[0]);
       });
     });
 
