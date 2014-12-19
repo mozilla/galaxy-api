@@ -90,7 +90,15 @@ Game.objects.create = function (db, data) {
         return reject(utils.errors.DatabaseError(err));
       }
 
-      resolve(result.rows[0]);
+      // This should never be possible.
+      if (!result.rowCount) {
+        return reject(utils.errors.DoesNotExist());
+      }
+
+      resolve({
+        body: result.rows[0],
+        uri: '/games/' + result.rows[0].slug
+      });
     });
   });
 };

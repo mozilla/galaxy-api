@@ -28,7 +28,7 @@ module.exports = function (server) {
   /*
   Sample usage:
 
-    curl 'http://localhost:4000/games'
+    curl 'http://localhost:4000/games' -i
 
   */
   server.route({
@@ -48,7 +48,7 @@ module.exports = function (server) {
 
     curl -X POST 'http://localhost:4000/games' \
       -d '{"name": "mario bros", "game_url": "http://nintendo.com", "slug": "mario"}' \
-      -H 'Content-Type: application/json'
+      -H 'Content-Type: application/json' -i
 
   */
   server.route({
@@ -56,7 +56,9 @@ module.exports = function (server) {
     path: '/games',
     handler: function (request, reply) {
       gameController.create(request)
-      .then(reply)
+      .then(function (res) {
+        reply(res.body).created(res.uri);
+      })
       .catch(function (err) {
         reply(utils.returnError(err));
       });
@@ -71,8 +73,8 @@ module.exports = function (server) {
   /*
   Sample usage:
 
-    curl 'http://localhost:4000/games/1'
-    curl 'http://localhost:4000/games/mario'
+    curl 'http://localhost:4000/games/1' -i
+    curl 'http://localhost:4000/games/mario' -i
 
   */
   // TODO: Throw error if neither `/games/{id}` nor `/games/{slug}` resolves.
@@ -107,8 +109,8 @@ module.exports = function (server) {
   /*
   Sample usage:
 
-    curl -X DELETE 'http://localhost:4000/games/1'
-    curl -X DELETE 'http://localhost:4000/games/mario'
+    curl -X DELETE 'http://localhost:4000/games/1' -i
+    curl -X DELETE 'http://localhost:4000/games/mario' -i
 
   */
   server.route({

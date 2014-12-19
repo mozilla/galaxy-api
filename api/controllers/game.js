@@ -12,7 +12,12 @@ module.exports = {
   },
   create: function (request) {
     return Game.objects.create(request.pg.client, request.payload)
-    .then(Game.getPublicObj);
+    .then(function (res) {
+      return {
+        body: Game.getPublicObj(res.body),
+        uri: res.uri
+      };
+    });
   },
   get: function (request) {
     return Game.objects.get(request.pg.client, request.params)
