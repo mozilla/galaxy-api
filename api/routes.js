@@ -101,6 +101,13 @@ module.exports = function (server) {
     // }
   });
 
+  /*
+  Sample usage:
+
+    curl -X DELETE 'http://localhost:4000/games/1'
+    curl -X DELETE 'http://localhost:4000/games/mario'
+
+  */
   server.route({
     method: 'DELETE',
     path: '/games/{idOrSlug}',
