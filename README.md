@@ -99,6 +99,10 @@ To run migrations, run this from the shell:
 
     node node_modules/.bin/pg-migrate up
 
+To create a new migration:
+
+    node node_modules/.bin/pg-migrate create <migrationName>
+
 To get a list the tables:
 
     \dt+
@@ -110,3 +114,7 @@ To get a table's schema:
 To delete a table:
 
     drop table <table_name>;
+
+To view a table in "extended display":
+
+    \x on

@@ -25,7 +25,9 @@ Game.objects = {};
 
 Game.objects.all = function (db, data) {
   return new Promise(function (resolve, reject) {
-    db.query('SELECT * FROM games', function (err, result) {
+    db.query('SELECT * FROM games WHERE deleted = false',
+      function (err, result) {
+
       if (err) {
         return reject(utils.errors.DatabaseError(err));
       }
@@ -56,11 +58,11 @@ Game.objects.create = function (db, data) {
 };
 
 
-Game.objects.get = function (db, data) {
+Game.objects._select = function (db, data, columns) {
   return new Promise(function (resolve, reject) {
     var query = (utils.isNumeric(data.idOrSlug) ?
-      'SELECT * FROM games WHERE id = $1' :
-      'SELECT * FROM games WHERE slug = $1'
+      'SELECT ' + columns + ' FROM games WHERE id = $1 AND deleted = false' :
+      'SELECT ' + columns + ' FROM games WHERE slug = $1 AND deleted = false'
     );
 
     db.query(query, [data.idOrSlug], function (err, result) {
@@ -74,6 +76,43 @@ Game.objects.get = function (db, data) {
 
       resolve(result.rows[0]);
     });
+  });
+};
+
+
+Game.objects.get = function (db, data) {
+  return Game.objects._select(db, data, '*');
+};
+
+
+Game.objects.exists = function (db, data) {
+  return Game.objects._select(db, data, '1');
+};
+
+
+Game.objects.remove = function (db, data) {
+  return Game.objects.exists(db, data).then(function () {
+
+    return new Promise(function (resolve, reject) {
+      var query = (utils.isNumeric(data.idOrSlug) ?
+        'UPDATE games SET deleted = true WHERE id = $1' :
+        'UPDATE games SET deleted = true WHERE slug = $1'
+      );
+
+      db.query(query, [data.idOrSlug], function (err, result) {
+        if (err) {
+          return reject(utils.errors.DatabaseError(err));
+        }
+
+        // This should never be possible.
+        if (!result.rowCount) {
+          return reject(utils.errors.ValidationError('already_deleted'));
+        }
+
+        resolve({success: true});
+      });
+    });
+
   });
 };
 
