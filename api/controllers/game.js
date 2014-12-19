@@ -22,8 +22,13 @@ module.exports = {
     return Game.objects.remove(request.pg.client, request.params);
   },
   update: function (request) {
-    return Game.objects.update(
-      request.pg.client, request.params, request.payload
-    ).then(Game.getPublicObj);
+    return Game.objects.update(request.pg.client, request.params,
+                               request.payload)
+    .then(function (res) {
+      return {
+        body: Game.getPublicObj(res.body),
+        uri: res.uri
+      };
+    });
   }
 };

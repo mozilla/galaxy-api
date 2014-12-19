@@ -128,10 +128,13 @@ module.exports = function (server) {
 
     curl -X PUT 'http://localhost:4000/games/1' \
       -d '{"name": "mario bros", "game_url": "http://nintendo.com", "slug": "mario"}' \
-      -H 'Content-Type: application/json'
+      -H 'Content-Type: application/json' -i
     curl -X PUT 'http://localhost:4000/games/mario' \
       -d '{"name": "mario bros", "game_url": "http://nintendo.com", "slug": "mario"}' \
-      -H 'Content-Type: application/json'
+      -H 'Content-Type: application/json' -i
+    curl -X PUT 'http://localhost:4000/games/wario' \
+      -d '{"name": "wario bros", "game_url": "http://wintendo.com", "slug": "wario"}' \
+      -H 'Content-Type: application/json' -i
 
   */
   server.route({
@@ -139,7 +142,12 @@ module.exports = function (server) {
     path: '/games/{idOrSlug}',
     handler: function (request, reply) {
       gameController.update(request)
-      .then(reply)
+      .then(function (res) {
+        if (res.uri) {
+          return reply(res.body).redirect(res.uri);
+        }
+        return reply(res.body);
+      })
       .catch(function (err) {
         reply(utils.returnError(err));
       });

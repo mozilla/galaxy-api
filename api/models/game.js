@@ -174,7 +174,15 @@ Game.objects.update = function (db, dataToFetchBy, dataToSave) {
           return reject(utils.errors.DoesNotExist());
         }
 
-        resolve(result.rows[0]);
+        var res = {
+          body: result.rows[0]
+        };
+
+        if (game.slug !== result.rows[0].slug) {
+          res.uri = '/games/' + result.rows[0].slug;
+        }
+
+        resolve(res);
       });
     });
 
