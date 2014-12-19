@@ -106,7 +106,7 @@ Game.objects.create = function (db, data) {
 
 Game.objects._select = function (db, data, columns) {
   return new Promise(function (resolve, reject) {
-    var query = (utils.isNumeric(data.idOrSlug) ?
+    var query = (utils.isStringAnInt(data.idOrSlug) ?
       'SELECT ' + columns + ' FROM games WHERE id = $1 AND deleted = false' :
       'SELECT ' + columns + ' FROM games WHERE slug = $1 AND deleted = false'
     );
@@ -140,7 +140,7 @@ Game.objects.remove = function (db, data) {
   return Game.objects.exists(db, data).then(function () {
 
     return new Promise(function (resolve, reject) {
-      var query = (utils.isNumeric(data.idOrSlug) ?
+      var query = (utils.isStringAnInt(data.idOrSlug) ?
         'UPDATE games SET deleted = true WHERE id = $1' :
         'UPDATE games SET deleted = true WHERE slug = $1'
       );

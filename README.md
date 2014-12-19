@@ -84,6 +84,10 @@ To run tests:
 
     npm test
 
+To run tests without coverage and linting:
+
+    npm run lab
+
 
 ## Database
 

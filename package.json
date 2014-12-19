@@ -14,7 +14,9 @@
     "gulp": "^3.8.7",
     "gulp-jshint": "^1.8.4",
     "jshint-stylish": "^0.4.0",
-    "nodemon": "^1.2.1"
+    "nodemon": "^1.2.1",
+    "code": "^1.2.1",
+    "lab": "^5.1.0"
   },
   "engines": {
     "node": ">= 0.10.x",
@@ -28,7 +30,10 @@
   "scripts": {
     "start": "node index.js",
     "dev": "NODE_ENV=development GALAXY_API_SETTINGS=./settings_dev.js nodemon index.js",
-    "prod": "NODE_ENV=production GALAXY_API_SETTINGS=./settings_prod.js node index.js"
+    "prod": "NODE_ENV=production GALAXY_API_SETTINGS=./settings_prod.js node index.js",
+    "test": "./node_modules/lab/bin/lab -c -L",
+    "lab": "./node_modules/lab/bin/lab",
+    "test-cover": "./node_modules/lab/bin/lab -c -r html -o ./test/artifacts/coverage.html && open ./test/artifacts/coverage.html"
   },
   "version": "0.0.5"
 }
