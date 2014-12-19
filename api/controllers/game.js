@@ -19,7 +19,10 @@ module.exports = {
       idOrSlug: request.params.idOrSlug
     });
   },
-  remove: function () {
+  remove: function (request) {
+    return Game.objects.remove(request.pg.client, {
+      idOrSlug: request.params.idOrSlug
+    });
   },
   update: function () {
   }

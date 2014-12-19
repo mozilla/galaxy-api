@@ -100,4 +100,16 @@ module.exports = function (server) {
     //   }
     // }
   });
+
+  server.route({
+    method: 'DELETE',
+    path: '/games/{idOrSlug}',
+    handler: function (request, reply) {
+      gameController.remove(request)
+      .then(reply)
+      .catch(function (err) {
+        reply(utils.returnError(err));
+      });
+    }
+  });
 };
