@@ -2,22 +2,65 @@ var Promise = require('es6-promise').Promise;
 
 var utils = require('../../lib/utils');
 
+var internals = {
+  publicFields: [
+    'id',
+    'slug',
+    'game_url',
+    'name',
+    'description',
+    'created',
+    'modified'
+  ]
+};
+
 
 function Game(data) {
-  // Game Description is optional.
-  this.description = data.description;
+  // Game ID.
+  // - Primary key auto-incremented upon creation.
+  this.id = data.id;
 
-  // Game URL must start with `https://` or `http://`.
+  // Game Slug.
+  // - Cannot be all digits, all underscores, or all hyphens.
+  // - Must contain only letters, numbers, underscores, and hyphens.
+  // - Unique.
+  this.slug = data.slug;
+
+  // Game URL.
+  // - Must start with `https://` or `http://`.
+  // - Unique.
   this.game_url = data.game_url;
 
-  // Game Name cannot be longer than 150 characters long.
+  // Game Name.
+  // - Cannot be longer than 150 characters.
   this.name = data.name;
 
-  // Game Slug cannot be all digits, all underscores, or all hyphens
-  // and must contain only letters, numbers, underscores, and hyphens.
-  // The slug must also be unique.
-  this.slug = data.slug;
+  // Game Description.
+  // - Optional.
+  this.description = data.description;
+
+  // Date Created.
+  // - Timestamp auto-generated upon creation.
+  this.created = data.created;
+
+  // Date Modified.
+  // - Timestamp auto-generated upon update.
+  this.modified = data.modified;
+
+  // Deleted.
+  // - Boolean of whether the game was soft-deleted.
+  // - Defaults to `false`.
+  this.deleted = data.deleted;
 }
+
+
+Game._getPublicObj = function (row) {
+  var publicObj = {};
+  internals.publicFields.forEach(function (key) {
+    publicObj[key] = row[key];
+  });
+  return publicObj;
+};
 
 
 Game.objects = {};
@@ -32,7 +75,7 @@ Game.objects.all = function (db, data) {
         return reject(utils.errors.DatabaseError(err));
       }
 
-      resolve(result.rows);
+      resolve(result.rows.map(Game._getPublicObj));
     });
   });
 };
@@ -40,19 +83,17 @@ Game.objects.all = function (db, data) {
 
 Game.objects.create = function (db, data) {
   return new Promise(function (resolve, reject) {
-    var game = new Game(data);
-
     db.query(
       'INSERT INTO games (slug, game_url, name, description, created) ' +
       'VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
-      [game.slug, game.game_url, game.name, game.description],
+      [data.slug, data.game_url, data.name, data.description],
       function (err, result) {
 
       if (err) {
         return reject(utils.errors.DatabaseError(err));
       }
 
-      resolve(result.rows[0]);
+      resolve(Game._getPublicObj(result.rows[0]));
     });
   });
 };
@@ -74,7 +115,7 @@ Game.objects._select = function (db, data, columns) {
         return reject(utils.errors.DoesNotExist());
       }
 
-      resolve(result.rows[0]);
+      resolve(Game._getPublicObj(result.rows[0]));
     });
   });
 };
