@@ -184,3 +184,103 @@ lab.experiment('utils.promisify', function () {
     done();
   });
 });
+
+
+lab.experiment('utils.returnError', function () {
+
+  lab.test('returns generic 500 Boom object for unrecognised error', function (done) {
+
+    var err = utils.returnError('something_bad_happened');
+    Code.expect(err).to.include({
+      isBoom: true,
+      isDeveloperError: true
+    });
+    Code.expect(err.output.payload).to.include({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'An internal server error occurred'
+    });
+    done();
+  });
+
+  lab.test('returns generic 500 Boom object for unrecognised Error', function (done) {
+
+    var err = utils.returnError(new Error('something_bad_happened'));
+    Code.expect(err).to.include({
+      isBoom: true,
+      isDeveloperError: true
+    });
+    Code.expect(err.output.payload).to.include({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'An internal server error occurred'
+    });
+    done();
+  });
+
+  lab.test('returns generic 500 Boom object for unrecognised object', function (done) {
+
+    var err = utils.returnError({error: 'something_bad_happened'});
+    Code.expect(err).to.include({
+      isBoom: true,
+      isDeveloperError: true
+    });
+    Code.expect(err.output.payload).to.include({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'An internal server error occurred'
+    });
+    done();
+  });
+
+  lab.test('returns generic 500 Boom object for DatabaseError', function (done) {
+
+    var err = utils.returnError({
+      name: 'DatabaseError',
+      message: 'Foreign Key error!'
+    });
+    Code.expect(err).to.include({isBoom: true}).and.not.include({
+      isDeveloperError: true
+    });
+    Code.expect(err.output.payload).to.include({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'An internal server error occurred'
+    });
+    done();
+  });
+
+  lab.test('returns descriptive 404 Boom object for DoesNotExist', function (done) {
+
+    var err = utils.returnError({
+      name: 'DoesNotExist',
+      message: 'Did you check Lost and Found?'
+    });
+    Code.expect(err).to.include({isBoom: true}).and.not.include({
+      isDeveloperError: true
+    });
+    Code.expect(err.output.payload).to.include({
+      statusCode: 404,
+      error: 'Not Found',
+      message: 'Did you check Lost and Found?'
+    });
+    done();
+  });
+
+  lab.test('returns descriptive 400 Boom object for ValidationError', function (done) {
+
+    var err = utils.returnError({
+      name: 'ValidationError',
+      message: 'Marine biologists never make mistakes on porpoise!'
+    });
+    Code.expect(err).to.include({isBoom: true}).and.not.include({
+      isDeveloperError: true
+    });
+    Code.expect(err.output.payload).to.include({
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'Marine biologists never make mistakes on porpoise!'
+    });
+    done();
+  });
+});
