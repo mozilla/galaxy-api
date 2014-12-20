@@ -45,3 +45,32 @@ lab.experiment('utils.isStringAnInt', function () {
     done();
   });
 });
+
+
+lab.experiment('utils.stringifyObject', function () {
+
+  lab.test('returns stringified object for empty object', function (done) {
+
+    Code.expect(utils.stringifyObject({})).to.equal('{}');
+    done();
+  });
+
+  lab.test('returns stringified object for non-empty object', function (done) {
+
+    Code.expect(utils.stringifyObject({lol: 'swag'}))
+        .to.equal('{"lol":"swag"}');
+    done();
+  });
+
+  lab.test('returns stringified "null" for null', function (done) {
+
+    Code.expect(utils.stringifyObject(null)).to.equal('null');
+    done();
+  });
+
+  lab.test('returns original argument for string', function (done) {
+
+    Code.expect(utils.stringifyObject('lol')).to.equal('lol');
+    done();
+  });
+});
