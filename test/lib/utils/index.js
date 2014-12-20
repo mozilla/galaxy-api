@@ -9,6 +9,41 @@ var utils = require('../../../lib/utils');
 var lab = exports.lab = Lab.script();
 
 
+lab.experiment('utils.errors', function () {
+
+  lab.test('returns an object of error types', function (done) {
+
+    Code.expect(utils.errors).to.be.an.object().and
+        .include(['DatabaseError', 'DoesNotExist', 'ValidationError']);
+    done();
+  });
+
+  lab.test('error type returns a function', function (done) {
+
+    Code.expect(utils.errors.DatabaseError).to.be.an.function();
+    done();
+  });
+
+  lab.test('error function returns an object', function (done) {
+
+    Code.expect(utils.errors.DatabaseError()).to.only.include({
+      name: 'DatabaseError',
+      message: undefined
+    });
+    done();
+  });
+
+  lab.test('error function with message returns an object with message', function (done) {
+
+    Code.expect(utils.errors.DatabaseError('too_much_big_data')).to.only.include({
+      name: 'DatabaseError',
+      message: 'too_much_big_data'
+    });
+    done();
+  });
+});
+
+
 lab.experiment('utils.isStringAnInt', function () {
 
   lab.test('returns true for zero', function (done) {
