@@ -20,7 +20,7 @@ lab.experiment('utils.errors', function () {
 
   lab.test('error type returns a function', function (done) {
 
-    Code.expect(utils.errors.DatabaseError).to.be.an.function();
+    Code.expect(utils.errors.DatabaseError).to.be.a.function();
     done();
   });
 
