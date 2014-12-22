@@ -41,7 +41,7 @@ To run the local web server:
 
 Alternatively:
 
-    npm run-script dev
+    npm run dev
 
 To run linting tools:
 
@@ -65,7 +65,7 @@ To run the web server in production:
 
 Alternatively:
 
-    npm run-script prod
+    npm run prod
 
 
 ## Testing
