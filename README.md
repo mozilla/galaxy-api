@@ -74,51 +74,44 @@ Initialise settings:
 
     cp ./settings_test.js.dist ./settings_test.js
 
-Set these environment variables:
-
-    NODE_ENV=test
-    GALAXY_API_SETTINGS=./settings_test.js
-    DATABASE_URL='postgres://localhost/galaxy-api'
-
 To run tests:
 
     npm test
 
-To run tests without coverage and linting:
+To run tests without destroying the database first:
 
-    npm run lab
+    npm run test-keepdb
+
+To run tests with coverage and linting:
+
+    npm run test-verbose
 
 
 ## Database
 
-If you haven't already, create a PostgreSQL database:
+### `gulp` tasks
 
-    createdb galaxy-api
+These are the available `gulp` tasks for PostgreSQL database and migration operations:
+
+* `gulp createdb` - create a PostgreSQL database using `settings.POSTGRES_URL`.
+* `gulp dropdb` - delete the database.
+* `gulp migratedb` - run migrations.
+* `gulp migratedb-create --name <name>` - create a new migration file called `<name>`.
+* `gulp migratedb-up` - run all up migrations from the current state.
+* `gulp migratedb-up --num <num>` - run `<num>` up migrations from the current state.
+* `gulp migratedb-down` - run a single down migration.
+* `gulp migratedb-down --num <num>` - run `<num>` down migrations from the current state.
+
+### `psql` commands
 
 To access the PostgreSQL prompt:
 
     psql -d galaxy-api
 
-To run migrations, run this from the shell:
+These are a few helpful PostgreSQL commands:
 
-    node node_modules/.bin/pg-migrate up
-
-To create a new migration:
-
-    node node_modules/.bin/pg-migrate create <migrationName>
-
-To get a list the tables:
-
-    \dt+
-
-To get a table's schema:
-
-    \d+ games
-
-To delete a table:
-
-    drop table <table_name>;
-
-To view a table in "extended display":
-
-    \x on
+* `\h` - view list of available commands.
+* `\dt+` - list all tables in the database.
+* `\d+ <table_name>` - show a table's schema.
+* `drop table <table_name>` - delete a table.
+* `\x on` - view a table in "extended display" mode.

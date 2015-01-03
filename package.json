@@ -16,7 +16,11 @@
     "jshint-stylish": "^0.4.0",
     "nodemon": "^1.2.1",
     "code": "^1.2.1",
-    "lab": "^5.1.0"
+    "lab": "^5.1.0",
+    "run-sequence": "^1.0.2",
+    "gulp-shell": "^0.2.11",
+    "inquirer": "^0.8.0",
+    "yargs": "^1.3.3"
   },
   "engines": {
     "node": ">= 0.10.x",
@@ -31,9 +35,10 @@
     "start": "node index.js",
     "dev": "NODE_ENV=development GALAXY_API_SETTINGS=./settings_dev.js nodemon index.js",
     "prod": "NODE_ENV=production GALAXY_API_SETTINGS=./settings_prod.js node index.js",
-    "test": "./node_modules/lab/bin/lab -c -L",
-    "lab": "./node_modules/lab/bin/lab",
-    "test-cover": "./node_modules/lab/bin/lab -c -r html -o ./test/artifacts/coverage.html && open ./test/artifacts/coverage.html"
+    "test": "GALAXY_API_SETTINGS=./settings_test.js gulp refreshdb --no-prompt && GALAXY_API_SETTINGS=./settings_test.js ./node_modules/lab/bin/lab",
+    "test-keepdb": "GALAXY_API_SETTINGS=./settings_test.js ./node_modules/lab/bin/lab",
+    "test-verbose": "GALAXY_API_SETTINGS=./settings_test.js ./node_modules/lab/bin/lab -c -L",
+    "test-cover": "GALAXY_API_SETTINGS=./settings_test.js ./node_modules/lab/bin/lab -c -r html -o ./test/artifacts/coverage.html && open ./test/artifacts/coverage.html"
   },
   "version": "0.0.5"
 }

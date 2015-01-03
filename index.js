@@ -4,7 +4,7 @@ var Hapi = require('hapi');
 var routes = require('./api/routes');
 
 
-var server = new Hapi.Server();
+var server = module.exports = new Hapi.Server();
 server.connection({
   host: settings.HOST,
   port: settings.PORT,
@@ -16,11 +16,15 @@ server.connection({
     }
   }
 });
+
 routes(server);
 
-server.start(function () {
-  console.log('Listening on %s', server.info.uri);
-});
+// Do not start the server when this script is required by another script.
+if (!module.parent) {
+  server.start(function () {
+    console.log('Listening on %s', server.info.uri);
+  });
+}
 
 server.register({
   register: require('hapi-node-postgres'),
