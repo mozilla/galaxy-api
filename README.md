@@ -15,14 +15,13 @@ To install dependencies:
 
     npm install
 
-Node 0.11.x is required for the `--harmony` flag which enables generators (required for Koa, the web framework). If you're running an earlier version of Node you may install [n](https://github.com/visionmedia/n), a node version manager to quickly install 0.11.x:
-
-    npm install -g n
-    n 0.11.12
-
 Other dependencies:
 
-    redis
+* PostgreSQL (`brew install postgresql && brew info postgresql` using [Homebrew](http://brew.sh/) on Mac OS X)
+
+Create a PostgreSQL database:
+
+    createdb galaxy-api
 
 
 ## Development
@@ -38,11 +37,11 @@ Set these environment variables:
 
 To run the local web server:
 
-    nodemon --harmony bin/api
+    nodemon index.js
 
 Alternatively:
 
-    npm run-script dev
+    npm run dev
 
 To run linting tools:
 
@@ -60,15 +59,13 @@ Set these environment variables:
     NODE_ENV=production
     GALAXY_API_SETTINGS=./settings_prod.js
 
-Node 0.11.x is required for the `--harmony` flag which enables generators (required for Koa, the web framework).
-
 To run the web server in production:
 
-    node --harmony bin/api
+    node index.js
 
 Alternatively:
 
-    npm run-script prod
+    npm run prod
 
 
 ## Testing
@@ -77,22 +74,44 @@ Initialise settings:
 
     cp ./settings_test.js.dist ./settings_test.js
 
-Set these environment variables:
-
-    NODE_ENV=test
-    GALAXY_API_SETTINGS=./settings_test.js
-
 To run tests:
 
     npm test
 
+To run tests without destroying the database first:
 
-## Deployment
+    npm run test-keepdb
 
-To run the local web server:
+To run tests with coverage and linting:
 
-    node --harmony bin/api
+    npm run test-verbose
 
-Alternatively:
 
-    npm start
+## Database
+
+### `gulp` tasks
+
+These are the available `gulp` tasks for PostgreSQL database and migration operations:
+
+* `gulp createdb` - create a PostgreSQL database using `settings.POSTGRES_URL`.
+* `gulp dropdb` - delete the database.
+* `gulp migratedb` - run migrations.
+* `gulp migratedb-create --name <name>` - create a new migration file called `<name>`.
+* `gulp migratedb-up` - run all up migrations from the current state.
+* `gulp migratedb-up --num <num>` - run `<num>` up migrations from the current state.
+* `gulp migratedb-down` - run a single down migration.
+* `gulp migratedb-down --num <num>` - run `<num>` down migrations from the current state.
+
+### `psql` commands
+
+To access the PostgreSQL prompt:
+
+    psql -d galaxy-api
+
+These are a few helpful PostgreSQL commands:
+
+* `\h` - view list of available commands.
+* `\dt+` - list all tables in the database.
+* `\d+ <table_name>` - show a table's schema.
+* `drop table <table_name>` - delete a table.
+* `\x on` - view a table in "extended display" mode.
