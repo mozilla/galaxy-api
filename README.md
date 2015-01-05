@@ -1,4 +1,4 @@
-![galaxy-api logo](images/logo.png?raw=true)
+![galaxy-api](images/logo.png?raw=true "galaxy-api")
 
 [![Build Status](https://travis-ci.org/mozilla/galaxy-api.svg?branch=master)](https://travis-ci.org/mozilla/galaxy-api "Build Status")
 
