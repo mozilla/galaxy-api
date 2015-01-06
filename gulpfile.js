@@ -20,9 +20,8 @@ var internals = {
   ),
   sources: {
     scripts: [
-      '*.js',
-      'api/**/*.js',
-      'lib/**/*.js'
+      '**/*.js',
+      '!./node_modules/**/*.js',
     ]
   }
 };
