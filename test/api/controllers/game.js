@@ -84,7 +84,7 @@ lab.experiment('game creation', function () {
       Code.expect(res.result).to.be.an.object().and
           .not.contain(['error', 'validation']);
 
-      Code.expect(res.result).to.only.contain({
+      Code.expect(res.result).to.deep.equal({
         name: req.payload.name,
         slug: req.payload.slug,
         game_url: req.payload.game_url,
