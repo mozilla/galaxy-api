@@ -73,6 +73,10 @@ To run tests:
 
     npm test
 
+To run a single test:
+
+    npm test -- test/lib/db.js
+
 To run tests without destroying the database first:
 
     npm run test-keepdb

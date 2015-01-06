@@ -1,6 +1,9 @@
 var Promise = require('es6-promise').Promise;
 
+var db = require('../../lib/db');
+var server = require('../../index.js');
 var utils = require('../../lib/utils');
+
 
 var internals = {
   publicFields: [
@@ -63,7 +66,7 @@ Game.getPublicObj = function (row) {
 Game.objects = {};
 
 
-Game.objects.all = function (db, data) {
+Game.objects.all = function (data) {
   return new Promise(function (resolve, reject) {
     db.query('SELECT * FROM games WHERE deleted = false',
       function (err, result) {
@@ -78,7 +81,7 @@ Game.objects.all = function (db, data) {
 };
 
 
-Game.objects.create = function (db, data) {
+Game.objects.create = function (data) {
   return new Promise(function (resolve, reject) {
     db.query(
       'INSERT INTO games (slug, game_url, name, description, created) ' +
@@ -104,7 +107,7 @@ Game.objects.create = function (db, data) {
 };
 
 
-Game.objects._select = function (db, data, columns) {
+Game.objects._select = function (data, columns) {
   return new Promise(function (resolve, reject) {
     var query = (utils.isStringAnInt(data.idOrSlug) ?
       'SELECT ' + columns + ' FROM games WHERE id = $1 AND deleted = false' :
@@ -126,18 +129,18 @@ Game.objects._select = function (db, data, columns) {
 };
 
 
-Game.objects.get = function (db, data) {
-  return Game.objects._select(db, data, '*');
+Game.objects.get = function (data) {
+  return Game.objects._select(data, '*');
 };
 
 
-Game.objects.exists = function (db, data) {
-  return Game.objects._select(db, data, '1');
+Game.objects.exists = function (data) {
+  return Game.objects._select(data, '1');
 };
 
 
-Game.objects.remove = function (db, data) {
-  return Game.objects.exists(db, data).then(function () {
+Game.objects.remove = function (data) {
+  return Game.objects.exists(data).then(function () {
 
     return new Promise(function (resolve, reject) {
       var query = (utils.isStringAnInt(data.idOrSlug) ?
@@ -163,8 +166,8 @@ Game.objects.remove = function (db, data) {
 };
 
 
-Game.objects.update = function (db, dataToFetchBy, dataToSave) {
-  return Game.objects.get(db, dataToFetchBy).then(function (game) {
+Game.objects.update = function (dataToFetchBy, dataToSave) {
+  return Game.objects.get(dataToFetchBy).then(function (game) {
 
     return new Promise(function (resolve, reject) {
       db.query(

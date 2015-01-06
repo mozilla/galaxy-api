@@ -6,7 +6,6 @@
     "hapi": "^8.0.0",
     "joi": "^5.0.2",
     "pg": "^4.1.1",
-    "hapi-node-postgres": "cvan/hapi-node-postgres#no-pg-native",
     "node-pg-migrate": "0.0.7",
     "boom": "^2.6.1"
   },

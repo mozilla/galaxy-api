@@ -1,7 +1,9 @@
-var settings = require('./settings');
-
+'use strict';
 var Hapi = require('hapi');
+
+var db = require('./lib/db');
 var routes = require('./api/routes');
+var settings = require('./settings');
 
 
 var server = module.exports = new Hapi.Server();
@@ -26,14 +28,34 @@ if (!module.parent) {
   });
 }
 
+
+var pgPlugin = {
+  register: function (server, options, next) {
+    db.connect(options.connectionString);
+
+    server.on('stop', function () {
+      db.disconnect();
+    });
+
+    next();
+  }
+};
+
+
+pgPlugin.register.attributes = {
+  name: 'pgPlugin',
+  version: '1.0.0'
+};
+
+
 server.register({
-  register: require('hapi-node-postgres'),
+  register: pgPlugin,
   options: {
     connectionString: settings.POSTGRES_URL
   }
 }, function (err) {
   if (err) {
-    console.error('Failed to load "hapi-node-postgres" plugin: %s', err);
+    console.error('Failed to load "pgPlugin" plugin: %s', err);
     throw err;
   }
 });
