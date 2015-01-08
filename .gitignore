@@ -16,3 +16,4 @@ pids
 results
 scripts/*.json
 settings_*.js
+test/artifacts/

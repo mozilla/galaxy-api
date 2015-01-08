@@ -30,18 +30,13 @@ Initialise settings, if you haven't already:
 
     cp ./settings_dev.js.dist ./settings_dev.js
 
-Set these environment variables:
-
-    NODE_ENV=development
-    GALAXY_API_SETTINGS=./settings_dev.js
-
 To run the local web server:
 
-    nodemon index.js
-
-Alternatively:
-
     npm run dev
+
+To run with a different settings file:
+
+    GALAXY_API_SETTINGS=./some_different_settings_dev.js npm run prod
 
 To run linting tools:
 
@@ -54,18 +49,18 @@ Initialise settings if you haven't already:
 
     cp ./settings_prod.js.dist ./settings_prod.js
 
-Set these environment variables:
-
-    NODE_ENV=production
-    GALAXY_API_SETTINGS=./settings_prod.js
-
 To run the web server in production:
 
-    node index.js
-
-Alternatively:
-
     npm run prod
+
+To run with a different settings file:
+
+    GALAXY_API_SETTINGS=./some_different_settings_prod.js npm run prod
+
+Alternatively, without `npm`:
+
+    NODE_ENV=production GALAXY_API_SETTINGS=./settings_prod.js node index.js
+    NODE_ENV=production GALAXY_API_SETTINGS=./some_different_settings_prod.js node index.js
 
 
 ## Testing
