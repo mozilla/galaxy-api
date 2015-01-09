@@ -1,5 +1,7 @@
 'use strict';
 
+var UUID = require('node-uuid');
+
 var db = require('../../lib/db');
 var utils = require('../../lib/utils');
 
@@ -18,6 +20,12 @@ function Game(data) {
   // Game ID.
   // - Primary key auto-incremented upon creation.
   this.id = data.id;
+
+  // Game Unique ID.
+  // - Unique identifier auto-generated upon creation.
+  // - Cannot be modified after creation.
+  // - Used for querying instead of `id`.
+  this.uuid = data.uuid;
 
   // Game Slug.
   // - Cannot be all digits, all underscores, or all hyphens.
@@ -83,9 +91,9 @@ Game.objects.all = function () {
 Game.objects.create = function (data) {
   return new Promise(function (resolve, reject) {
     db.query(
-      'INSERT INTO games (slug, game_url, name, description, created) ' +
-      'VALUES ($1, $2, $3, $4, NOW()) RETURNING *',
-      [data.slug, data.game_url, data.name, data.description],
+      'INSERT INTO games (uuid, slug, game_url, name, description, created) ' +
+      'VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *',
+      [UUID.v4(), data.slug, data.game_url, data.name, data.description],
       function (err, result) {
 
       if (err) {
@@ -106,7 +114,7 @@ Game.objects.create = function (data) {
 Game.objects._select = function (data, columns) {
   return new Promise(function (resolve, reject) {
     var query = (utils.isStringAnInt(data.idOrSlug) ?
-      'SELECT ' + columns + ' FROM games WHERE id = $1 AND deleted = false' :
+      'SELECT ' + columns + ' FROM games WHERE uuid = $1 AND deleted = false' :
       'SELECT ' + columns + ' FROM games WHERE slug = $1 AND deleted = false'
     );
 
@@ -140,7 +148,7 @@ Game.objects.remove = function (data) {
 
     return new Promise(function (resolve, reject) {
       var query = (utils.isStringAnInt(data.idOrSlug) ?
-        'UPDATE games SET deleted = true WHERE id = $1' :
+        'UPDATE games SET deleted = true WHERE uuid = $1' :
         'UPDATE games SET deleted = true WHERE slug = $1'
       );
 
@@ -168,9 +176,9 @@ Game.objects.update = function (dataToFetchBy, dataToSave) {
     return new Promise(function (resolve, reject) {
       db.query(
         'UPDATE games SET slug = $1, game_url = $2, name = $3, ' +
-        'description = $4, modified = NOW() WHERE id = $5 RETURNING *',
+        'description = $4, modified = NOW() WHERE uuid = $5 RETURNING *',
         [dataToSave.slug, dataToSave.game_url, dataToSave.name,
-         dataToSave.description, game.id], function (err, result) {
+         dataToSave.description, game.uuid], function (err, result) {
 
         if (err) {
           return reject(utils.errors.DatabaseError(err));
