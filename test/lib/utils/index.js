@@ -1,3 +1,5 @@
+'use strict';
+
 var Lab = require('lab');
 var Code = require('code');
 

@@ -1,8 +1,7 @@
-var exec = require('child_process').exec;
+'use strict';
 
 var argv = require('yargs').argv;  // Using instead of deprecated `gulp.env`.
 var inquirer = require('inquirer');
-var Promise = require('es6-promise').Promise;
 var stylish = require('jshint-stylish');
 
 var gulp = require('gulp');
@@ -22,6 +21,7 @@ var internals = {
     scripts: [
       '**/*.js',
       '!./node_modules/**/*.js',
+      '!./migrations/*.js',
     ]
   }
 };

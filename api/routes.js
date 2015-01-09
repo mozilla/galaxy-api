@@ -1,3 +1,5 @@
+'use strict';
+
 var joi = require('joi');
 
 var gameController = require('./controllers/game.js');
@@ -47,7 +49,8 @@ module.exports = function (server) {
   Sample usage:
 
     curl -X POST 'http://localhost:4000/games' \
-      -d '{"name": "mario bros", "game_url": "http://nintendo.com", "slug": "mario"}' \
+      -d '{"name": "mario bros", "game_url": "http://nintendo.com", ' \
+         '"slug": "mario"}' \
       -H 'Content-Type: application/json' -i
 
   */
@@ -91,13 +94,15 @@ module.exports = function (server) {
     // config: {
     //   validate: {
     //     params: {
-    //       // Game Slug cannot be all digits, all underscores, or all hyphens
-    //       // and must contain only letters, numbers, underscores, and hyphens.
+    //       // Game Slug cannot be all digits, all underscores, or all
+    //       // hyphens and must contain only letters, numbers, underscores,
+    //       // and hyphens.
     //       // TODO: ID *or* slug is required; enforce.
     //       idOrSlug: joi.number().integer().example('9'),
 
-    //       // Game Slug cannot be all digits, all underscores, or all hyphens
-    //       // and must contain only letters, numbers, underscores, and hyphens.
+    //       // Game Slug cannot be all digits, all underscores, or all
+    //       // hyphens and must contain only letters, numbers, underscores,
+    //       // and hyphens.
     //       // TODO: ID *or* slug is required; enforce.
     //       idOrSlug: joi.string().regex(/^(?!\d*$)(?!_*$)(?!-*$)[\w-]+$/)
     //         .example('mario-bros')
@@ -129,13 +134,16 @@ module.exports = function (server) {
   Sample usage:
 
     curl -X PUT 'http://localhost:4000/games/1' \
-      -d '{"name": "mario bros", "game_url": "http://nintendo.com", "slug": "mario"}' \
+      -d '{"name": "mario bros", "game_url": "http://nintendo.com", ' \
+         '"slug": "mario"}' \
       -H 'Content-Type: application/json' -i
     curl -X PUT 'http://localhost:4000/games/mario' \
-      -d '{"name": "mario bros", "game_url": "http://nintendo.com", "slug": "mario"}' \
+      -d '{"name": "mario bros", "game_url": "http://nintendo.com", ' \
+         '"slug": "mario"}' \
       -H 'Content-Type: application/json' -i
     curl -X PUT 'http://localhost:4000/games/wario' \
-      -d '{"name": "wario bros", "game_url": "http://wintendo.com", "slug": "wario"}' \
+      -d '{"name": "wario bros", "game_url": "http://wintendo.com", ' \
+         '"slug": "wario"}' \
       -H 'Content-Type: application/json' -i
 
   */
