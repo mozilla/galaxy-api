@@ -35,6 +35,7 @@ function submitGame(done) {
       Code.expect(res.result).to.be.an.object().and
           .not.contain(['error', 'validation']);
 
+      // Despite redirecting, the response body contains the new object. :)
       Code.expect(res.result).to.deep.equal(internals.sampleGameObj);
 
       Code.expect(res.statusCode).to.equal(201);
@@ -292,6 +293,155 @@ lab.experiment('game delete', function () {
 
           done();
         });
+      });
+    });
+  });
+});
+
+
+lab.experiment('game update', function () {
+
+
+  lab.afterEach(function (done) {
+
+    db.query('TRUNCATE games', function () {
+      done();
+    });
+  });
+
+
+  lab.test('validation errors on empty payload', function (done) {
+
+    submitGame();
+
+    req = {
+      method: 'PUT',
+      url: '/games/no-flex-zone'
+    };
+
+    server.inject(req, function (res) {
+
+      Code.expect(res.result).to.be.an.object().and
+          .contain(['error', 'validation']);
+
+      Code.expect(res.result.validation.source).to.equal('payload');
+      Code.expect(res.result.validation.keys).to.only.contain([
+        'game_url', 'name', 'slug'
+      ]);
+
+      Code.expect(res.statusCode).to.equal(400);
+
+      done();
+    });
+  });
+
+
+  lab.test('returns a 404 when game does not exist', function (done) {
+
+    // Notice there was no `submitGame()` call.
+
+    req = {
+      method: 'PUT',
+      url: '/games/no-flex-zone',
+      payload: internals.sampleGameObj
+    };
+
+    server.inject(req, function (res) {
+
+      Code.expect(res.statusCode).to.equal(404);
+
+      done();
+    });
+  });
+
+
+  lab.test('multiple validation errors on invalid payload', function (done) {
+
+    submitGame();
+
+    req = {
+      method: 'PUT',
+      url: '/games/no-flex-zone',
+      payload: {
+        name: 'no flex zone',  // Valid.
+        slug: '123',  // Invalid: cannot be all numeric.
+        game_url: 'badflexzo.ne'  // Invalid: must start with `https?://`.
+      }
+    };
+
+    server.inject(req, function (res) {
+
+      Code.expect(res.result).to.be.an.object().and
+          .contain(['error', 'validation']);
+
+      Code.expect(res.result.validation.source).to.equal('payload');
+
+      Code.expect(res.result.validation.keys).to.only.contain([
+        'game_url', 'slug'
+      ]);
+
+      Code.expect(res.statusCode).to.equal(400);
+
+      done();
+    });
+  });
+
+
+  lab.test('returns a game when game updated', function (done) {
+
+    submitGame().then(function () {
+
+      var updatedGameObj = {
+        name: 'throw some mo',
+        slug: 'no-flex-zone',
+        game_url: 'https://throw.some.mo',
+        description: 'throw some mo in this no flex zone'
+      };
+
+      req = {
+        method: 'PUT',
+        url: '/games/no-flex-zone',
+        payload: updatedGameObj
+      };
+
+      server.inject(req, function (res) {
+
+        Code.expect(res.result).to.deep.equal(updatedGameObj);
+
+        Code.expect(res.statusCode).to.equal(200);
+
+        done();
+      });
+    });
+  });
+
+
+  lab.test('redirects when game slug changes', function (done) {
+
+    submitGame().then(function () {
+
+      var updatedGameObj = {
+        name: 'throw some mo',
+        slug: 'throw-some-mo',  // Slug has changed.
+        game_url: 'https://throw.some.mo',
+        description: 'throw some mo in this no flex zone'
+      };
+
+      req = {
+        method: 'PUT',
+        url: '/games/no-flex-zone',
+        payload: updatedGameObj
+      };
+
+      server.inject(req, function (res) {
+
+        // Despite redirecting, the response body contains the new object. :)
+        Code.expect(res.result).to.deep.equal(updatedGameObj);
+
+        Code.expect(res.statusCode).to.equal(302);
+        Code.expect(res.headers.location).to.equal('/games/throw-some-mo');
+
+        done();
       });
     });
   });
