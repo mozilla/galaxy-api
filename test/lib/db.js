@@ -101,16 +101,18 @@ lab.experiment('db.disconnect', function () {
   });
 
 
-  lab.test('succeeds when server is connected with valid connection string', function (done) {
+  lab.test(
+    'succeeds when server is connected with valid connection string',
+    function (done) {
+      expect(function () {
 
-    expect(function () {
+        db.connect(settings.POSTGRES_URL);
+        db.disconnect();
+      }).to.not.throw();
 
-      db.connect(settings.POSTGRES_URL);
-      db.disconnect();
-    }).to.not.throw();
-
-    done();
-  });
+      done();
+    }
+  );
 });
 
 
@@ -131,16 +133,18 @@ lab.experiment('db.query', function () {
   });
 
 
-  lab.test('succeeds when server is connected with valid connection string', function (done) {
+  lab.test(
+    'succeeds when server is connected with valid connection string',
+    function (done) {
+      expect(function () {
 
-    expect(function () {
+        db.connect(settings.POSTGRES_URL);
+        db.query('SELECT 1', function (err, result) {
 
-      db.connect(settings.POSTGRES_URL);
-      db.query('SELECT 1', function (err, result) {
-
-        expect(result.rowCount).to.equal(1);
-        done();
-      });
-    }).to.not.throw();
-  });
+          expect(result.rowCount).to.equal(1);
+          done();
+        });
+      }).to.not.throw();
+    }
+  );
 });
