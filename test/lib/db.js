@@ -115,6 +115,7 @@ lab.experiment('db.disconnect', function () {
 
 lab.experiment('db.query', function () {
 
+
   setUpAndTearDown();
 
 
