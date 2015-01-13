@@ -29,6 +29,7 @@ Create a PostgreSQL database:
 Initialise settings, if you haven't already:
 
     cp ./settings_dev.js.dist ./settings_dev.js
+    cp ./settings_test.js.dist ./settings_test.js
 
 To run the local web server:
 
