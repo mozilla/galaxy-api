@@ -34,6 +34,7 @@
     "start": "node index.js",
     "dev": "NODE_ENV=development GALAXY_API_SETTINGS=${GALAXY_API_SETTINGS:=./settings_dev.js} nodemon index.js",
     "prod": "NODE_ENV=production GALAXY_API_SETTINGS=${GALAXY_API_SETTINGS:=./settings_prod.js} node index.js",
+    "refreshdb-dev": "NODE_ENV=development GALAXY_API_SETTINGS=${GALAXY_API_SETTINGS:=./settings_dev.js} gulp refreshdb",
     "refreshdb-test": "GALAXY_API_SETTINGS=${GALAXY_API_SETTINGS:=./settings_test.js} gulp refreshdb --no-prompt > /dev/null",
     "test": "npm run refreshdb-test && GALAXY_API_SETTINGS=${GALAXY_API_SETTINGS:=./settings_test.js} ./node_modules/lab/bin/lab",
     "test-keepdb": "GALAXY_API_SETTINGS=${GALAXY_API_SETTINGS:=./settings_test.js} ./node_modules/lab/bin/lab",

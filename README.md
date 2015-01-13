@@ -19,9 +19,9 @@ Other dependencies:
 
 * PostgreSQL (`brew install postgresql && brew info postgresql` using [Homebrew](http://brew.sh/) on Mac OS X)
 
-Create a PostgreSQL database:
+Create a PostgreSQL database (using `settings.POSTGRES_URL` from `settings_dev.js`):
 
-    createdb galaxy-api
+    npm run refreshdb-dev
 
 
 ## Development
