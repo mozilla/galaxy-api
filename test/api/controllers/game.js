@@ -2,13 +2,61 @@
 var Lab = require('lab');
 var Code = require('code');
 
+var Promise = require('es6-promise').Promise;
+
+var db = require('../../../lib/db');
 
 var lab = exports.lab = Lab.script();
 var req;
 var server = require('../../../');
 
 
+function submitGame(done) {
+  return new Promise(function (resolve) {
+    req = {
+      method: 'POST',
+      url: '/games',
+      payload: {
+        name: 'no flex zone',
+        slug: 'no-flex-zone',
+        game_url: 'https://no.flexzo.ne'
+      }
+    };
+
+    server.inject(req, function (res) {
+
+      Code.expect(res.result).to.be.an.object().and
+          .not.contain(['error', 'validation']);
+
+      Code.expect(res.result).to.deep.equal({
+        name: req.payload.name,
+        slug: req.payload.slug,
+        game_url: req.payload.game_url,
+        description: null
+      });
+
+      Code.expect(res.statusCode).to.equal(201);
+      Code.expect(res.headers.location).to.equal(
+        '/games/' + req.payload.slug);
+
+      if (done) {
+        resolve();
+      } else {
+        resolve(req);
+      }
+    });
+  });
+}
+
+
 lab.experiment('game creation', function () {
+
+
+  lab.after(function (done) {
+
+    db.query('TRUNCATE games');
+    done();
+  });
 
 
   lab.test('validation errors on empty payload', function (done) {
@@ -69,34 +117,63 @@ lab.experiment('game creation', function () {
 
   lab.test('success on valid payload', function (done) {
 
+    submitGame(done).then(done);
+  });
+});
+
+
+lab.experiment('games list', function () {
+
+
+  lab.afterEach(function (done) {
+
+    db.query('TRUNCATE games');
+    done();
+  });
+
+
+  lab.test('returns an empty array when no games exist', function (done) {
+
     req = {
-      method: 'POST',
-      url: '/games',
-      payload: {
-        name: 'no flex zone',
-        slug: 'no-flex-zone',
-        game_url: 'https://no.flexzo.ne'
-      }
+      method: 'GET',
+      url: '/games'
     };
 
     server.inject(req, function (res) {
 
-      Code.expect(res.result).to.be.an.object().and
-          .not.contain(['error', 'validation']);
+      Code.expect(res.result).to.be.an.empty().array();
 
-      Code.expect(res.result).to.deep.equal({
-        name: req.payload.name,
-        slug: req.payload.slug,
-        game_url: req.payload.game_url,
-        description: null
-      });
-
-      Code.expect(res.statusCode).to.equal(201);
-      Code.expect(res.headers.location).to.equal(
-        '/games/' + req.payload.slug);
+      Code.expect(res.statusCode).to.equal(200);
 
       done();
     });
   });
 
+
+  lab.test('returns an array when game(s) exist(s)', function (done) {
+
+    submitGame().then(function (prevReq) {
+
+      req = {
+        method: 'GET',
+        url: '/games'
+      };
+
+      server.inject(req, function (res) {
+
+        Code.expect(res.result).to.be.a.length(1).array();
+
+        Code.expect(res.result[0]).to.deep.equal({
+          name: prevReq.payload.name,
+          slug: prevReq.payload.slug,
+          game_url: prevReq.payload.game_url,
+          description: null
+        });
+
+        Code.expect(res.statusCode).to.equal(200);
+
+        done();
+      });
+    });
+  });
 });
