@@ -135,7 +135,7 @@ lab.experiment('db.query', function () {
     expect(function () {
 
       db.connect(settings.POSTGRES_URL);
-      db.query('SELECT 1 FROM games', function (err, result) {
+      db.query('SELECT 1', function (err, result) {
 
         expect(result.rowCount).to.equal(1);
         done();
