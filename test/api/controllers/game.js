@@ -44,6 +44,8 @@ function submitGame(done) {
       Game.objects.exists({idOrSlug: internals.sampleGameObj.slug})
       .then(function (result) {
 
+        Code.expect(result).to.equal(true);
+
         return Game.objects.get({idOrSlug: internals.sampleGameObj.slug});
       })
       .then(function (result) {
