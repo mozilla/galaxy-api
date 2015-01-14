@@ -53,10 +53,15 @@ function submitGame(done) {
 lab.experiment('game creation', function () {
 
 
-  lab.after(function (done) {
+  // NOTE: This could be `after` instead of `afterEach` since only the last
+  // test actually successfully inserts a row in the DB, but unit tests should
+  // be individual units tested in isolation - so clear the DB after each test.
+  // TODO: Use transactions for tests (issue #337).
+  lab.afterEach(function (done) {
 
-    db.query('TRUNCATE games');
-    done();
+    db.query('TRUNCATE games', function () {
+      done();
+    });
   });
 
 
@@ -128,8 +133,9 @@ lab.experiment('games list', function () {
 
   lab.afterEach(function (done) {
 
-    db.query('TRUNCATE games');
-    done();
+    db.query('TRUNCATE games', function () {
+      done();
+    });
   });
 
 
