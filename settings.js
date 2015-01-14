@@ -1,3 +1,5 @@
+'use strict';
+
 var settings_local = {};
 
 var settings_path = process.env.GALAXY_API_SETTINGS;
