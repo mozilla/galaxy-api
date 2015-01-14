@@ -5,10 +5,21 @@ var Code = require('code');
 var Promise = require('es6-promise').Promise;
 
 var db = require('../../../lib/db');
+var server = require('../../../');
+
 
 var lab = exports.lab = Lab.script();
 var req;
-var server = require('../../../');
+
+
+var internals = {
+  sampleGameObj: {
+    name: 'no flex zone',
+    slug: 'no-flex-zone',
+    game_url: 'https://no.flexzo.ne',
+    description: 'no flexing in this zone'
+  }
+};
 
 
 function submitGame(done) {
@@ -16,12 +27,7 @@ function submitGame(done) {
     req = {
       method: 'POST',
       url: '/games',
-      payload: {
-        name: 'no flex zone',
-        slug: 'no-flex-zone',
-        game_url: 'https://no.flexzo.ne',
-        description: 'no flexing in this zone'
-      }
+      payload: internals.sampleGameObj
     };
 
     server.inject(req, function (res) {
@@ -29,22 +35,24 @@ function submitGame(done) {
       Code.expect(res.result).to.be.an.object().and
           .not.contain(['error', 'validation']);
 
-      Code.expect(res.result).to.deep.equal({
-        name: req.payload.name,
-        slug: req.payload.slug,
-        game_url: req.payload.game_url,
-        description: req.payload.description
-      });
+      Code.expect(res.result).to.deep.equal(internals.sampleGameObj);
 
       Code.expect(res.statusCode).to.equal(201);
-      Code.expect(res.headers.location).to.equal(
-        '/games/' + req.payload.slug);
+      Code.expect(res.headers.location).to.equal('/games/no-flex-zone');
 
-      if (done) {
-        resolve();
-      } else {
-        resolve(req);
-      }
+      var Game = require('../../../api/models/game');
+      Game.objects.get({idOrSlug: internals.sampleGameObj.slug})
+      .then(function (result) {
+
+        Code.expect(result).to.contain(internals.sampleGameObj);
+      }).then(function () {
+
+        if (done) {
+          resolve();
+        } else {
+          resolve(req);
+        }
+      });
     });
   });
 }
@@ -159,7 +167,7 @@ lab.experiment('game list', function () {
 
   lab.test('returns an array when game(s) exist(s)', function (done) {
 
-    submitGame().then(function (prevReq) {
+    submitGame().then(function () {
 
       req = {
         method: 'GET',
@@ -170,12 +178,7 @@ lab.experiment('game list', function () {
 
         Code.expect(res.result).to.be.a.length(1).array();
 
-        Code.expect(res.result[0]).to.deep.equal({
-          name: prevReq.payload.name,
-          slug: prevReq.payload.slug,
-          game_url: prevReq.payload.game_url,
-          description: prevReq.payload.description
-        });
+        Code.expect(res.result[0]).to.deep.equal(internals.sampleGameObj);
 
         Code.expect(res.statusCode).to.equal(200);
 
@@ -213,7 +216,7 @@ lab.experiment('game detail', function () {
 
   lab.test('returns an object when game exists', function (done) {
 
-    submitGame().then(function (prevReq) {
+    submitGame().then(function () {
 
       req = {
         method: 'GET',
@@ -222,12 +225,7 @@ lab.experiment('game detail', function () {
 
       server.inject(req, function (res) {
 
-        Code.expect(res.result).to.deep.equal({
-          name: prevReq.payload.name,
-          slug: prevReq.payload.slug,
-          game_url: prevReq.payload.game_url,
-          description: prevReq.payload.description
-        });
+        Code.expect(res.result).to.deep.equal(internals.sampleGameObj);
 
         Code.expect(res.statusCode).to.equal(200);
 
