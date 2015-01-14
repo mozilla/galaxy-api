@@ -41,11 +41,16 @@ function submitGame(done) {
       Code.expect(res.headers.location).to.equal('/games/no-flex-zone');
 
       var Game = require('../../../api/models/game');
-      Game.objects.get({idOrSlug: internals.sampleGameObj.slug})
+      Game.objects.exists({idOrSlug: internals.sampleGameObj.slug})
+      .then(function (result) {
+
+        return Game.objects.get({idOrSlug: internals.sampleGameObj.slug});
+      })
       .then(function (result) {
 
         Code.expect(result).to.contain(internals.sampleGameObj);
-      }).then(function () {
+      })
+      .then(function () {
 
         if (done) {
           resolve();
@@ -214,7 +219,7 @@ lab.experiment('game detail', function () {
   });
 
 
-  lab.test('returns an object when game exists', function (done) {
+  lab.test('returns a game when game exists', function (done) {
 
     submitGame().then(function () {
 
@@ -230,6 +235,61 @@ lab.experiment('game detail', function () {
         Code.expect(res.statusCode).to.equal(200);
 
         done();
+      });
+    });
+  });
+});
+
+
+lab.experiment('game delete', function () {
+
+
+  lab.afterEach(function (done) {
+
+    db.query('TRUNCATE games', function () {
+      done();
+    });
+  });
+
+
+  lab.test('returns a 404 when game does not exist', function (done) {
+
+    req = {
+      method: 'DELETE',
+      url: '/games/no-flex-zone'
+    };
+
+    server.inject(req, function (res) {
+
+      Code.expect(res.statusCode).to.equal(404);
+
+      done();
+    });
+  });
+
+
+  lab.test('deletes a game when game exists', function (done) {
+
+    submitGame().then(function () {
+
+      req = {
+        method: 'DELETE',
+        url: '/games/no-flex-zone'
+      };
+
+      server.inject(req, function (res) {
+
+        Code.expect(res.result).to.deep.equal({success: true});
+
+        Code.expect(res.statusCode).to.equal(200);
+
+        var Game = require('../../../api/models/game');
+        Game.objects.exists({idOrSlug: 'no-flex-zone'}).catch(function (err) {
+
+          Code.expect(err).to.contain({name: 'DoesNotExist'});
+
+          done();
+        });
       });
     });
   });

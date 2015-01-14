@@ -123,7 +123,7 @@ Game.objects._select = function (data, columns) {
         return reject(utils.errors.DoesNotExist());
       }
 
-      resolve(result.rows[0]);
+      resolve(columns === '1' ? true : result.rows[0]);
     });
   });
 };
