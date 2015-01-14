@@ -23,8 +23,6 @@ exports.POSTGRES_URL = 'postgres://localhost/galaxy-api';
 
 exports.SECRET = 'a secret string';
 
-for (var k in settings_local) {
-  if (settings_local.hasOwnProperty(k)) {
-    exports[k] = settings_local[k];
-  }
-}
+Object.keys(settings_local).forEach(function (k) {
+  exports[k] = settings_local[k];
+});

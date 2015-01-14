@@ -1,8 +1,5 @@
 'use strict';
 
-// Polyfill for ES6's Promises, replaces the global namespace Promise object.
-require('es6-promise').polyfill();
-
 var Lab = require('lab');
 var Code = require('code');
 

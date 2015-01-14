@@ -1,6 +1,9 @@
 'use strict';
 var Hapi = require('hapi');
 
+// Polyfill for ES6's Promises, replaces the global namespace Promise object.
+require('es6-promise').polyfill();
+
 var db = require('./lib/db');
 var routes = require('./api/routes');
 var settings = require('./settings');

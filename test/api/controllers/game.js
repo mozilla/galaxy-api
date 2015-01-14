@@ -2,8 +2,6 @@
 var Lab = require('lab');
 var Code = require('code');
 
-var Promise = require('es6-promise').Promise;
-
 var db = require('../../../lib/db');
 var server = require('../../../');
 
