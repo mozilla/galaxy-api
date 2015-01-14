@@ -2,12 +2,13 @@
   "name": "galaxy-api",
   "description": "Galaxy API",
   "dependencies": {
+    "boom": "^2.6.1",
     "es6-promise": "^1.0.0",
     "hapi": "^8.0.0",
     "joi": "^5.0.2",
-    "pg": "^4.1.1",
     "node-pg-migrate": "0.0.7",
-    "boom": "^2.6.1"
+    "pg": "^4.1.1",
+    "steam": "^0.6.7"
   },
   "devDependencies": {
     "gulp": "^3.8.7",
