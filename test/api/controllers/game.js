@@ -19,7 +19,8 @@ function submitGame(done) {
       payload: {
         name: 'no flex zone',
         slug: 'no-flex-zone',
-        game_url: 'https://no.flexzo.ne'
+        game_url: 'https://no.flexzo.ne',
+        description: 'no flexing in this zone'
       }
     };
 
@@ -32,7 +33,7 @@ function submitGame(done) {
         name: req.payload.name,
         slug: req.payload.slug,
         game_url: req.payload.game_url,
-        description: null
+        description: req.payload.description
       });
 
       Code.expect(res.statusCode).to.equal(201);
@@ -167,7 +168,7 @@ lab.experiment('games list', function () {
           name: prevReq.payload.name,
           slug: prevReq.payload.slug,
           game_url: prevReq.payload.game_url,
-          description: null
+          description: prevReq.payload.description
         });
 
         Code.expect(res.statusCode).to.equal(200);
