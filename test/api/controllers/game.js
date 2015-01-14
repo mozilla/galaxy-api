@@ -128,7 +128,7 @@ lab.experiment('game creation', function () {
 });
 
 
-lab.experiment('games list', function () {
+lab.experiment('game list', function () {
 
 
   lab.afterEach(function (done) {
@@ -171,6 +171,58 @@ lab.experiment('games list', function () {
         Code.expect(res.result).to.be.a.length(1).array();
 
         Code.expect(res.result[0]).to.deep.equal({
+          name: prevReq.payload.name,
+          slug: prevReq.payload.slug,
+          game_url: prevReq.payload.game_url,
+          description: prevReq.payload.description
+        });
+
+        Code.expect(res.statusCode).to.equal(200);
+
+        done();
+      });
+    });
+  });
+});
+
+
+lab.experiment('game detail', function () {
+
+
+  lab.afterEach(function (done) {
+
+    db.query('TRUNCATE games', done);
+  });
+
+
+  lab.test('returns a 404 when game does not exist', function (done) {
+
+    req = {
+      method: 'GET',
+      url: '/games/no-flex-zone'
+    };
+
+    server.inject(req, function (res) {
+
+      Code.expect(res.statusCode).to.equal(404);
+
+      done();
+    });
+  });
+
+
+  lab.test('returns an object when game exists', function (done) {
+
+    submitGame().then(function (prevReq) {
+
+      req = {
+        method: 'GET',
+        url: '/games/no-flex-zone'
+      };
+
+      server.inject(req, function (res) {
+
+        Code.expect(res.result).to.deep.equal({
           name: prevReq.payload.name,
           slug: prevReq.payload.slug,
           game_url: prevReq.payload.game_url,
