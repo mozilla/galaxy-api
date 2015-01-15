@@ -97,10 +97,7 @@ Game.objects.create = function (data) {
         return reject(utils.errors.DoesNotExist());
       }
 
-      resolve({
-        body: result.rows[0],
-        uri: '/games/' + result.rows[0].slug
-      });
+      resolve(result.rows[0]);
     });
   });
 };
@@ -184,12 +181,10 @@ Game.objects.update = function (dataToFetchBy, dataToSave) {
           return reject(utils.errors.DoesNotExist());
         }
 
-        var res = {
-          body: result.rows[0]
-        };
+        var res = result.rows[0];
 
-        if (game.slug !== result.rows[0].slug) {
-          res.uri = '/games/' + result.rows[0].slug;
+        if (game.slug !== res.slug) {
+          res._slugChanged = true;
         }
 
         resolve(res);
