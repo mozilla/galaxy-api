@@ -1,7 +1,6 @@
-var Promise = require('es6-promise').Promise;
+'use strict';
 
 var db = require('../../lib/db');
-var server = require('../../index.js');
 var utils = require('../../lib/utils');
 
 
@@ -66,7 +65,7 @@ Game.getPublicObj = function (row) {
 Game.objects = {};
 
 
-Game.objects.all = function (data) {
+Game.objects.all = function () {
   return new Promise(function (resolve, reject) {
     db.query('SELECT * FROM games WHERE deleted = false',
       function (err, result) {

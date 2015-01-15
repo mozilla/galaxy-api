@@ -1,3 +1,5 @@
+'use strict';
+
 var settings_local = {};
 
 var settings_path = process.env.GALAXY_API_SETTINGS;
@@ -23,6 +25,6 @@ exports.POSTGRES_URL = 'postgres://localhost/galaxy-api';
 
 exports.SECRET = 'a secret string';
 
-for (var k in settings_local) {
+Object.keys(settings_local).forEach(function (k) {
   exports[k] = settings_local[k];
-}
+});
