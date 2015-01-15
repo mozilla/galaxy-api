@@ -49,41 +49,43 @@ lab.experiment('utils.errors', function () {
 });
 
 
-lab.experiment('utils.isStringAnInt', function () {
+lab.experiment('utils.isStringAUuid', function () {
 
-  lab.test('returns true for zero', function (done) {
+  lab.test('returns true for uuid v4', function (done) {
 
-    Code.expect(utils.isStringAnInt('0')).to.equal(true);
+    Code.expect(utils.isStringAUuid('dcfe8eb3-073d-4f22-8fa9-ae3680e877b0'))
+        .to.equal(true);
+    Code.expect(utils.isStringAUuid('a262a8a2-f5d5-49df-b9e3-88bfdfe22e10'))
+        .to.equal(true);
     done();
   });
 
-  lab.test('returns true for positive integers', function (done) {
+  lab.test('returns false for uuid non-v4', function (done) {
 
-    Code.expect(utils.isStringAnInt('5')).to.equal(true);
-    done();
-  });
-
-  lab.test('returns true for negative integers', function (done) {
-
-    Code.expect(utils.isStringAnInt('5')).to.equal(true);
+    // UUID v1
+    Code.expect(utils.isStringAUuid('e5d453c0-9ca9-11e4-89d3-123b93f75cba'))
+        .to.equal(false);
+    // UUID v3
+    Code.expect(utils.isStringAUuid('bfd28b1c-0c1f-9045-90e2-09e65d58c518'))
+        .to.equal(false);
     done();
   });
 
   lab.test('returns false for strings', function (done) {
 
-    Code.expect(utils.isStringAnInt('a')).to.equal(false);
+    Code.expect(utils.isStringAUuid('a')).to.equal(false);
     done();
   });
 
   lab.test('returns false for strings with integers', function (done) {
 
-    Code.expect(utils.isStringAnInt('a5')).to.equal(false);
+    Code.expect(utils.isStringAUuid('a5')).to.equal(false);
     done();
   });
 
   lab.test('returns false for floats', function (done) {
 
-    Code.expect(utils.isStringAnInt('5.0')).to.equal(false);
+    Code.expect(utils.isStringAUuid('5.0')).to.equal(false);
     done();
   });
 });

@@ -113,12 +113,12 @@ Game.objects.create = function (data) {
 
 Game.objects._select = function (data, columns) {
   return new Promise(function (resolve, reject) {
-    var query = (utils.isStringAnInt(data.idOrSlug) ?
+    var query = (utils.isStringAUuid(data.uuidOrSlug) ?
       'SELECT ' + columns + ' FROM games WHERE uuid = $1 AND deleted = false' :
       'SELECT ' + columns + ' FROM games WHERE slug = $1 AND deleted = false'
     );
 
-    db.query(query, [data.idOrSlug], function (err, result) {
+    db.query(query, [data.uuidOrSlug], function (err, result) {
       if (err) {
         return reject(utils.errors.DatabaseError(err));
       }
@@ -147,12 +147,12 @@ Game.objects.remove = function (data) {
   return Game.objects.exists(data).then(function () {
 
     return new Promise(function (resolve, reject) {
-      var query = (utils.isStringAnInt(data.idOrSlug) ?
+      var query = (utils.isStringAUuid(data.uuidOrSlug) ?
         'UPDATE games SET deleted = true WHERE uuid = $1' :
         'UPDATE games SET deleted = true WHERE slug = $1'
       );
 
-      db.query(query, [data.idOrSlug], function (err, result) {
+      db.query(query, [data.uuidOrSlug], function (err, result) {
         if (err) {
           return reject(utils.errors.DatabaseError(err));
         }
