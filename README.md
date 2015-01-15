@@ -11,25 +11,63 @@ There is a REST HTTP API and WebSocket API. The REST API can be consumed by game
 
 ## Installation
 
-To install dependencies:
+1. Ensure prerequisities are installed:
 
-    npm install
+    * [__PostgreSQL__](http://www.postgresql.org/)
 
-Other dependencies:
+	    To install using [Homebrew](http://brew.sh/) on Mac OS X:
 
-* PostgreSQL (`brew install postgresql && brew info postgresql` using [Homebrew](http://brew.sh/) on Mac OS X)
+            brew install postgresql
+            brew info postgresql
 
-Create a PostgreSQL database (using `settings.POSTGRES_URL` from `settings_dev.js`):
+2. Install Node dependencies:
 
-    npm run refreshdb-dev
+        npm install
+
+    These production dependencies will be installed:
+
+    * [__hapi__](https://github.com/hapijs/hapi):
+    a simple framework for developing web services + APIs
+        * [__boom__](https://github.com/hapijs/boom):
+        utilities for returning HTTP errors
+        * [__joi__](https://github.com/hapijs/joi):
+        schema validator for JS objects and API request payloads
+    * [__pg__](https://github.com/brianc/node-postgres):
+    a PostgreSQL client with pure JS and optional native libpq bindings
+        * [__node-pg-migrate__](https://github.com/theoephraim/node-pg-migrate):
+        a tool for PostgreSQL migrations
+    * [__es6-promise__](https://github.com/jakearchibald/es6-promise):
+    to polyfill ES6 promises for Node, so we can avoid callbacks
+    * [__steam__](https://github.com/seishun/node-steam):
+    wrapper around [Steam](http://store.steampowered.com/)'s
+    [HTTP API](http://steamcommunity.com/dev) (can be used for authentication
+    and friends)
+
+    And these developer dependencies will be installed:
+
+    * [__lab__](https://github.com/hapijs/lab):
+    a test utility for Node, synergises well with hapi
+    * [__gulp__](https://github.com/gulpjs/gulp/):
+    a streaming build system and task runner — used for such tasks as
+    code linting and running database migrations & operations.
+    * [a bunch of related packages for build tasks](package.json)
+
+3. Create a PostgreSQL database (using `settings.POSTGRES_URL` from `settings_dev.js`):
+
+        npm run refreshdb-dev
+
+4. Initialise settings, if you haven't already:
+
+        cp ./settings_dev.js.dist ./settings_dev.js
+        cp ./settings_prod.js.dist ./settings_prod.js
+        cp ./settings_test.js.dist ./settings_test.js
 
 
-## Development
+## Developing locally
 
 Initialise settings, if you haven't already:
 
     cp ./settings_dev.js.dist ./settings_dev.js
-    cp ./settings_test.js.dist ./settings_test.js
 
 To run the local web server:
 
@@ -39,14 +77,16 @@ To run with a different settings file:
 
     GALAXY_API_SETTINGS=./some_different_settings_dev.js npm run prod
 
+    npm run gulp -- lint
+
 To run linting tools:
 
     gulp lint
 
 
-## Production
+## Deploying to production
 
-Initialise settings if you haven't already:
+Initialise settings, if you haven't already:
 
     cp ./settings_prod.js.dist ./settings_prod.js
 
@@ -64,9 +104,9 @@ Alternatively, without `npm`:
     NODE_ENV=production GALAXY_API_SETTINGS=./some_different_settings_prod.js node index.js
 
 
-## Testing
+## Running tests
 
-Initialise settings:
+Initialise settings, if you haven't already:
 
     cp ./settings_test.js.dist ./settings_test.js
 
@@ -87,7 +127,9 @@ To run tests with coverage and linting:
     npm run test-verbose
 
 
-## Database
+## Working with the database
+
+All data is currently stored in a relational PostgreSQL database (previously redis was used).
 
 ### `gulp` tasks
 
