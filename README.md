@@ -175,66 +175,85 @@ https://github.com/mozilla/galaxy-api/blob/master/api/controllers/game.js
 
 To retrieve a list of all game resources.
 
-    curl 'http://localhost:4000/games' \
-      -H 'Content-Type: application/json' -i
+```
+curl 'http://localhost:4000/games' \
+  -H 'Content-Type: application/json' -i
+```
 
 #### [`POST /games`] [gameControllers]
 
 To create a game resource.
 
-  curl -X POST 'http://localhost:4000/games' \
-    -H 'Content-Type: application/json' -i -d@- <<EOF
-    {
-      "name": "mario bros",
-      "game_url": "http://nintendo.com",
-      "slug": "mario"
-    }
-    EOF
+```
+curl -X POST 'http://localhost:4000/games' \
+  -H 'Content-Type: application/json' -i -d@- <<EOF
+  {
+    "name": "mario bros",
+    "game_url": "http://nintendo.com",
+    "slug": "mario"
+  }
+EOF
+```
 
 #### [`GET /games/{idOrSlug}`] [gameControllers]
 
 To retrieve a game resource.
 
-    curl 'http://localhost:4000/games/1' \
-      -H 'Content-Type: application/json' -i
+```
+curl 'http://localhost:4000/games/1' \
+  -H 'Content-Type: application/json' -i
+```
 
-    curl 'http://localhost:4000/games/mario' \
-      -H 'Content-Type: application/json' -i
+```
+curl 'http://localhost:4000/games/mario' \
+  -H 'Content-Type: application/json' -i
+```
 
 #### [`DELETE /games/{idOrSlug}`] [gameControllers]
 
 To (soft-)delete a game resource.
 
-    curl -X DELETE 'http://localhost:4000/games/1' -i
-    curl -X DELETE 'http://localhost:4000/games/mario' -i
+```
+curl -X DELETE 'http://localhost:4000/games/1' -i
+```
+
+```
+curl -X DELETE 'http://localhost:4000/games/mario' -i
+```
 
 #### [`PUT /games/{idOrSlug}`] [gameControllers]
 
 To update a game resource.
 
-    curl -X PUT 'http://localhost:4000/games/1' \
-      -H 'Content-Type: application/json' -i -d@- <<EOF
-      {
-        "name": "mario bros",
-        "game_url": "http://nintendo.com",
-        "slug": "mario"
-      }
-    EOF
+```
+curl -X PUT 'http://localhost:4000/games/1' \
+  -H 'Content-Type: application/json' -i -d@- <<EOF
+  {
+    "name": "mario bros",
+    "game_url": "http://nintendo.com",
+    "slug": "mario"
+  }
+EOF
+```
 
-    curl -X PUT 'http://localhost:4000/games/mario' \
-      -H 'Content-Type: application/json' -i -d@- <<EOF
-      {
-        "name": "mario bros",
-        "game_url": "http://nintendo.com",
-        "slug": "mario"
-      }
-    EOF
+```
+curl -X PUT 'http://localhost:4000/games/mario' \
+  -H 'Content-Type: application/json' -i -d@- <<EOF
+  {
+    "name": "mario bros",
+    "game_url": "http://nintendo.com",
+    "slug": "mario"
+  }
+EOF
+```
 
-    curl -X PUT 'http://localhost:4000/games/wario' \
-      -H 'Content-Type: application/json' -i -d@- <<EOF
-      {
-        "name": "wario bros",
-        "game_url": "http://wintendo.com",
-        "slug": "wario"
-      }
-    EOF
+```
+curl -X PUT 'http://localhost:4000/games/wario' \
+  -H 'Content-Type: application/json' -i -d@- <<EOF
+  {
+    "name": "wario bros",
+    "game_url": "http://wintendo.com",
+    "slug": "wario"
+  }
+EOF
+```
