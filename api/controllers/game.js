@@ -26,19 +26,36 @@ var gameSchema = {
 };
 
 
-exports.all = {
-  handler: function (request, reply) {
+// This wraps the handlers and calls the following for each the promise
+// returned by the controller handlers:
+//
+//   …
+//   .catch(function (err) {
+//
+//     reply(utils.returnError(err));
+//   });
+//
+var safeHandler = function (func) {
 
-    Game.objects.all(request.params)
-    .then(function (games) {
+  return function (request, reply) {
 
-      reply(games.map(Game.getPublicObj));
-    })
-    .catch(function (err) {
+    func.apply(this, arguments).catch(function (err) {
 
       reply(utils.returnError(err));
     });
-  }
+  };
+};
+
+
+exports.all = {
+  handler: safeHandler(function (request, reply) {
+
+    return Game.objects.all(request.params)
+    .then(function (games) {
+
+      reply(games.map(Game.getPublicObj));
+    });
+  })
 };
 
 
@@ -46,50 +63,38 @@ exports.create = {
   validate: {
     payload: gameSchema
   },
-  handler: function (request, reply) {
+  handler: safeHandler(function (request, reply) {
 
-    Game.objects.create(request.payload)
+    return Game.objects.create(request.payload)
     .then(function (res) {
 
       var body = Game.getPublicObj(res.body);
       var uri = res.uri;
 
       reply(body).created(uri);
-    })
-    .catch(function (err) {
-
-      reply(utils.returnError(err));
     });
-  }
+  })
 };
 
 
 exports.get = {
-  handler: function (request, reply) {
+  handler: safeHandler(function (request, reply) {
 
-    Game.objects.get(request.params)
+    return Game.objects.get(request.params)
     .then(function (game) {
 
       reply(Game.getPublicObj(game));
-    })
-    .catch(function (err) {
-
-      reply(utils.returnError(err));
     });
-  }
+  })
 };
 
 
 exports.remove = {
-  handler: function (request, reply) {
+  handler: safeHandler(function (request, reply) {
 
-    Game.objects.remove(request.params)
-    .then(reply)
-    .catch(function (err) {
-
-      reply(utils.returnError(err));
-    });
-  }
+    return Game.objects.remove(request.params)
+    .then(reply);
+  })
 };
 
 
@@ -97,9 +102,9 @@ exports.update = {
   validate: {
     payload: gameSchema
   },
-  handler: function (request, reply) {
+  handler: safeHandler(function (request, reply) {
 
-    Game.objects.update(request.params, request.payload)
+    return Game.objects.update(request.params, request.payload)
     .then(function (res) {
 
       var body = Game.getPublicObj(res.body);
@@ -110,10 +115,6 @@ exports.update = {
       }
 
       reply(body);
-    })
-    .catch(function (err) {
-
-      reply(utils.returnError(err));
     });
-  }
+  })
 };
