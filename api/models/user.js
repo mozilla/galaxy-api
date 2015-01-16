@@ -20,6 +20,15 @@ User.getPublicObj = function (row) {
 };
 
 
+User.login = function () {
+
+  return new Promise(function () {
+
+    // TODO: Log in via Steam.
+  });
+};
+
+
 User.objects = {};
 
 
