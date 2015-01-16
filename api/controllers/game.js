@@ -68,10 +68,9 @@ exports.create = {
     return Game.objects.create(request.payload)
     .then(function (res) {
 
-      var body = Game.getPublicObj(res.body);
-      var uri = res.uri;
+      var body = Game.getPublicObj(res);
 
-      reply(body).created(uri);
+      reply(body).created('/games/' + body.slug);
     });
   })
 };
@@ -107,14 +106,13 @@ exports.update = {
     return Game.objects.update(request.params, request.payload)
     .then(function (res) {
 
-      var body = Game.getPublicObj(res.body);
-      var uri = res.uri;
+      var body = Game.getPublicObj(res);
 
-      if (uri) {
-        return reply(body).redirect(uri);
+      if (res._slugChanged) {
+        reply(body).redirect('/games/' + body.slug);
+      } else {
+        reply(body);
       }
-
-      reply(body);
     });
   })
 };
