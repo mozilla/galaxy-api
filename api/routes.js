@@ -6,45 +6,13 @@ var User = require('./controllers/user');
 
 module.exports = function (server) {
 
+  var route = server.route;
 
-  server.route({
-    method: 'GET',
-    path: '/games',
-    config: Game.all
-  });
+  route({method: 'GET', path: '/games', config: Game.all});
+  route({method: 'POST', path: '/games', config: Game.create});
+  route({method: 'GET', path: '/games/{idOrSlug}', config: Game.get});
+  route({method: 'DELETE', path: '/games/{idOrSlug}', config: Game.remove});
+  route({method: 'PUT', path: '/games/{idOrSlug}', config: Game.update});
 
-
-  server.route({
-    method: 'POST',
-    path: '/games',
-    config: Game.create
-  });
-
-
-  server.route({
-    method: 'GET',
-    path: '/games/{idOrSlug}',
-    config: Game.get
-  });
-
-
-  server.route({
-    method: 'DELETE',
-    path: '/games/{idOrSlug}',
-    config: Game.remove
-  });
-
-
-  server.route({
-    method: 'PUT',
-    path: '/games/{idOrSlug}',
-    config: Game.update
-  });
-
-
-  server.route({
-    method: 'POST',
-    path: '/user/login',
-    config: User.login
-  });
+  route({method: 'POST', path: '/user/login', config: User.login});
 };
