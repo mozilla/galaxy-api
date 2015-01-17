@@ -22,7 +22,7 @@ server.connection({
   }
 });
 
-routes(server);
+server.route(routes);
 
 // Do not start the server when this script is required by another script.
 if (!module.parent) {
