@@ -1,4 +1,5 @@
 'use strict';
+var Steam = require('steam');
 
 
 var internals = {
@@ -24,7 +25,13 @@ User.login = function () {
 
   return new Promise(function () {
 
-    // TODO: Log in via Steam.
+    console.log('login');
+    var bot = new Steam.SteamClient();
+    bot.logOn({
+      accountName: 'username',
+      password: 'password'
+    });
+    bot.on('loggedOn', function() { /* ... */});
   });
 };
 
