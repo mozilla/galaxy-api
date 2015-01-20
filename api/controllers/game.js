@@ -26,29 +26,8 @@ var gameSchema = {
 };
 
 
-// This wraps the handlers and calls the following for each the promise
-// returned by the controller handlers:
-//
-//   …
-//   .catch(function (err) {
-//
-//     reply(utils.returnError(err));
-//   });
-//
-var safeHandler = function (func) {
-
-  return function (request, reply) {
-
-    func.apply(this, arguments).catch(function (err) {
-
-      reply(utils.returnError(err));
-    });
-  };
-};
-
-
 exports.all = {
-  handler: safeHandler(function (request, reply) {
+  handler: utils.safeHandler(function (request, reply) {
 
     return Game.objects.all(request.params)
     .then(function (games) {
@@ -63,7 +42,7 @@ exports.create = {
   validate: {
     payload: gameSchema
   },
-  handler: safeHandler(function (request, reply) {
+  handler: utils.safeHandler(function (request, reply) {
 
     return Game.objects.create(request.payload)
     .then(function (res) {
@@ -77,7 +56,7 @@ exports.create = {
 
 
 exports.get = {
-  handler: safeHandler(function (request, reply) {
+  handler: utils.safeHandler(function (request, reply) {
 
     return Game.objects.get(request.params)
     .then(function (game) {
@@ -89,7 +68,7 @@ exports.get = {
 
 
 exports.remove = {
-  handler: safeHandler(function (request, reply) {
+  handler: utils.safeHandler(function (request, reply) {
 
     return Game.objects.remove(request.params)
     .then(reply);
@@ -101,7 +80,7 @@ exports.update = {
   validate: {
     payload: gameSchema
   },
-  handler: safeHandler(function (request, reply) {
+  handler: utils.safeHandler(function (request, reply) {
 
     return Game.objects.update(request.params, request.payload)
     .then(function (res) {
