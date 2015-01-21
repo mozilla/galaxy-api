@@ -23,6 +23,9 @@ exports.PORT = 4000;
 // Usage: postgres://user:password@host/database
 exports.POSTGRES_URL = 'postgres://localhost/galaxy-api';
 
+// Get a Steam API key here: http://steamcommunity.com/dev/apikey
+exports.STEAM_KEY = '';
+
 exports.SECRET = 'a secret string';
 
 Object.keys(settings_local).forEach(function (k) {

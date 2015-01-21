@@ -5,8 +5,10 @@
     "boom": "^2.6.1",
     "es6-promise": "^1.0.0",
     "hapi": "^8.0.0",
+    "hapi-passport": "0.0.5",
     "joi": "^5.0.2",
     "node-pg-migrate": "0.0.7",
+    "passport-steam": "^0.1.4",
     "pg": "^4.1.1",
     "steam": "^0.6.7"
   },

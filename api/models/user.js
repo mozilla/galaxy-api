@@ -23,15 +23,9 @@ User.getPublicObj = function (row) {
 
 User.login = function () {
 
-  return new Promise(function () {
+  return new Promise(function (resolve) {
 
-    console.log('login');
-    var bot = new Steam.SteamClient();
-    bot.logOn({
-      accountName: 'username',
-      password: 'password'
-    });
-    bot.on('loggedOn', function() { /* ... */});
+    resolve({});
   });
 };
 
@@ -52,7 +46,10 @@ User.objects.create = function () {
 
 
 User.objects._select = function () {
-  return new Promise(function () {
+  return new Promise(function (resolve) {
+
+    // TODO: Do actual DB logic.
+    resolve({});
   });
 };
 
