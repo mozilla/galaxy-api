@@ -22,7 +22,7 @@ var gameSchema = {
   // and must contain only letters, numbers, underscores, and hyphens.
   // TODO: Throw an error if `slug` is already taken.
   slug: Joi.string().regex(/^(?!\d*$)(?!_*$)(?!-*$)[\w-]+$/).required()
-  .example('mario-bros')
+           .example('mario-bros')
 };
 
 
