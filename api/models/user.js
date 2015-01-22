@@ -1,4 +1,5 @@
 'use strict';
+var Steam = require('steam');
 
 
 var internals = {
@@ -22,9 +23,9 @@ User.getPublicObj = function (row) {
 
 User.login = function () {
 
-  return new Promise(function () {
+  return new Promise(function (resolve) {
 
-    // TODO: Log in via Steam.
+    resolve({});
   });
 };
 
@@ -45,7 +46,10 @@ User.objects.create = function () {
 
 
 User.objects._select = function () {
-  return new Promise(function () {
+  return new Promise(function (resolve) {
+
+    // TODO: Do actual DB logic.
+    resolve({});
   });
 };
 
