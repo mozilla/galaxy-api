@@ -12,6 +12,6 @@ module.exports = [
   {method: 'DELETE', path: '/games/{idOrSlug}', config: Game.remove},
   {method: 'PUT', path: '/games/{idOrSlug}', config: Game.update},
 
-  {method: 'GET', path: '/auth/steam', config: User.steamAuth},
-  {method: 'GET', path: '/auth/steam/return', config: User.steamReturn}
+  {method: 'GET', path: '/auth/steam', config: User.steamAuthenticate},
+  {method: 'GET', path: '/auth/steam/verify', config: User.steamVerify}
 ];

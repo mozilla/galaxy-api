@@ -8,6 +8,7 @@
     "hapi-passport": "0.0.5",
     "joi": "^5.0.2",
     "node-pg-migrate": "0.0.7",
+    "openid": "^0.5.9",
     "passport-steam": "^0.1.4",
     "pg": "^4.1.1",
     "steam": "^0.6.7"

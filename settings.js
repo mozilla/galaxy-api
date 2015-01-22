@@ -24,7 +24,10 @@ exports.PORT = 4000;
 exports.POSTGRES_URL = 'postgres://localhost/galaxy-api';
 
 // Get a Steam API key here: http://steamcommunity.com/dev/apikey
+// Appended to URLs as a `key` query-string parameter.
 exports.STEAM_KEY = '';
+// Provider URL listed here: http://steamcommunity.com/dev/
+exports.STEAM_PROVIDER_URL = 'http://steamcommunity.com/openid';
 
 exports.SECRET = 'a secret string';
 
