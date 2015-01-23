@@ -49,7 +49,7 @@ exports.create = {
 
       var body = Game.getPublicObj(res);
 
-      reply(body).created('/games/' + body.slug);
+      reply(body).created('/games/' + res.uuid);
     });
   })
 };
