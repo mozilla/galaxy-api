@@ -193,6 +193,7 @@ Game.objects.update = function (dataToFetchBy, dataToSave) {
 
         if (game.slug !== res.slug) {
           res._slugChanged = true;
+          res._uuid = game.uuid;
         }
 
         resolve(res);

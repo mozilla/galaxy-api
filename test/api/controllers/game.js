@@ -19,6 +19,11 @@ var internals = {
   }
 };
 
+var gameUrlRegex = new RegExp(
+  '\/games\/' +
+  '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}'
+);
+
 
 function submitGame(done) {
   return new Promise(function (resolve) {
@@ -39,12 +44,7 @@ function submitGame(done) {
       Code.expect(res.statusCode).to.equal(201);
 
       // Make sure the Game has a valid UUID v4.
-      Code.expect(res.headers.location).to.match(
-        new RegExp(
-          '\/games\/' +
-          '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}'
-        )
-      );
+      Code.expect(res.headers.location).to.match(gameUrlRegex);
 
       var uuid = res.headers.location.match(new RegExp(
         '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}'
@@ -454,7 +454,7 @@ lab.experiment('game update', function () {
         Code.expect(res.result).to.deep.equal(updatedGameObj);
 
         Code.expect(res.statusCode).to.equal(302);
-        Code.expect(res.headers.location).to.equal('/games/throw-some-mo');
+        Code.expect(res.headers.location).to.match(gameUrlRegex);
 
         done();
       });
