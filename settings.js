@@ -19,7 +19,7 @@ var settings_path = process.env.GALAXY_API_SETTINGS;
 if (settings_path) {
   var settings_local = {};
 
-  if (settings_path.substr(0, 2) !== './') {
+  if (settings_path[0] !== '/' && settings_path.substr(0, 2) !== './') {
     // Assume it's a relative path.
     settings_path = './' + settings_path;
   }
