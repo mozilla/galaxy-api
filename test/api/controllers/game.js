@@ -19,6 +19,11 @@ var internals = {
   }
 };
 
+var gameUrlRegex = new RegExp(
+  '\/games\/' +
+  '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}'
+);
+
 
 function submitGame(done) {
   return new Promise(function (resolve) {
@@ -37,15 +42,27 @@ function submitGame(done) {
       Code.expect(res.result).to.deep.equal(internals.sampleGameObj);
 
       Code.expect(res.statusCode).to.equal(201);
-      Code.expect(res.headers.location).to.equal('/games/no-flex-zone');
+
+      // Make sure the Game has a valid UUID v4.
+      Code.expect(res.headers.location).to.match(gameUrlRegex);
+
+      var uuid = res.headers.location.match(new RegExp(
+        '[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}'
+      ))[0];
 
       var Game = require('../../../api/models/game');
-      Game.objects.exists({idOrSlug: internals.sampleGameObj.slug})
+      Game.objects.exists({uuidOrSlug: internals.sampleGameObj.slug})
       .then(function (result) {
 
         Code.expect(result).to.equal(true);
 
-        return Game.objects.get({idOrSlug: internals.sampleGameObj.slug});
+        return Game.objects.exists({uuidOrSlug: uuid});
+      })
+      .then(function (result) {
+
+        Code.expect(result).to.equal(true);
+
+        return Game.objects.get({uuidOrSlug: internals.sampleGameObj.slug});
       })
       .then(function (result) {
 
@@ -285,12 +302,12 @@ lab.experiment('game delete', function () {
         Code.expect(res.statusCode).to.equal(200);
 
         var Game = require('../../../api/models/game');
-        Game.objects.exists({idOrSlug: 'no-flex-zone'}).catch(function (err) {
-
-          Code.expect(err).to.contain({name: 'DoesNotExist'});
-
-          done();
-        });
+        Game.objects.exists({uuidOrSlug: 'no-flex-zone'}).catch(
+          function (err) {
+            Code.expect(err).to.contain({name: 'DoesNotExist'});
+            done();
+          }
+        );
       });
     });
   });
@@ -437,7 +454,7 @@ lab.experiment('game update', function () {
         Code.expect(res.result).to.deep.equal(updatedGameObj);
 
         Code.expect(res.statusCode).to.equal(302);
-        Code.expect(res.headers.location).to.equal('/games/throw-some-mo');
+        Code.expect(res.headers.location).to.match(gameUrlRegex);
 
         done();
       });

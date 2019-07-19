@@ -49,7 +49,7 @@ exports.create = {
 
       var body = Game.getPublicObj(res);
 
-      reply(body).created('/games/' + body.slug);
+      reply(body).created('/games/' + res.uuid);
     });
   })
 };
@@ -88,7 +88,7 @@ exports.update = {
       var body = Game.getPublicObj(res);
 
       if (res._slugChanged) {
-        reply(body).redirect('/games/' + body.slug);
+        reply(body).redirect('/games/' + res._uuid);
       } else {
         reply(body);
       }
